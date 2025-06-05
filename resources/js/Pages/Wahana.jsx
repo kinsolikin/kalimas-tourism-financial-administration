@@ -206,19 +206,17 @@ const Wahana = ({ incomeId, userId, auth }) => {
                 cancelButtonText: "Batal",
             });
             if (result.isConfirmed) {
+                // Jika perlu, simpan data shift di sini sebelum logout
                 Swal.fire({
-                    title: "Akhiri...",
-                    text: "Silakan tunggu...",
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    },
+                    title: "Berhasil",
+                    text: "Shift berhasil disimpan. Anda akan logout.",
+                    icon: "success",
+                    timer: 1500,
+                    showConfirmButton: false,
                 });
-                // Tunggu sebentar agar Swal loading muncul
                 setTimeout(() => {
-                    router.post("/logout");
-                }, 500);
-                // Tidak perlu Swal.close() manual, karena logout akan redirect
+                    router.post('/logout');
+                }, 1500);
             }
         } catch (error) {
             Swal.fire({
@@ -402,16 +400,28 @@ const Wahana = ({ incomeId, userId, auth }) => {
                                 {todaySummary.wahana.length > 0 ? (
                                     todaySummary.wahana.map((t, i) => (
                                         <li key={i}>
-                                            {t.nama_wahana || "-"} | Jumlah: {t.jumlah} | Rp {t.harga} | Total: Rp {(Number(t.harga) * Number(t.jumlah)).toLocaleString()} |{" "}
-                                            {new Date(t.created_at).toLocaleTimeString("id-ID")}
+                                            {t.nama_wahana || "-"} | Jumlah:{" "}
+                                            {t.jumlah} | Rp {t.harga} | Total:
+                                            Rp{" "}
+                                            {(
+                                                Number(t.harga) *
+                                                Number(t.jumlah)
+                                            ).toLocaleString()}{" "}
+                                            |{" "}
+                                            {new Date(
+                                                t.created_at
+                                            ).toLocaleTimeString("id-ID")}
                                         </li>
                                     ))
                                 ) : (
-                                    <li>Tidak ada transaksi wahana hari ini.</li>
+                                    <li>
+                                        Tidak ada transaksi wahana hari ini.
+                                    </li>
                                 )}
                             </ul>
                             <div className="mt-2 text-right font-semibold text-blue-700">
-                                Total Wahana: Rp {todaySummary.totalWahana.toLocaleString()}
+                                Total Wahana: Rp{" "}
+                                {todaySummary.totalWahana.toLocaleString()}
                             </div>
                         </div>
                         <div className="flex justify-center">
@@ -434,7 +444,9 @@ const Wahana = ({ incomeId, userId, auth }) => {
                     </h3>
                     <div className="flex gap-4 mb-4">
                         <div>
-                            <label className="block text-sm">Dari Tanggal</label>
+                            <label className="block text-sm">
+                                Dari Tanggal
+                            </label>
                             <input
                                 type="date"
                                 value={fromDate}
@@ -443,7 +455,9 @@ const Wahana = ({ incomeId, userId, auth }) => {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm">Sampai Tanggal</label>
+                            <label className="block text-sm">
+                                Sampai Tanggal
+                            </label>
                             <input
                                 type="date"
                                 value={toDate}
@@ -464,18 +478,33 @@ const Wahana = ({ incomeId, userId, auth }) => {
                         <table className="min-w-full text-sm">
                             <thead>
                                 <tr className="bg-gray-100">
-                                    <th className="px-2 py-1 text-left">Tanggal</th>
-                                    <th className="px-2 py-1 text-left">Nama Wahana</th>
-                                    <th className="px-2 py-1 text-right">Jumlah</th>
-                                    <th className="px-2 py-1 text-right">Harga</th>
-                                    <th className="px-2 py-1 text-right">Total</th>
-                                    <th className="px-2 py-1 text-center">Aksi</th>
+                                    <th className="px-2 py-1 text-left">
+                                        Tanggal
+                                    </th>
+                                    <th className="px-2 py-1 text-left">
+                                        Nama Wahana
+                                    </th>
+                                    <th className="px-2 py-1 text-right">
+                                        Jumlah
+                                    </th>
+                                    <th className="px-2 py-1 text-right">
+                                        Harga
+                                    </th>
+                                    <th className="px-2 py-1 text-right">
+                                        Total
+                                    </th>
+                                    <th className="px-2 py-1 text-center">
+                                        Aksi
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {transactions.length === 0 ? (
                                     <tr>
-                                        <td colSpan="6" className="text-center py-2 text-gray-400">
+                                        <td
+                                            colSpan="6"
+                                            className="text-center py-2 text-gray-400"
+                                        >
                                             Tidak ada transaksi.
                                         </td>
                                     </tr>
@@ -483,15 +512,30 @@ const Wahana = ({ incomeId, userId, auth }) => {
                                     transactions.map((t) => (
                                         <tr key={t.id} className="border-t">
                                             <td className="px-2 py-1">
-                                                {dayjs(t.created_at).format("DD/MM/YYYY")}
+                                                {dayjs(t.created_at).format(
+                                                    "DD/MM/YYYY"
+                                                )}
                                             </td>
-                                            <td className="px-2 py-1">{t.nama_wahana}</td>
-                                            <td className="px-2 py-1 text-right">{t.jumlah}</td>
-                                            <td className="px-2 py-1 text-right">Rp {t.harga.toLocaleString()}</td>
-                                            <td className="px-2 py-1 text-right">Rp {(t.harga * t.jumlah).toLocaleString()}</td>
+                                            <td className="px-2 py-1">
+                                                {t.nama_wahana}
+                                            </td>
+                                            <td className="px-2 py-1 text-right">
+                                                {t.jumlah}
+                                            </td>
+                                            <td className="px-2 py-1 text-right">
+                                                Rp {t.harga.toLocaleString()}
+                                            </td>
+                                            <td className="px-2 py-1 text-right">
+                                                Rp{" "}
+                                                {(
+                                                    t.harga * t.jumlah
+                                                ).toLocaleString()}
+                                            </td>
                                             <td className="px-2 py-1 text-center">
                                                 <button
-                                                    onClick={() => deleteTransaction(t.id)}
+                                                    onClick={() =>
+                                                        deleteTransaction(t.id)
+                                                    }
                                                     className="text-red-600 hover:underline"
                                                 >
                                                     Hapus

@@ -189,101 +189,110 @@ function Dashboardguest() {
         setTimeout(() => setFadeIn(true), 100);
     }, []);
 
+    // Contoh data pengeluaran (bisa diganti dengan data dari backend)
+    const [pengeluaran, setPengeluaran] = useState([
+        {
+            kategori: "Operasional Harian",
+            jumlah: 1200000,
+            keterangan: "Gaji petugas, listrik, air",
+        },
+        {
+            kategori: "Perawatan Fasilitas",
+            jumlah: 800000,
+            keterangan: "Perbaikan perahu & jembatan",
+        },
+        {
+            kategori: "Promosi & Publikasi",
+            jumlah: 500000,
+            keterangan: "Media sosial, spanduk",
+        },
+        {
+            kategori: "Kegiatan Event",
+            jumlah: 700000,
+            keterangan: "Biaya lomba & hiburan",
+        },
+    ]);
+
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-[#f7f8fa] font-sans">
             {/* Header */}
-            <header className="w-full py-4 px-4 flex flex-col md:flex-row items-center justify-between border-b border-gray-100 bg-white fixed top-0 left-0 z-50 transition-shadow duration-300 shadow-sm"
+            <header className="w-full py-4 px-4 flex flex-col md:flex-row items-center justify-between border-b border-gray-200 bg-white fixed top-0 left-0 z-50 shadow"
                 style={{ backdropFilter: "blur(2px)" }}>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                     <img
                         src="/assets/images/logo.jpeg"
                         alt="Kalimas Logo"
-                        className="w-10 h-10 "
+                        className="w-12 h-12 rounded"
                     />
-                    <span className="text-xl font-semibold text-gray-800">
+                    <span className="text-2xl font-bold text-gray-800 tracking-wide">
                         Wisata Kalimas
                     </span>
                 </div>
-                <nav className="mt-2 md:mt-0 flex gap-4 text-gray-600 text-sm font-medium">
-                    <a href="#data" className="hover:text-blue-500 transition">Data</a>
-                    <a href="#fasilitas" className="hover:text-blue-500 transition">Fasilitas</a>
-                    <a href="#testimoni" className="hover:text-blue-500 transition">Testimoni</a>
+                <nav className="mt-2 md:mt-0 flex gap-6 text-gray-700 text-base font-medium">
+                    <a href="#data" className="hover:text-blue-900 transition">Data</a>
+                    <a href="#fasilitas" className="hover:text-blue-900 transition">Fasilitas</a>
+                    <a href="#testimoni" className="hover:text-blue-900 transition">Testimoni</a>
                 </nav>
             </header>
 
             {/* Spacer for fixed navbar */}
-            <div className="h-20 md:h-16"></div>
+            <div className="h-24"></div>
 
             {/* Hero Section */}
-            <section className="flex flex-col md:flex-row items-center justify-between px-4 md:px-12 py-10 gap-6 bg-white">
+            <section className="flex flex-col md:flex-row items-center justify-between px-4 md:px-16 py-12 gap-8 bg-white border-b border-gray-200">
                 <div className="flex-1">
-                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
-                        Selamat Datang di{" "}
-                        <span className="text-blue-500">Wisata Kalimas</span>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-4 leading-tight">
+                        Selamat Datang di <span className="text-blue-900">Wisata Kalimas</span>
                     </h1>
-                    <p className="text-sm text-gray-600 mb-5">
-                        Nikmati keindahan dan keseruan wisata sungai
-                        Kalimas destinasi wisata keluarga yang memadukan pesona
-                        alam, budaya, dan modernitas di jantung kota Surabaya.
-                        Kami menyajikan pengalaman menyenangkan untuk semua
-                        kalangan: mulai dari susur sungai yang tenang, aneka
-                        kuliner khas yang menggugah selera, hingga hiburan
-                        menarik untuk seluruh keluarga.
+                    <p className="text-base text-gray-700 mb-4">
+                        Nikmati keindahan dan keseruan wisata sungai Kalimas, destinasi wisata keluarga yang memadukan pesona alam, budaya, dan modernitas di jantung kota Surabaya. Kami menyajikan pengalaman menyenangkan untuk semua kalangan: mulai dari susur sungai yang tenang, aneka kuliner khas yang menggugah selera, hingga hiburan menarik untuk seluruh keluarga.
                     </p>
-                    <p className="text-sm text-gray-600 mb-5">
-                        Di <strong>Wisata Kalimas</strong>, kami juga
-                        mengedepankan prinsip <strong>transparansi</strong>{" "}
-                        dalam pengelolaan. Untuk itu, kami menyediakan data
-                        terbuka yang mencakup: jumlah pengunjung harian dan
-                        bulanan, pemasukan dari tiket dan kegiatan wisata, serta
-                        aktivitas yang sedang dan akan berlangsung.
+                    <p className="text-base text-gray-700 mb-4">
+                        Di <strong>Wisata Kalimas</strong>, kami juga mengedepankan prinsip <strong>transparansi</strong> dalam pengelolaan. Untuk itu, kami menyediakan data terbuka yang mencakup: jumlah pengunjung harian dan bulanan, pemasukan dari tiket dan kegiatan wisata, serta aktivitas yang sedang dan akan berlangsung.
                     </p>
-                    <p className="text-sm text-gray-600 mb-5">
-                        Ayo jelajahi Kalimas dan lihat bagaimana setiap
-                        kunjungan Anda ikut berkontribusi untuk kemajuan wisata
-                        lokal.
+                    <p className="text-base text-gray-700 mb-6">
+                        Jelajahi Kalimas dan lihat bagaimana setiap kunjungan Anda ikut berkontribusi untuk kemajuan wisata lokal.
                     </p>
                     <a
                         href="#data"
-                        className="inline-block bg-blue-500 text-white px-5 py-2  transition font-medium text-sm hover:bg-blue-600 hover:scale-105 duration-200"
+                        className="inline-block bg-blue-900 text-white px-6 py-2 rounded font-semibold text-base hover:bg-blue-800 transition"
                     >
                         Lihat Data
                     </a>
                 </div>
-
                 <div className="flex-1 flex justify-center">
                     <img
                         src="/assets/images/kalimas.jpg"
                         alt="Wisata Kalimas"
-                        className="w-full max-w-md min-h-[220px] object-cover  transition-transform duration-700 hover:scale-105"
+                        className="w-full max-w-md min-h-[220px] object-cover rounded shadow border border-gray-200"
                     />
                 </div>
             </section>
 
             {/* Data Section */}
-            <section className="py-8 px-4 md:px-12 bg-white">
-                <h2 className="text-xl font-semibold text-gray-800 mb-6 text-center">
+            <section className="py-10 px-4 md:px-16 bg-[#f7f8fa] border-b border-gray-200">
+                <h2 className="text-2xl font-semibold text-gray-800 mb-8 text-center tracking-wide">
                     Statistik Terkini
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-white  p-4 flex flex-col items-center border border-gray-100 transition-transform duration-500 hover:scale-105">
-                        <h3 className="font-medium text-blue-500 mb-1 text-sm">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="bg-white p-6 flex flex-col items-center border border-gray-200 rounded shadow-sm">
+                        <h3 className="font-medium text-blue-900 mb-2 text-base">
                             Pemasukan Harian
                         </h3>
                         <div className="w-full">
                             <Bar data={chartHarian} options={optionsRupiah} />
                         </div>
                     </div>
-                    <div className="bg-white  p-4 flex flex-col items-center border border-gray-100 transition-transform duration-500 hover:scale-105">
-                        <h3 className="font-medium text-blue-500 mb-1 text-sm">
+                    <div className="bg-white p-6 flex flex-col items-center border border-gray-200 rounded shadow-sm">
+                        <h3 className="font-medium text-blue-900 mb-2 text-base">
                             Pemasukan Bulanan
                         </h3>
                         <div className="w-full">
                             <Bar data={chartBulanan} options={optionsRupiah} />
                         </div>
                     </div>
-                    <div className="bg-white  p-4 flex flex-col items-center border border-gray-100 transition-transform duration-500 hover:scale-105">
-                        <h3 className="font-medium text-blue-500 mb-1 text-sm">
+                    <div className="bg-white p-6 flex flex-col items-center border border-gray-200 rounded shadow-sm">
+                        <h3 className="font-medium text-blue-900 mb-2 text-base">
                             Jumlah Pengunjung
                         </h3>
                         <div className="w-full">
@@ -296,26 +305,95 @@ function Dashboardguest() {
                 </div>
             </section>
 
+            {/* Keterbukaan Informasi Publik */}
+            <section id="keterbukaan" className="py-10 px-4 md:px-16 bg-white border-b border-gray-200">
+                <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center tracking-wide">
+                    Keterbukaan Informasi Publik
+                </h2>
+                <div className="max-w-4xl mx-auto mb-8">
+                    <p className="text-gray-700 text-base text-center mb-4">
+                        Sebagai bentuk transparansi, berikut adalah ringkasan pemasukan dan pengeluaran Wisata Kalimas. Dana yang terkumpul digunakan untuk mendukung operasional, perawatan fasilitas, promosi, dan berbagai kegiatan demi kenyamanan pengunjung.
+                    </p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                    {/* Ringkasan Pemasukan */}
+                    <div className="bg-[#f7f8fa] border border-gray-200 rounded p-6 shadow-sm">
+                        <h3 className="text-lg font-semibold text-blue-900 mb-3">Ringkasan Pemasukan</h3>
+                        <ul className="text-gray-700 text-base space-y-2">
+                            <li>
+                                <span className="font-medium">Tiket Masuk:</span>{" "}
+                                <span className="text-blue-900 font-bold">
+                                    Rp {data.Bulanan.toLocaleString("id-ID")}
+                                </span>
+                            </li>
+                            <li>
+                                <span className="font-medium">Tiket Wahana & Kegiatan:</span>{" "}
+                                <span className="text-blue-900 font-bold">
+                                    (Tersedia di menu admin)
+                                </span>
+                            </li>
+                            <li>
+                                <span className="font-medium">Lain-lain:</span>{" "}
+                                <span className="text-blue-900 font-bold">
+                                    (Jika ada)
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                    {/* Ringkasan Pengeluaran */}
+                    <div className="bg-[#f7f8fa] border border-gray-200 rounded p-6 shadow-sm">
+                        <h3 className="text-lg font-semibold text-blue-900 mb-3">Ringkasan Pengeluaran</h3>
+                        <table className="w-full text-sm text-left">
+                            <thead>
+                                <tr>
+                                    <th className="py-2 px-2 text-gray-700 font-semibold border-b">Kategori</th>
+                                    <th className="py-2 px-2 text-gray-700 font-semibold border-b">Jumlah</th>
+                                    <th className="py-2 px-2 text-gray-700 font-semibold border-b">Keterangan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {pengeluaran.map((item, idx) => (
+                                    <tr key={idx}>
+                                        <td className="py-2 px-2">{item.kategori}</td>
+                                        <td className="py-2 px-2 text-blue-900 font-semibold">
+                                            Rp {item.jumlah.toLocaleString("id-ID")}
+                                        </td>
+                                        <td className="py-2 px-2">{item.keterangan}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        <div className="mt-4 text-right text-base font-semibold text-blue-900">
+                            Total Pengeluaran: Rp {pengeluaran.reduce((a, b) => a + b.jumlah, 0).toLocaleString("id-ID")}
+                        </div>
+                    </div>
+                </div>
+                <div className="max-w-4xl mx-auto mt-8">
+                    <div className="bg-blue-50 border-l-4 border-blue-900 p-4 rounded text-blue-900 text-sm">
+                        <strong>Catatan:</strong> Data pengeluaran diupdate secara berkala dan dapat diakses oleh publik sebagai bentuk akuntabilitas pengelolaan dana Wisata Kalimas.
+                    </div>
+                </div>
+            </section>
+
             {/* Fasilitas & Harga Tiket Section */}
-            <section id="fasilitas" className="py-8 px-4 md:px-12 bg-white">
-                <h2 className="text-xl font-semibold text-gray-800 mb-6 text-center">
+            <section id="fasilitas" className="py-10 px-4 md:px-16 bg-white border-b border-gray-200">
+                <h2 className="text-2xl font-semibold text-gray-800 mb-8 text-center tracking-wide">
                     Fasilitas Unggulan & Harga Tiket
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
                     {/* Fasilitas */}
                     <div>
-                        <div className="flex flex-wrap justify-center gap-4">
+                        <div className="flex flex-wrap justify-center gap-6">
                             {fasilitas.map((f, idx) => (
                                 <div
                                     key={idx}
-                                    className="bg-white p-4 flex flex-col items-center border border-gray-100 w-48 transition-transform duration-500 hover:scale-105"
-                                    style={{ transitionDelay: `${idx * 80}ms` }}
+                                    className="bg-[#f7f8fa] p-5 flex flex-col items-center border border-gray-200 rounded w-56 shadow-sm"
                                 >
-                                    <span className="text-3xl mb-1">{f.icon}</span>
-                                    <h3 className="text-base font-medium text-blue-500 mb-0.5">
+                                    <span className="text-3xl mb-2">{f.icon}</span>
+                                    <h3 className="text-base font-semibold text-blue-900 mb-1">
                                         {f.title}
                                     </h3>
-                                    <p className="text-gray-500 text-center text-xs">
+                                    <p className="text-gray-600 text-center text-sm">
                                         {f.desc}
                                     </p>
                                 </div>
@@ -324,34 +402,34 @@ function Dashboardguest() {
                     </div>
                     {/* Harga Tiket & Parkir */}
                     <div>
-                        <div className="max-w-md mx-auto bg-white border border-gray-100 rounded p-6">
+                        <div className="max-w-md mx-auto bg-[#f7f8fa] border border-gray-200 rounded p-6 shadow-sm">
                             <div className="mb-4">
-                                <div className="font-medium text-gray-700 mb-1">Tiket Masuk:</div>
-                                <div className="text-blue-600 font-bold text-lg">Rp 5.000</div>
+                                <div className="font-semibold text-gray-700 mb-1">Tiket Masuk:</div>
+                                <div className="text-blue-900 font-bold text-xl">Rp 5.000</div>
                             </div>
                             <div>
-                                <div className="font-medium text-gray-700 mb-1">Harga Parkir:</div>
+                                <div className="font-semibold text-gray-700 mb-1">Harga Parkir:</div>
                                 <table className="w-full text-sm text-left">
                                     <tbody>
                                         <tr>
-                                            <td className="py-1 text-gray-600">Motor</td>
-                                            <td className="py-1 text-blue-600 font-semibold">Rp 2.000</td>
+                                            <td className="py-1 text-gray-700">Motor</td>
+                                            <td className="py-1 text-blue-900 font-semibold">Rp 2.000</td>
                                         </tr>
                                         <tr>
-                                            <td className="py-1 text-gray-600">Mobil</td>
-                                            <td className="py-1 text-blue-600 font-semibold">Rp 5.000</td>
+                                            <td className="py-1 text-gray-700">Mobil</td>
+                                            <td className="py-1 text-blue-900 font-semibold">Rp 5.000</td>
                                         </tr>
                                         <tr>
-                                            <td className="py-1 text-gray-600">Elf</td>
-                                            <td className="py-1 text-blue-600 font-semibold">Rp 10.000</td>
+                                            <td className="py-1 text-gray-700">Elf</td>
+                                            <td className="py-1 text-blue-900 font-semibold">Rp 10.000</td>
                                         </tr>
                                         <tr>
-                                            <td className="py-1 text-gray-600">Bus Medium</td>
-                                            <td className="py-1 text-blue-600 font-semibold">Rp 20.000</td>
+                                            <td className="py-1 text-gray-700">Bus Medium</td>
+                                            <td className="py-1 text-blue-900 font-semibold">Rp 20.000</td>
                                         </tr>
                                         <tr>
-                                            <td className="py-1 text-gray-600">Bus Besar</td>
-                                            <td className="py-1 text-blue-600 font-semibold">Rp 30.000</td>
+                                            <td className="py-1 text-gray-700">Bus Besar</td>
+                                            <td className="py-1 text-blue-900 font-semibold">Rp 30.000</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -362,49 +440,48 @@ function Dashboardguest() {
             </section>
 
             {/* Testimoni Section */}
-            <section id="testimoni" className="py-8 px-4 md:px-12 bg-white">
-                <h2 className="text-xl font-semibold text-gray-800 mb-6 text-center">
+            <section id="testimoni" className="py-10 px-4 md:px-16 bg-[#f7f8fa]">
+                <h2 className="text-2xl font-semibold text-gray-800 mb-8 text-center tracking-wide">
                     Testimoni Pengunjung
                 </h2>
                 <div className="flex justify-center mb-4">
                     {!showTestimoni && (
                         <button
                             onClick={handleShowTestimoni}
-                            className="bg-blue-500 text-white px-5 py-2  transition font-medium text-sm hover:bg-blue-600 hover:scale-105 duration-200"
+                            className="bg-blue-900 text-white px-6 py-2 rounded font-semibold text-base hover:bg-blue-800 transition"
                         >
                             Tampilkan Testimoni
                         </button>
                     )}
                 </div>
                 {loadingTestimoni && (
-                    <div className="text-center text-blue-500 font-medium text-sm">
+                    <div className="text-center text-blue-900 font-medium text-base">
                         Memuat testimoni...
                     </div>
                 )}
                 {showTestimoni && !loadingTestimoni && (
-                    <div className="flex flex-wrap justify-center gap-4">
+                    <div className="flex flex-wrap justify-center gap-6">
                         {testimoni.length === 0 && (
-                            <div className="text-gray-400 text-center text-sm">
+                            <div className="text-gray-400 text-center text-base">
                                 Belum ada testimoni tersedia.
                             </div>
                         )}
                         {testimoni.map((rev, idx) => (
                             <div
                                 key={idx}
-                                className="bg-white  p-4 border border-gray-100 w-72 flex flex-col gap-1 transition-transform duration-500 hover:scale-105"
-                                style={{ transitionDelay: `${idx * 60}ms` }}
+                                className="bg-white p-5 border border-gray-200 rounded w-80 flex flex-col gap-2 shadow-sm"
                             >
-                                <div className="flex items-center gap-2 mb-1">
+                                <div className="flex items-center gap-3 mb-2">
                                     <img
                                         src={
                                             rev.thumbnail ||
                                             "https://ui-avatars.com/api/?name=U"
                                         }
                                         alt={rev.author_name}
-                                        className="w-8 h-8 "
+                                        className="w-9 h-9 rounded-full border border-gray-200"
                                     />
                                     <div>
-                                        <div className="font-medium text-blue-500 text-sm">
+                                        <div className="font-semibold text-blue-900 text-base">
                                             {rev.author_name}
                                         </div>
                                         <div className="text-xs text-gray-400">
@@ -412,17 +489,17 @@ function Dashboardguest() {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-0.5 mb-0.5">
+                                <div className="flex items-center gap-0.5 mb-1">
                                     {[...Array(rev.rating || 0)].map((_, i) => (
                                         <span
                                             key={i}
-                                            className="text-yellow-400 text-xs"
+                                            className="text-yellow-400 text-base"
                                         >
                                             ★
                                         </span>
                                     ))}
                                 </div>
-                                <div className="text-gray-600 text-xs">
+                                <div className="text-gray-700 text-sm">
                                     {rev.snippet_id || rev.snippet}
                                 </div>
                             </div>
@@ -432,19 +509,19 @@ function Dashboardguest() {
             </section>
 
             {/* Footer */}
-            <footer className="bg-white border-t border-gray-100 mt-8 pt-8">
+            <footer className="bg-white border-t border-gray-200 mt-8 pt-8">
                 <div className="max-w-5xl mx-auto px-4 flex flex-col md:flex-row gap-8 justify-between">
                     {/* Kontak Info */}
                     <div className="flex-1 mb-6 md:mb-0">
                         <div className="font-semibold text-gray-700 mb-2">Kontak Wisata Kalimas</div>
-                        <div className="text-gray-600 text-sm mb-1">
+                        <div className="text-gray-700 text-base mb-1">
                             <span className="font-medium">Alamat:</span> Jl. Kalimas Timur No.1, Surabaya
                         </div>
-                        <div className="text-gray-600 text-sm mb-1">
-                            <span className="font-medium">Email:</span> <a href="mailto:info@wisatakalimas.com" className="text-blue-600 hover:underline">info@wisatakalimas.com</a>
+                        <div className="text-gray-700 text-base mb-1">
+                            <span className="font-medium">Email:</span> <a href="mailto:info@wisatakalimas.com" className="text-blue-900 hover:underline">info@wisatakalimas.com</a>
                         </div>
-                        <div className="text-gray-600 text-sm mb-1">
-                            <span className="font-medium">WhatsApp:</span> <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">+62 812-3456-7890</a>
+                        <div className="text-gray-700 text-base mb-1">
+                            <span className="font-medium">WhatsApp:</span> <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" className="text-blue-900 hover:underline">+62 812-3456-7890</a>
                         </div>
                     </div>
                     {/* Box Email */}
@@ -464,25 +541,25 @@ function Dashboardguest() {
                                 name="email"
                                 required
                                 placeholder="Email Anda"
-                                className="border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                className="border border-gray-200 rounded px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-200"
                             />
                             <textarea
                                 name="pesan"
                                 required
                                 placeholder="Tulis pesan Anda..."
                                 rows={3}
-                                className="border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                className="border border-gray-200 rounded px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-200"
                             />
                             <button
                                 type="submit"
-                                className="bg-blue-500 text-white rounded px-4 py-2 text-sm font-medium hover:bg-blue-600 transition"
+                                className="bg-blue-900 text-white rounded px-4 py-2 text-base font-semibold hover:bg-blue-800 transition"
                             >
                                 Kirim Pesan
                             </button>
                         </form>
                     </div>
                 </div>
-                <div className="text-center py-4 text-gray-400 text-xs mt-8 border-t border-gray-100">
+                <div className="text-center py-4 text-gray-400 text-sm mt-8 border-t border-gray-200">
                     &copy; {new Date().getFullYear()} Wisata Kalimas. Transparansi untuk semua.
                 </div>
             </footer>

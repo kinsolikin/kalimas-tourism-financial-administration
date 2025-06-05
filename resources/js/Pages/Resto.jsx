@@ -246,25 +246,43 @@ export default function Resto({ auth }) {
     };
 
     // Handler: Simpan Shift & Logout
-    const handleSaveShiftAndLogout = async () => {
-        setClosingShift(true);
-        try {
-            // Simpan data shift ke backend 
-            await router.post("/logout", {
-                onSuccess: () => {
-                    router.get("/login");
-                },
-            });
-        } catch (error) {
-            Swal.fire({
-                icon: "error",
-                title: "Gagal",
-                text: "Gagal menyimpan shift atau logout.",
-            });
-        } finally {
-            setClosingShift(false);
-        }
-    };
+   const handleSaveShiftAndLogout = async () => {
+          setClosingShift(true);
+          try {
+              const result = await Swal.fire({
+                  title: "Yakin ingin akhiri shift ?",
+                  text: "Tindakan ini tidak bisa dibatalkan!",
+                  icon: "warning",
+                  showCancelButton: true,
+                  confirmButtonColor: "#d33",
+                  cancelButtonColor: "#3085d6",
+                  confirmButtonText: "Ya, akhiri!",
+                  cancelButtonText: "Batal",
+              });
+              if (result.isConfirmed) {
+                  // Jika perlu, simpan data shift di sini sebelum logout
+                  Swal.fire({
+                      title: "Berhasil",
+                      text: "Shift berhasil disimpan. Anda akan logout.",
+                      icon: "success",
+                      timer: 1500,
+                      showConfirmButton: false,
+                  });
+                  setTimeout(() => {
+                      router.post('/logout');
+                  }, 1500);
+              }
+          } catch (error) {
+              Swal.fire({
+                  icon: "error",
+                  title: "Gagal",
+                  text: "Gagal menyimpan shift atau logout.",
+              });
+          } finally {
+              setClosingShift(false);
+          }
+      };
+  
 
     return (
         <AuthenticatedLayout user={auth.user}>

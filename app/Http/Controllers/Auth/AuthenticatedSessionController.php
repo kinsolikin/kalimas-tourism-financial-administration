@@ -54,6 +54,7 @@ class AuthenticatedSessionController extends Controller
                 [
                     'start_time' => now(),
                     'total_pendapatan' => 0,
+                    'total_pengeluaran' => 0,
                 ]
             );
         }
@@ -96,11 +97,13 @@ class AuthenticatedSessionController extends Controller
             // Ambil total pendapatan untuk user tersebut
             $userTarget = User::find($userId);
             $totalpendapatan = $userTarget->income()->value('amount') ?? 0;
+            $totalpengeluaran = $userTarget->expanse()->value('amount') ?? 0;
 
             if ($shift) {
                 $shift->update([
                     'end_time' => now(),
-                    'total_pendapatan' => $totalpendapatan
+                    'total_pendapatan' => $totalpendapatan,
+                    'total_pengeluaran' => $totalpengeluaran,
                 ]);
             }
         }
@@ -112,6 +115,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
+        
         return redirect('/login');
     }
 }
