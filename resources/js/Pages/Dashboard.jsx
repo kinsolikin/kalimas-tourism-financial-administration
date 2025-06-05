@@ -339,7 +339,7 @@ export default function Dashboard({ auth }) {
                         {/* Left Column: Form */}
                         <div>
                             <h2 className="text-2xl font-bold text-center text-blue-700 mb-6">
-                                Form Kasir Parkir
+                                Form Kasir Parkir BOY
                             </h2>
                             <form
                                 onSubmit={handleSubmit}
