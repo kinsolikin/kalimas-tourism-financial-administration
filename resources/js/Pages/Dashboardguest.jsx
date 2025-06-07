@@ -189,30 +189,22 @@ function Dashboardguest() {
         setTimeout(() => setFadeIn(true), 100);
     }, []);
 
-    // Contoh data pengeluaran (bisa diganti dengan data dari backend)
-    const [pengeluaran, setPengeluaran] = useState([
-        {
-            kategori: "Operasional Harian",
-            jumlah: 1200000,
-            keterangan: "Gaji petugas, listrik, air",
-        },
-        {
-            kategori: "Perawatan Fasilitas",
-            jumlah: 800000,
-            keterangan: "Perbaikan perahu & jembatan",
-        },
-        {
-            kategori: "Promosi & Publikasi",
-            jumlah: 500000,
-            keterangan: "Media sosial, spanduk",
-        },
-        {
-            kategori: "Kegiatan Event",
-            jumlah: 700000,
-            keterangan: "Biaya lomba & hiburan",
-        },
-    ]);
+    // Data pengeluaran dari backend
+    const [pengeluaran, setPengeluaran] = useState([]);
 
+    useEffect(() => {
+        const fetchPengeluaran = () => {
+            fetch("/dashboard/expanse/transactions")
+                .then((res) => res.json())
+                .then((json) => setPengeluaran(json.expanses || []));
+        };
+        fetchPengeluaran();
+        const interval = setInterval(fetchPengeluaran, 20000); // update tiap 10 detik
+        return () => clearInterval(interval);
+    }, []);
+
+    console.log("Pengeluaran:", pengeluaran);
+    
     return (
         <div className="min-h-screen bg-[#f7f8fa] font-sans">
             {/* Header */}
@@ -343,28 +335,63 @@ function Dashboardguest() {
                     {/* Ringkasan Pengeluaran */}
                     <div className="bg-[#f7f8fa] border border-gray-200 rounded p-6 shadow-sm">
                         <h3 className="text-lg font-semibold text-blue-900 mb-3">Ringkasan Pengeluaran</h3>
-                        <table className="w-full text-sm text-left">
-                            <thead>
-                                <tr>
-                                    <th className="py-2 px-2 text-gray-700 font-semibold border-b">Kategori</th>
-                                    <th className="py-2 px-2 text-gray-700 font-semibold border-b">Jumlah</th>
-                                    <th className="py-2 px-2 text-gray-700 font-semibold border-b">Keterangan</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {pengeluaran.map((item, idx) => (
-                                    <tr key={idx}>
-                                        <td className="py-2 px-2">{item.kategori}</td>
-                                        <td className="py-2 px-2 text-blue-900 font-semibold">
-                                            Rp {item.jumlah.toLocaleString("id-ID")}
-                                        </td>
-                                        <td className="py-2 px-2">{item.keterangan}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                        <div className="mt-4 text-right text-base font-semibold text-blue-900">
-                            Total Pengeluaran: Rp {pengeluaran.reduce((a, b) => a + b.jumlah, 0).toLocaleString("id-ID")}
+                        <div className="mb-4">
+                            <div className="mb-2">
+                                <span className="font-semibold text-blue-900">Operasional:</span>
+                                <span className="text-gray-700 ml-2">
+                                    Digunakan untuk kebutuhan rutin seperti gaji petugas, pembayaran listrik dan air, perawatan fasilitas, serta pembelian perlengkapan operasional harian.
+                                </span>
+                            </div>
+                            <div>
+                                <span className="font-semibold text-blue-900">Mendesak:</span>
+                                <span className="text-gray-700 ml-2">
+                                    Digunakan untuk pengeluaran tak terduga atau kebutuhan mendesak, misalnya perbaikan darurat fasilitas, penanganan insiden, atau kebutuhan penting yang harus segera dipenuhi.
+                                </span>
+                            </div>
+                        </div>
+                        {/* Rincian Pengeluaran per Kategori */}
+                        <div className="mt-6">
+                            <h4 className="font-semibold text-gray-800 mb-2">Rincian Pengeluaran per Kategori:</h4>
+                            {pengeluaran.length === 0 ? (
+                                <div className="text-gray-400 text-sm">Data pengeluaran belum tersedia.</div>
+                            ) : (
+                                <table className="w-full text-sm border">
+                                    <thead>
+                                        <tr className="bg-blue-50">
+                                            <th className="py-2 px-3 border-b text-left">Kategori</th>
+                                            <th className="py-2 px-3 border-b text-right">Total Pengeluaran</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {Object.entries(
+                                            pengeluaran.reduce((acc, item) => {
+                                                const kategori = item.expanse_category?.name || "Lain-lain";
+                                                const amount = parseInt(item.amount, 10) || 0;
+                                                acc[kategori] = (acc[kategori] || 0) + amount;
+                                                return acc;
+                                            }, {})
+                                        ).map(([kategori, total], idx) => (
+                                            <tr key={idx}>
+                                                <td className="py-2 px-3 border-b">{kategori}</td>
+                                                <td className="py-2 px-3 border-b text-right text-blue-900 font-semibold">
+                                                    Rp {total.toLocaleString("id-ID")}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+                        </div>
+                        <div className="mt-6 text-right text-base font-semibold text-blue-900">
+                            Total Pengeluaran: Rp {
+                                pengeluaran
+                                    .reduce(
+                                        (total, item) =>
+                                            total + (parseInt(item.amount, 10) || 0),
+                                        0
+                                    )
+                                    .toLocaleString("id-ID")
+                            }
                         </div>
                     </div>
                 </div>

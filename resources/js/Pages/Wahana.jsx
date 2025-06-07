@@ -205,19 +205,7 @@ const Wahana = ({ incomeId, userId, auth }) => {
                 confirmButtonText: "Ya, akhiri!",
                 cancelButtonText: "Batal",
             });
-            if (result.isConfirmed) {
-                // Jika perlu, simpan data shift di sini sebelum logout
-                Swal.fire({
-                    title: "Berhasil",
-                    text: "Shift berhasil disimpan. Anda akan logout.",
-                    icon: "success",
-                    timer: 1500,
-                    showConfirmButton: false,
-                });
-                setTimeout(() => {
-                    router.post('/logout');
-                }, 1500);
-            }
+           
         } catch (error) {
             Swal.fire({
                 icon: "error",
