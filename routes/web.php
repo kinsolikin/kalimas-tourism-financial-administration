@@ -28,8 +28,10 @@ use App\Http\Controllers\ControllerExpanse;
 
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
+Route::get('/dashboard/expanse/transactions/guest',[TransactionController::class, 'guestexpanses']);
 
 Route::middleware(['auth', 'verified'])->group(function () {
 

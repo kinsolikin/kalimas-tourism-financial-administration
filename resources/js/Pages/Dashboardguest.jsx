@@ -24,6 +24,7 @@ function Dashboardguest() {
         Harian: 0,
         Bulanan: 0,
         PengunjungBulanan: 0,
+        Incomes: [],
     });
 
     useEffect(() => {
@@ -34,11 +35,12 @@ function Dashboardguest() {
         };
 
         fetchData();
-        const interval = setInterval(fetchData, 5000);
-
-        return () => clearInterval(interval);
+        // Hapus interval update otomatis
+        // const interval = setInterval(fetchData, 5000);
+        // return () => clearInterval(interval);
     }, []);
 
+    console.log(data);
     const fasilitas = [
         {
             icon: "🌉",
@@ -194,13 +196,14 @@ function Dashboardguest() {
 
     useEffect(() => {
         const fetchPengeluaran = () => {
-            fetch("/dashboard/expanse/transactions")
+            fetch("/dashboard/expanse/transactions/guest")
                 .then((res) => res.json())
                 .then((json) => setPengeluaran(json.expanses || []));
         };
         fetchPengeluaran();
-        const interval = setInterval(fetchPengeluaran, 20000); // update tiap 10 detik
-        return () => clearInterval(interval);
+        // Hapus interval update otomatis
+        // const interval = setInterval(fetchPengeluaran, 10000); // update tiap 10 detik
+        // return () => clearInterval(interval);
     }, []);
 
     console.log("Pengeluaran:", pengeluaran);
@@ -309,28 +312,54 @@ function Dashboardguest() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                     {/* Ringkasan Pemasukan */}
-                    <div className="bg-[#f7f8fa] border border-gray-200 rounded p-6 shadow-sm">
+                    <div className="bg-[#f7f8fa] border border-gray-200 rounded p-6 shadow-sm self-start">
                         <h3 className="text-lg font-semibold text-blue-900 mb-3">Ringkasan Pemasukan</h3>
-                        <ul className="text-gray-700 text-base space-y-2">
-                            <li>
-                                <span className="font-medium">Tiket Masuk:</span>{" "}
-                                <span className="text-blue-900 font-bold">
-                                    Rp {data.Bulanan.toLocaleString("id-ID")}
-                                </span>
-                            </li>
-                            <li>
-                                <span className="font-medium">Tiket Wahana & Kegiatan:</span>{" "}
-                                <span className="text-blue-900 font-bold">
-                                    (Tersedia di menu admin)
-                                </span>
-                            </li>
-                            <li>
-                                <span className="font-medium">Lain-lain:</span>{" "}
-                                <span className="text-blue-900 font-bold">
-                                    (Jika ada)
-                                </span>
-                            </li>
-                        </ul>
+                        <table className="w-full text-base text-left border">
+                            <tbody>
+                                <tr>
+                                    <td className="py-2 px-3 border-b font-medium">Tiket Masuk</td>
+                                    <td className="py-2 px-3 border-b text-blue-900 font-bold">
+                                        Rp {data.Bulanan.toLocaleString("id-ID")}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="py-2 px-3 border-b font-medium">Total Parkir</td>
+                                    <td className="py-2 px-3 border-b text-blue-900 font-bold">
+                                        Rp {data.Incomes.parking_total?.toLocaleString("id-ID") || 0}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="py-2 px-3 border-b font-medium">Total Bantuan</td>
+                                    <td className="py-2 px-3 border-b text-blue-900 font-bold">
+                                        Rp {data.Incomes.bantuan_total?.toLocaleString("id-ID") || 0}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="py-2 px-3 border-b font-medium">Total Resto</td>
+                                    <td className="py-2 px-3 border-b text-blue-900 font-bold">
+                                        Rp {data.Incomes.resto_total?.toLocaleString("id-ID") || 0}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="py-2 px-3 border-b font-medium">Total Toilet</td>
+                                    <td className="py-2 px-3 border-b text-blue-900 font-bold">
+                                        Rp {data.Incomes.toilet_total?.toLocaleString("id-ID") || 0}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="py-2 px-3 border-b font-medium">Total Wahana</td>
+                                    <td className="py-2 px-3 border-b text-blue-900 font-bold">
+                                        Rp {data.Incomes.wahana_total?.toLocaleString("id-ID") || 0}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="py-2 px-3 border-b font-medium">Lain-lain</td>
+                                    <td className="py-2 px-3 border-b text-blue-900 font-bold">
+                                        (Jika ada)
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                     {/* Ringkasan Pengeluaran */}
                     <div className="bg-[#f7f8fa] border border-gray-200 rounded p-6 shadow-sm">
@@ -343,9 +372,9 @@ function Dashboardguest() {
                                 </span>
                             </div>
                             <div>
-                                <span className="font-semibold text-blue-900">Mendesak:</span>
+                                <span className="font-semibold text-blue-900">Mendadak:</span>
                                 <span className="text-gray-700 ml-2">
-                                    Digunakan untuk pengeluaran tak terduga atau kebutuhan mendesak, misalnya perbaikan darurat fasilitas, penanganan insiden, atau kebutuhan penting yang harus segera dipenuhi.
+                                    Digunakan untuk pengeluaran tak terduga atau kebutuhan mendadak, misalnya perbaikan darurat fasilitas, penanganan insiden, atau kebutuhan penting yang harus segera dipenuhi.
                                 </span>
                             </div>
                         </div>
@@ -359,26 +388,42 @@ function Dashboardguest() {
                                     <thead>
                                         <tr className="bg-blue-50">
                                             <th className="py-2 px-3 border-b text-left">Kategori</th>
+                                            <th className="py-2 px-3 border-b text-left">Deskripsi</th>
+                                            <th className="py-2 px-3 border-b text-left">Loket</th>
                                             <th className="py-2 px-3 border-b text-right">Total Pengeluaran</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {Object.entries(
-                                            pengeluaran.reduce((acc, item) => {
-                                                const kategori = item.expanse_category?.name || "Lain-lain";
-                                                const amount = parseInt(item.amount, 10) || 0;
-                                                acc[kategori] = (acc[kategori] || 0) + amount;
-                                                return acc;
-                                            }, {})
-                                        ).map(([kategori, total], idx) => (
-                                            <tr key={idx}>
-                                                <td className="py-2 px-3 border-b">{kategori}</td>
-                                                <td className="py-2 px-3 border-b text-right text-blue-900 font-semibold">
-                                                    Rp {total.toLocaleString("id-ID")}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
+    {Object.entries(
+        pengeluaran.reduce((acc, item) => {
+            const kategori = item.expanse_category?.name || "Lain-lain";
+            const diskripsi = item.expanse_operasional?.description || item.expanse_mendadak?.description || "-";
+            const loket = item.user?.name || "-";
+            const amount = parseInt(item.amount, 10) || 0;
+
+            if (!acc[kategori]) {
+                acc[kategori] = {
+                    total: 0,
+                    diskripsi: diskripsi,
+                    loket : loket
+                };
+            }
+
+            acc[kategori].total += amount;
+            return acc;
+        }, {})
+    ).map(([kategori, { total, diskripsi ,loket}], idx) => (
+        <tr key={idx}>
+            <td className="py-2 px-3 border-b">{kategori}</td>
+            <td className="py-2 px-3 border-b">{diskripsi}</td>
+            <td className="py-2 px-3 border-b">{loket}</td>
+            <td className="py-2 px-3 border-b text-right text-blue-900 font-semibold">
+                Rp {total.toLocaleString("id-ID")}
+            </td>
+        </tr>
+    ))}
+</tbody>
+
                                 </table>
                             )}
                         </div>
@@ -397,7 +442,7 @@ function Dashboardguest() {
                 </div>
                 <div className="max-w-4xl mx-auto mt-8">
                     <div className="bg-blue-50 border-l-4 border-blue-900 p-4 rounded text-blue-900 text-sm">
-                        <strong>Catatan:</strong> Data pengeluaran diupdate secara berkala dan dapat diakses oleh publik sebagai bentuk akuntabilitas pengelolaan dana Wisata Kalimas.
+                        <strong>Catatan:</strong> Data pemasukan  dan pengeluaran diupdate secara otomatis setiap 1 bulan sekali dan dapat diakses oleh publik sebagai bentuk akuntabilitas pengelolaan dana Wisata Kalimas.
                     </div>
                 </div>
             </section>

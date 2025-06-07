@@ -195,7 +195,7 @@ function Expanse({ expanses = [], users = [], auth }) {
                                             colSpan={4}
                                             className="text-center py-2 text-gray-400"
                                         >
-                                            Belum ada transaksi
+                                            Belum ada pengeluaran
                                         </td>
                                     </tr>
                                 )}

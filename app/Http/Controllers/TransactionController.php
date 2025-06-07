@@ -277,4 +277,18 @@ class TransactionController extends Controller
         
     }
 
-}
+
+    // untuk guest dashboard
+    public function guestexpanses()
+    {
+        // ambil semua pengeluaran
+
+        $expanses = Expanse::with(['expanse_category','expanse_operasional','expanse_mendadak','user'])->get();
+
+        return response()->json([
+            'expanses'=>$expanses
+        ]);
+    }
+    }
+
+

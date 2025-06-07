@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use App\Models\Ticket_income_details;
 use Illuminate\Support\Facades\Http;
 use    App\Models\Review;
+use App\Models\TotalIncome;
 
 class DashboardController extends Controller
 {
@@ -44,11 +45,9 @@ class DashboardController extends Controller
                 ]);
                 $translated = $translateRes->json()[0][0][0] ?? $review['snippet'];
                 $review['snippet_id'] = $translated;
-
-              
             }
         }
-       
+
 
         return response()->json([
             'reviews' => $reviews,
@@ -74,10 +73,43 @@ class DashboardController extends Controller
             ->whereMonth('created_at', $today->month)
             ->sum('jumlah_orang');
 
+
+        $rekapBulanan = [
+            'ticket_total' => TotalIncome::whereYear('created_at', $today->year)
+                ->whereMonth('created_at', $today->month)
+                ->sum('total_ticket_details'),
+
+            'parking_total' => TotalIncome::whereYear('created_at', $today->year)
+                ->whereMonth('created_at', $today->month)
+                ->sum('total_parking_details'),
+
+            'bantuan_total' => TotalIncome::whereYear('created_at', $today->year)
+                ->whereMonth('created_at', $today->month)
+                ->sum('total_bantuan_details'),
+
+            'resto_total' => TotalIncome::whereYear('created_at', $today->year)
+                ->whereMonth('created_at', $today->month)
+                ->sum('total_resto_details'),
+
+            'toilet_total' => TotalIncome::whereYear('created_at', $today->year)
+                ->whereMonth('created_at', $today->month)
+                ->sum('total_toilet_details'),
+
+            'wahana_total' => TotalIncome::whereYear('created_at', $today->year)
+                ->whereMonth('created_at', $today->month)
+                ->sum('total_wahana_details'),
+
+            'total_income' => TotalIncome::whereYear('created_at', $today->year)
+                ->whereMonth('created_at', $today->month)
+                ->sum('total_amount'),
+        ];
+
+
         return response()->json([
             'Harian' => $netincomeharian,
             'Bulanan' => $netincomebulanan,
             'PengunjungBulanan' => $pengunjungbulanan,
+            'Incomes' => $rekapBulanan,
         ]);
     }
     /**
