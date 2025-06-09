@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Bar, Line } from "react-chartjs-2"; // Tambahkan Line
+import { Bar } from "react-chartjs-2";
 import {
     Chart as ChartJS,
     CategoryScale,
     LinearScale,
     BarElement,
-    LineElement, // Tambahkan LineElement
-    PointElement, // Tambahkan PointElement
     Title,
     Tooltip,
     Legend,
@@ -16,8 +14,6 @@ ChartJS.register(
     CategoryScale,
     LinearScale,
     BarElement,
-    LineElement, // Daftarkan LineElement
-    PointElement, // Daftarkan PointElement
     Title,
     Tooltip,
     Legend
@@ -25,7 +21,7 @@ ChartJS.register(
 
 function Dashboardguest() {
     const [data, setData] = useState({
-        Expanse: 0,
+        Harian: 0,
         PengunjungBulanan: 0,
         Incomes: [],
         PengunjungHarian: [], // Tambahkan ini
@@ -70,12 +66,12 @@ function Dashboardguest() {
         },
     ];
 
-    const chartExpanse = {
+    const chartHarian = {
         labels: ["Hari Ini"],
         datasets: [
             {
-                label: "Expanse",
-                data: [data.Expanse],
+                label: "Pemasukan Harian",
+                data: [data.Harian],
                 backgroundColor: "rgba(59, 130, 246, 0.7)",
                 borderColor: "rgba(59, 130, 246, 1)",
                 borderWidth: 2,
@@ -96,108 +92,20 @@ function Dashboardguest() {
     };
 
     // Untuk chart pengunjung harian (fluktuasi)
-    const pengunjungBulananArr = Array.isArray(data.PengunjungBulanan) ? data.PengunjungBulanan : [];
-    const pengunjungHarianTerakhir = pengunjungBulananArr.slice(-14);
+const pengunjungHarianTerakhir = data.PengunjungBulanan?.slice(-14) || [];
     const chartPengunjung = {
-        labels: pengunjungHarianTerakhir.map(item => item.tanggal),
-        datasets: [
-            {
-                label: "Jumlah Pengunjung",
-                data: pengunjungHarianTerakhir.map(item => item.total ?? item.jumlah),
-                fill: true, // aktifkan area di bawah garis
-                borderColor: "rgba(34, 197, 94, 1)",
-                backgroundColor: "rgba(34, 197, 94, 0.15)", // area hijau transparan
-                tension: 0.3,
-                pointBackgroundColor: "rgba(34, 197, 94, 1)",
-                pointBorderColor: "#fff",
-                pointRadius: 4,
-                pointHoverRadius: 6,
-            },
-        ],
-    };
-
-    // --- Rekap pemasukan bulanan dari data.Bulanan (frontend group by month) ---
-    function groupBulananByMonth(bulananArr) {
-        if (!Array.isArray(bulananArr)) return [];
-        const result = {};
-        bulananArr.forEach(item => {
-            const date = new Date(item.tanggal);
-            if (isNaN(date)) return;
-            const monthKey = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
-            if (!result[monthKey]) result[monthKey] = 0;
-            result[monthKey] += Number(item.total) || 0;
-        });
-        return Object.entries(result)
-            .sort(([a], [b]) => a.localeCompare(b))
-            .map(([bulan, total]) => ({
-                bulan,
-                total
-            }));
-    }
-
-    // Gunakan data.Bulanan dari backend
-    const bulananArr = Array.isArray(data.Bulanan) ? data.Bulanan : [];
-    const bulananPerBulan = groupBulananByMonth(bulananArr);
-
-    // Chart Pemasukan Bulanan (Rekap per Bulan) - garis oranye, area oranye transparan
-    const chartBulananLine = {
-        labels: bulananPerBulan.map(item => item.bulan),
-        datasets: [
-            {
-                label: "Pemasukan Bulanan",
-                data: bulananPerBulan.map(item => item.total),
-                fill: true, // aktifkan area di bawah garis
-                borderColor: "rgba(251, 146, 60, 1)", // orange-400
-                backgroundColor: "rgba(251, 146, 60, 0.15)", // area oranye transparan
-                tension: 0.3,
-                pointBackgroundColor: "rgba(251, 146, 60, 1)",
-                pointBorderColor: "#fff",
-                pointRadius: 4,
-                pointHoverRadius: 6,
-            },
-        ],
-    };
-
-    // --- Chart garis fluktuasi pemasukan harian (bukan rekap bulanan) ---
-    // Gunakan data.Bulanan langsung sebagai data harian
-    const chartBulananFluktuasi = {
-        labels: bulananArr.map(item => item.tanggal),
-        datasets: [
-            {
-                label: "Pemasukan Harian",
-                data: bulananArr.map(item => Number(item.total)),
-                fill: true, // aktifkan area di bawah garis
-                borderColor: "rgba(251, 146, 60, 1)", // orange-400
-                backgroundColor: "rgba(251, 146, 60, 0.15)", // area oranye transparan
-                tension: 0.3,
-                pointBackgroundColor: "rgba(251, 146, 60, 1)",
-                pointBorderColor: "#fff",
-                pointRadius: 4,
-                pointHoverRadius: 6,
-            },
-        ],
-    };
-
-    // --- Chart garis fluktuasi expanse bulanan (pengeluaran harian selama bulan berjalan, warna merah) ---
-    // Gunakan data.Expanse dari backend
-    const expanseBulananArr = Array.isArray(data.Expanse) ? data.Expanse : [];
-    const chartExpanseBulanan = {
-        labels: expanseBulananArr.map(item => item.tanggal),
-        datasets: [
-            {
-                label: "Pengeluaran Harian",
-                data: expanseBulananArr.map(item => Number(item.total)),
-                fill: true, // aktifkan area di bawah garis
-                borderColor: "rgba(239, 68, 68, 1)", // merah-500
-                backgroundColor: "rgba(239, 68, 68, 0.15)", // area merah transparan
-                tension: 0.3,
-                pointBackgroundColor: "rgba(239, 68, 68, 1)",
-                pointBorderColor: "#fff",
-                pointRadius: 4,
-                pointHoverRadius: 6,
-            },
-        ],
-    };
+    labels: pengunjungHarianTerakhir.map(item => item.tanggal),
+    datasets: [
+        {
+            label: "Jumlah Pengunjung",
+            // Gunakan item.total jika backend mengirim {tanggal, total}, atau item.jumlah jika {tanggal, jumlah}
+            data: pengunjungHarianTerakhir.map(item => item.total ?? item.jumlah),
+            backgroundColor: "rgba(34, 197, 94, 0.7)",
+            borderColor: "rgba(34, 197, 94, 1)",
+            borderWidth: 2,
+        },
+    ],
+};
 
     const optionsRupiah = {
         responsive: true,
@@ -367,62 +275,29 @@ function Dashboardguest() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div className="bg-white p-6 flex flex-col items-center border border-gray-200  shadow-sm">
                         <h3 className="font-medium text-blue-900 mb-2 text-base">
-                            Expanse Bulanan
+                            Pemasukan Harian
                         </h3>
-                        <div className="w-full overflow-x-auto">
-                            <div className="min-w-[600px]">
-                                <Line
-                                    data={chartExpanseBulanan}
-                                    options={optionsRupiah}
-                                />
-                            </div>
-                        </div>
-                        <div className="text-xs text-gray-500 mt-2">
-                            <em>
-                                <span>
-                                    Grafik pengeluaran harian ,data otomatis update selama ada pengeluaran data akan di reset setelah berganti bulan.
-                                </span>
-                            </em>
+                        <div className="w-full">
+                            <Bar data={chartHarian} options={optionsRupiah} />
                         </div>
                     </div>
                     <div className="bg-white p-6 flex flex-col items-center border border-gray-200  shadow-sm">
                         <h3 className="font-medium text-blue-900 mb-2 text-base">
                             Pemasukan Bulanan
                         </h3>
-                        <div className="w-full overflow-x-auto">
-                            <div className="min-w-[600px]">
-                                <Line
-                                    data={chartBulananFluktuasi}
-                                    options={optionsRupiah}
-                                />
-                            </div>
-                        </div>
-                        <div className="text-xs text-gray-500 mt-2">
-                            <em>
-                                <span>
-                                    Grafik pemasukan bulanan menampilkan fluktuasi pemasukan disetiap harinya, data akan di reset jika sudah berganti bulan.
-                                </span>
-                            </em>
+                        <div className="w-full">
+                            <Bar data={chartBulanan} options={optionsRupiah} />
                         </div>
                     </div>
                     <div className="bg-white p-6 flex flex-col items-center border border-gray-200  shadow-sm">
                         <h3 className="font-medium text-blue-900 mb-2 text-base">
                             Jumlah Pengunjung
                         </h3>
-                        <div className="w-full overflow-x-auto">
-                            <div className="min-w-[600px]">
-                                <Line
-                                    data={chartPengunjung}
-                                    options={optionsPengunjung}
-                                />
-                            </div>
-                        </div>
-                        <div className="text-xs text-gray-500 mt-2">
-                            <em>
-                                <span>
-                                    Data <b>Pengunjung</b> update setiap ada kunjungan baru, data pengunjung di rekap selama satu bulan setelah satu bulan berakhir data akan direset .
-                                </span>
-                            </em>
+                        <div className="w-full">
+                            <Bar
+                                data={chartPengunjung}
+                                options={optionsPengunjung}
+                            />
                         </div>
                     </div>
                 </div>
@@ -491,6 +366,7 @@ function Dashboardguest() {
                         <div className="text-xs text-gray-500 mt-2">
                             <em>
                                 <span>
+                                    Seluruh angka pada tabel di atas merupakan total pemasukan setelah dikurangi pengeluaran. 
                                     <br />
                                     <b>Catatan:</b> Nilai pemasukan sudah dikurangi oleh pengeluaran operasional maupun mendadak.
                                 </span>
@@ -546,6 +422,13 @@ function Dashboardguest() {
                                 </div>
                             )}
                         </div>
+                        <div className="text-xs text-gray-500 mt-2">
+                            <em>
+                                <span>
+                                    Untuk <b>gaji karyawan</b> masuk ke dalam kategori operasional, namun tidak ditampilkan secara rinci demi menjaga etika dan privasi rezeki seseorang.
+                                </span>
+                            </em>
+                        </div>
                         <div className="mt-6 text-right text-base font-semibold text-blue-900">
                             Total Pengeluaran: Rp {
                                 pengeluaran
@@ -556,15 +439,6 @@ function Dashboardguest() {
                                     )
                                     .toLocaleString("id-ID")
                             }
-                        </div>
-                        <div className="text-xs text-gray-500 mt-2">
-                            <em>
-                                <span>
-                                    <br />
-                                    <b>Catatan:</b> Gaji pegawai sudah termasuk dalam pengeluaran operasional. Demi menjaga kerahasian gaji pegawai, tidak ditampilkan secara rinci. Pengeluaran mendadak digunakan untuk kebutuhan tak terduga yang harus segera dipenuhi.
-                                    <br />
-                                </span>
-                            </em>
                         </div>
                     </div>
                 </div>

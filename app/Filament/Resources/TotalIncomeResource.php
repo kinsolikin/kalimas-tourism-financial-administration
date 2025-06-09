@@ -19,6 +19,7 @@ use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Spatie\SimpleExcel\SimpleExcelWriter;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 
 class TotalIncomeResource extends Resource
@@ -100,22 +101,15 @@ class TotalIncomeResource extends Resource
                         $totakhir = \App\Models\TotalIncome::whereBetween('created_at', [$startDate, $endDate])->get();
 
                         if ($format === 'pdf') {
-                            $pdfData = [];
-                            foreach ($totakhir as $row) {
-                                $pdfData[] = [
-                                    'Total Parking'      => 'Rp ' . number_format($row->total_parking_details ?? 0, 0, ',', '.'),
-                                    'Total Ticket'       => 'Rp ' . number_format($row->total_ticket_details ?? 0, 0, ',', '.'),
-                                    'Total Bantuan'      => 'Rp ' . number_format($row->total_bantuan_details ?? 0, 0, ',', '.'),
-                                    'Total Resto'        => 'Rp ' . number_format($row->total_resto_details ?? 0, 0, ',', '.'),
-                                    'Total Toilet'       => 'Rp ' . number_format($row->total_toilet_details ?? 0, 0, ',', '.'),
-                                    'Total Wahana'       => 'Rp ' . number_format($row->total_wahana_details ?? 0, 0, ',', '.'),
-                                    'Total Expanse'      => 'Rp ' . number_format(optional(optional($row)->total_expanse->first())->total_amount ?? 0, 0, ',', '.'),
-                                    'Total Gross Income' => 'Rp ' . number_format($row->total_amount ?? 0, 0, ',', '.'),
-                                    'Total Net Income'   => 'Rp ' . number_format(optional(optional($row)->netIncome)->net_income ?? 0, 0, ',', '.'),
-                                    'Tanggal Data Dibuat' => optional($row->created_at)->format('Y-m-d') ?? '-',
-                                ];
-                            }
-                            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.total_income_pdf', ['rows' => $pdfData]);
+                            // Pass the original Eloquent collection and date range to the view
+                            $pdf = Pdf::loadView(
+                                'exports.total-income-pdf',
+                                [
+                                    'records'   => $totakhir,
+                                    'startDate' => $startDate,
+                                    'endDate'   => $endDate->format('Y-m-d'),
+                                ]
+                            );
                             $fileName = 'TotalPemasukanKalimas.pdf';
                             return response()->streamDownload(function () use ($pdf) {
                                 echo $pdf->stream();

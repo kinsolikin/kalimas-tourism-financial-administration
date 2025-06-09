@@ -30,20 +30,21 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($records as $data)
+           @foreach($records as $data)
                 <tr>
-                    <td>Rp {{ number_format($data->total_parking_details ?? 0, 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($data->total_ticket_details ?? 0, 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($data->total_bantuan_details ?? 0, 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($data->total_resto_details ?? 0, 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($data->total_toilet_details ?? 0, 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($data->total_wahana_details ?? 0, 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format(optional(optional($data->total_expanse->first())->total_amount ?? 0), 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($data->total_amount ?? 0, 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format(optional(optional($data->netIncome)->net_income ?? 0), 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format((float)($data->total_parking_details ?? 0), 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format((float)($data->total_ticket_details ?? 0), 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format((float)($data->total_bantuan_details ?? 0), 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format((float)($data->total_resto_details ?? 0), 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format((float)($data->total_toilet_details ?? 0), 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format((float)($data->total_wahana_details ?? 0), 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format((float)optional($data->total_expanse->first())->total_amount ?? 0, 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format((float)($data->total_amount ?? 0), 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format((float)optional($data->netIncome)->net_income ?? 0, 0, ',', '.') }}</td>
                     <td>{{ optional($data->created_at)->format('Y-m-d') ?? '-' }}</td>
                 </tr>
             @endforeach
+
         </tbody>
     </table>
 </body>
