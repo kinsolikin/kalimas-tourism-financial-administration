@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Bar } from "react-chartjs-2";
+import { Bar, Line } from "react-chartjs-2"; // Tambahkan Line
 import {
     Chart as ChartJS,
     CategoryScale,
     LinearScale,
     BarElement,
+    LineElement, // Tambahkan LineElement
+    PointElement, // Tambahkan PointElement
     Title,
     Tooltip,
     Legend,
@@ -14,6 +16,8 @@ ChartJS.register(
     CategoryScale,
     LinearScale,
     BarElement,
+    LineElement, // Daftarkan LineElement
+    PointElement, // Daftarkan PointElement
     Title,
     Tooltip,
     Legend
@@ -21,10 +25,10 @@ ChartJS.register(
 
 function Dashboardguest() {
     const [data, setData] = useState({
-        Harian: 0,
-        Bulanan: 0,
+        Expanse: 0,
         PengunjungBulanan: 0,
         Incomes: [],
+        PengunjungHarian: [], // Tambahkan ini
     });
 
     useEffect(() => {
@@ -39,6 +43,8 @@ function Dashboardguest() {
         // const interval = setInterval(fetchData, 5000);
         // return () => clearInterval(interval);
     }, []);
+
+     const total = Object.values(data.Incomes).reduce((sum, val) => sum + parseInt(val, 10), 0);
 
     console.log(data);
     const fasilitas = [
@@ -64,16 +70,15 @@ function Dashboardguest() {
         },
     ];
 
-    const chartHarian = {
+    const chartExpanse = {
         labels: ["Hari Ini"],
         datasets: [
             {
-                label: "Pemasukan Harian",
-                data: [data.Harian],
+                label: "Expanse",
+                data: [data.Expanse],
                 backgroundColor: "rgba(59, 130, 246, 0.7)",
                 borderColor: "rgba(59, 130, 246, 1)",
                 borderWidth: 2,
-                borderRadius: 8,
             },
         ],
     };
@@ -86,20 +91,110 @@ function Dashboardguest() {
                 backgroundColor: "rgba(96, 165, 250, 0.7)",
                 borderColor: "rgba(96, 165, 250, 1)",
                 borderWidth: 2,
-                borderRadius: 8,
             },
         ],
     };
+
+    // Untuk chart pengunjung harian (fluktuasi)
+    const pengunjungBulananArr = Array.isArray(data.PengunjungBulanan) ? data.PengunjungBulanan : [];
+    const pengunjungHarianTerakhir = pengunjungBulananArr.slice(-14);
     const chartPengunjung = {
-        labels: ["Bulan Ini"],
+        labels: pengunjungHarianTerakhir.map(item => item.tanggal),
         datasets: [
             {
                 label: "Jumlah Pengunjung",
-                data: [data.PengunjungBulanan],
-                backgroundColor: "rgba(34, 197, 94, 0.7)",
+                data: pengunjungHarianTerakhir.map(item => item.total ?? item.jumlah),
+                fill: true, // aktifkan area di bawah garis
                 borderColor: "rgba(34, 197, 94, 1)",
-                borderWidth: 2,
-                borderRadius: 8,
+                backgroundColor: "rgba(34, 197, 94, 0.15)", // area hijau transparan
+                tension: 0.3,
+                pointBackgroundColor: "rgba(34, 197, 94, 1)",
+                pointBorderColor: "#fff",
+                pointRadius: 4,
+                pointHoverRadius: 6,
+            },
+        ],
+    };
+
+    // --- Rekap pemasukan bulanan dari data.Bulanan (frontend group by month) ---
+    function groupBulananByMonth(bulananArr) {
+        if (!Array.isArray(bulananArr)) return [];
+        const result = {};
+        bulananArr.forEach(item => {
+            const date = new Date(item.tanggal);
+            if (isNaN(date)) return;
+            const monthKey = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+            if (!result[monthKey]) result[monthKey] = 0;
+            result[monthKey] += Number(item.total) || 0;
+        });
+        return Object.entries(result)
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([bulan, total]) => ({
+                bulan,
+                total
+            }));
+    }
+
+    // Gunakan data.Bulanan dari backend
+    const bulananArr = Array.isArray(data.Bulanan) ? data.Bulanan : [];
+    const bulananPerBulan = groupBulananByMonth(bulananArr);
+
+    // Chart Pemasukan Bulanan (Rekap per Bulan) - garis oranye, area oranye transparan
+    const chartBulananLine = {
+        labels: bulananPerBulan.map(item => item.bulan),
+        datasets: [
+            {
+                label: "Pemasukan Bulanan",
+                data: bulananPerBulan.map(item => item.total),
+                fill: true, // aktifkan area di bawah garis
+                borderColor: "rgba(251, 146, 60, 1)", // orange-400
+                backgroundColor: "rgba(251, 146, 60, 0.15)", // area oranye transparan
+                tension: 0.3,
+                pointBackgroundColor: "rgba(251, 146, 60, 1)",
+                pointBorderColor: "#fff",
+                pointRadius: 4,
+                pointHoverRadius: 6,
+            },
+        ],
+    };
+
+    // --- Chart garis fluktuasi pemasukan harian (bukan rekap bulanan) ---
+    // Gunakan data.Bulanan langsung sebagai data harian
+    const chartBulananFluktuasi = {
+        labels: bulananArr.map(item => item.tanggal),
+        datasets: [
+            {
+                label: "Pemasukan Harian",
+                data: bulananArr.map(item => Number(item.total)),
+                fill: true, // aktifkan area di bawah garis
+                borderColor: "rgba(251, 146, 60, 1)", // orange-400
+                backgroundColor: "rgba(251, 146, 60, 0.15)", // area oranye transparan
+                tension: 0.3,
+                pointBackgroundColor: "rgba(251, 146, 60, 1)",
+                pointBorderColor: "#fff",
+                pointRadius: 4,
+                pointHoverRadius: 6,
+            },
+        ],
+    };
+
+    // --- Chart garis fluktuasi expanse bulanan (pengeluaran harian selama bulan berjalan, warna merah) ---
+    // Gunakan data.Expanse dari backend
+    const expanseBulananArr = Array.isArray(data.Expanse) ? data.Expanse : [];
+    const chartExpanseBulanan = {
+        labels: expanseBulananArr.map(item => item.tanggal),
+        datasets: [
+            {
+                label: "Pengeluaran Harian",
+                data: expanseBulananArr.map(item => Number(item.total)),
+                fill: true, // aktifkan area di bawah garis
+                borderColor: "rgba(239, 68, 68, 1)", // merah-500
+                backgroundColor: "rgba(239, 68, 68, 0.15)", // area merah transparan
+                tension: 0.3,
+                pointBackgroundColor: "rgba(239, 68, 68, 1)",
+                pointBorderColor: "#fff",
+                pointRadius: 4,
+                pointHoverRadius: 6,
             },
         ],
     };
@@ -217,7 +312,7 @@ function Dashboardguest() {
                     <img
                         src="/assets/images/logo.jpeg"
                         alt="Kalimas Logo"
-                        className="w-12 h-12 rounded"
+                        className="w-12 h-12 "
                     />
                     <span className="text-2xl font-bold text-gray-800 tracking-wide">
                         Wisata Kalimas
@@ -250,7 +345,7 @@ function Dashboardguest() {
                     </p>
                     <a
                         href="#data"
-                        className="inline-block bg-blue-900 text-white px-6 py-2 rounded font-semibold text-base hover:bg-blue-800 transition"
+                        className="inline-block bg-blue-900 text-white px-6 py-2  font-semibold text-base hover:bg-blue-800 transition"
                     >
                         Lihat Data
                     </a>
@@ -259,7 +354,7 @@ function Dashboardguest() {
                     <img
                         src="/assets/images/kalimas.jpg"
                         alt="Wisata Kalimas"
-                        className="w-full max-w-md min-h-[220px] object-cover rounded shadow border border-gray-200"
+                        className="w-full max-w-md min-h-[220px] object-cover  shadow border border-gray-200"
                     />
                 </div>
             </section>
@@ -270,31 +365,64 @@ function Dashboardguest() {
                     Statistik Terkini
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div className="bg-white p-6 flex flex-col items-center border border-gray-200 rounded shadow-sm">
+                    <div className="bg-white p-6 flex flex-col items-center border border-gray-200  shadow-sm">
                         <h3 className="font-medium text-blue-900 mb-2 text-base">
-                            Pemasukan Harian
+                            Expanse Bulanan
                         </h3>
-                        <div className="w-full">
-                            <Bar data={chartHarian} options={optionsRupiah} />
+                        <div className="w-full overflow-x-auto">
+                            <div className="min-w-[600px]">
+                                <Line
+                                    data={chartExpanseBulanan}
+                                    options={optionsRupiah}
+                                />
+                            </div>
+                        </div>
+                        <div className="text-xs text-gray-500 mt-2">
+                            <em>
+                                <span>
+                                    Grafik pengeluaran harian ,data otomatis update selama ada pengeluaran data akan di reset setelah berganti bulan.
+                                </span>
+                            </em>
                         </div>
                     </div>
-                    <div className="bg-white p-6 flex flex-col items-center border border-gray-200 rounded shadow-sm">
+                    <div className="bg-white p-6 flex flex-col items-center border border-gray-200  shadow-sm">
                         <h3 className="font-medium text-blue-900 mb-2 text-base">
                             Pemasukan Bulanan
                         </h3>
-                        <div className="w-full">
-                            <Bar data={chartBulanan} options={optionsRupiah} />
+                        <div className="w-full overflow-x-auto">
+                            <div className="min-w-[600px]">
+                                <Line
+                                    data={chartBulananFluktuasi}
+                                    options={optionsRupiah}
+                                />
+                            </div>
+                        </div>
+                        <div className="text-xs text-gray-500 mt-2">
+                            <em>
+                                <span>
+                                    Grafik pemasukan bulanan menampilkan fluktuasi pemasukan disetiap harinya, data akan di reset jika sudah berganti bulan.
+                                </span>
+                            </em>
                         </div>
                     </div>
-                    <div className="bg-white p-6 flex flex-col items-center border border-gray-200 rounded shadow-sm">
+                    <div className="bg-white p-6 flex flex-col items-center border border-gray-200  shadow-sm">
                         <h3 className="font-medium text-blue-900 mb-2 text-base">
                             Jumlah Pengunjung
                         </h3>
-                        <div className="w-full">
-                            <Bar
-                                data={chartPengunjung}
-                                options={optionsPengunjung}
-                            />
+                        <div className="w-full overflow-x-auto">
+                            <div className="min-w-[600px]">
+                                <Line
+                                    data={chartPengunjung}
+                                    options={optionsPengunjung}
+                                />
+                            </div>
+                        </div>
+                        <div className="text-xs text-gray-500 mt-2">
+                            <em>
+                                <span>
+                                    Data <b>Pengunjung</b> update setiap ada kunjungan baru, data pengunjung di rekap selama satu bulan setelah satu bulan berakhir data akan direset .
+                                </span>
+                            </em>
                         </div>
                     </div>
                 </div>
@@ -312,14 +440,14 @@ function Dashboardguest() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                     {/* Ringkasan Pemasukan */}
-                    <div className="bg-[#f7f8fa] border border-gray-200 rounded p-6 shadow-sm self-start">
+                    <div className="bg-[#f7f8fa] border border-gray-200  p-6 shadow-sm self-start">
                         <h3 className="text-lg font-semibold text-blue-900 mb-3">Ringkasan Pemasukan</h3>
                         <table className="w-full text-base text-left border">
                             <tbody>
                                 <tr>
                                     <td className="py-2 px-3 border-b font-medium">Tiket Masuk</td>
                                     <td className="py-2 px-3 border-b text-blue-900 font-bold">
-                                        Rp {data.Bulanan.toLocaleString("id-ID")}
+                                        Rp {data.Incomes.ticket_total?.toLocaleString("id-ID")}
                                     </td>
                                 </tr>
                                 <tr>
@@ -353,16 +481,24 @@ function Dashboardguest() {
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td className="py-2 px-3 border-b font-medium">Lain-lain</td>
-                                    <td className="py-2 px-3 border-b text-blue-900 font-bold">
-                                        (Jika ada)
+                                    <td className="py-2 px-3 border-b font-medium">Total Pemasukan</td>
+                                    <td className="py-2 px-3 border-b text-blue-900 font-bold"><span>{""}</span>
+                                        Rp {data.Incomes.total_income?.toLocaleString("id-ID")}
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
+                        <div className="text-xs text-gray-500 mt-2">
+                            <em>
+                                <span>
+                                    <br />
+                                    <b>Catatan:</b> Nilai pemasukan sudah dikurangi oleh pengeluaran operasional maupun mendadak.
+                                </span>
+                            </em>
+                        </div>
                     </div>
                     {/* Ringkasan Pengeluaran */}
-                    <div className="bg-[#f7f8fa] border border-gray-200 rounded p-6 shadow-sm">
+                    <div className="bg-[#f7f8fa] border border-gray-200  p-6 shadow-sm">
                         <h3 className="text-lg font-semibold text-blue-900 mb-3">Ringkasan Pengeluaran</h3>
                         <div className="mb-4">
                             <div className="mb-2">
@@ -384,47 +520,30 @@ function Dashboardguest() {
                             {pengeluaran.length === 0 ? (
                                 <div className="text-gray-400 text-sm">Data pengeluaran belum tersedia.</div>
                             ) : (
-                                <table className="w-full text-sm border">
-                                    <thead>
-                                        <tr className="bg-blue-50">
-                                            <th className="py-2 px-3 border-b text-left">Kategori</th>
-                                            <th className="py-2 px-3 border-b text-left">Deskripsi</th>
-                                            <th className="py-2 px-3 border-b text-left">Loket</th>
-                                            <th className="py-2 px-3 border-b text-right">Total Pengeluaran</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-    {Object.entries(
-        pengeluaran.reduce((acc, item) => {
-            const kategori = item.expanse_category?.name || "Lain-lain";
-            const diskripsi = item.expanse_operasional?.description || item.expanse_mendadak?.description || "-";
-            const loket = item.user?.name || "-";
-            const amount = parseInt(item.amount, 10) || 0;
-
-            if (!acc[kategori]) {
-                acc[kategori] = {
-                    total: 0,
-                    diskripsi: diskripsi,
-                    loket : loket
-                };
-            }
-
-            acc[kategori].total += amount;
-            return acc;
-        }, {})
-    ).map(([kategori, { total, diskripsi ,loket}], idx) => (
-        <tr key={idx}>
-            <td className="py-2 px-3 border-b">{kategori}</td>
-            <td className="py-2 px-3 border-b">{diskripsi}</td>
-            <td className="py-2 px-3 border-b">{loket}</td>
-            <td className="py-2 px-3 border-b text-right text-blue-900 font-semibold">
-                Rp {total.toLocaleString("id-ID")}
-            </td>
-        </tr>
-    ))}
-</tbody>
-
-                                </table>
+                                <div className="max-h-48 overflow-y-auto">
+                                    <table className="w-full text-sm border">
+                                        <thead>
+                                            <tr className="bg-blue-50">
+                                                <th className="py-2 px-3 border-b text-left">Kategori</th>
+                                                <th className="py-2 px-3 border-b text-left">Deskripsi</th>
+                                                <th className="py-2 px-3 border-b text-left">Loket</th>
+                                                <th className="py-2 px-3 border-b text-right">Total Pengeluaran</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {pengeluaran.map((item, idx) => (
+                                                <tr key={idx}>
+                                                    <td className="py-2 px-3 border-b">{item.expanse_category?.name || "Lain-lain"}</td>
+                                                    <td className="py-2 px-3 border-b">{item.expanse_operasional?.description || item.expanse_mendadak?.description || "-"}</td>
+                                                    <td className="py-2 px-3 border-b">{item.user?.name || "-"}</td>
+                                                    <td className="py-2 px-3 border-b text-right text-blue-900 font-semibold">
+                                                        Rp {(parseInt(item.amount, 10) || 0).toLocaleString("id-ID")}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
                             )}
                         </div>
                         <div className="mt-6 text-right text-base font-semibold text-blue-900">
@@ -438,11 +557,20 @@ function Dashboardguest() {
                                     .toLocaleString("id-ID")
                             }
                         </div>
+                        <div className="text-xs text-gray-500 mt-2">
+                            <em>
+                                <span>
+                                    <br />
+                                    <b>Catatan:</b> Gaji pegawai sudah termasuk dalam pengeluaran operasional. Demi menjaga kerahasian gaji pegawai, tidak ditampilkan secara rinci. Pengeluaran mendadak digunakan untuk kebutuhan tak terduga yang harus segera dipenuhi.
+                                    <br />
+                                </span>
+                            </em>
+                        </div>
                     </div>
                 </div>
                 <div className="max-w-4xl mx-auto mt-8">
-                    <div className="bg-blue-50 border-l-4 border-blue-900 p-4 rounded text-blue-900 text-sm">
-                        <strong>Catatan:</strong> Data pemasukan  dan pengeluaran diupdate secara otomatis setiap 1 bulan sekali dan dapat diakses oleh publik sebagai bentuk akuntabilitas pengelolaan dana Wisata Kalimas.
+                    <div className="bg-blue-50 border-l-4 border-blue-900 p-4  text-blue-900 text-sm">
+                        <strong>Catatan:</strong> Data pemasukan  dan pengeluaran diupdate secara otomatis setiap ada transaksi masuk dan transaksi keluar di rekap setiap 1 bulan sekali dan dapat diakses oleh publik sebagai bentuk akuntabilitas pengelolaan dana Wisata Kalimas.
                     </div>
                 </div>
             </section>
@@ -459,7 +587,7 @@ function Dashboardguest() {
                             {fasilitas.map((f, idx) => (
                                 <div
                                     key={idx}
-                                    className="bg-[#f7f8fa] p-5 flex flex-col items-center border border-gray-200 rounded w-56 shadow-sm"
+                                    className="bg-[#f7f8fa] p-5 flex flex-col items-center border border-gray-200  w-56 shadow-sm"
                                 >
                                     <span className="text-3xl mb-2">{f.icon}</span>
                                     <h3 className="text-base font-semibold text-blue-900 mb-1">
@@ -474,10 +602,10 @@ function Dashboardguest() {
                     </div>
                     {/* Harga Tiket & Parkir */}
                     <div>
-                        <div className="max-w-md mx-auto bg-[#f7f8fa] border border-gray-200 rounded p-6 shadow-sm">
+                        <div className="max-w-md mx-auto bg-[#f7f8fa] border border-gray-200  p-6 shadow-sm">
                             <div className="mb-4">
                                 <div className="font-semibold text-gray-700 mb-1">Tiket Masuk:</div>
-                                <div className="text-blue-900 font-bold text-xl">Rp 5.000</div>
+                                <div className="text-blue-900 font-bold text-xl">Rp 10.000</div>
                             </div>
                             <div>
                                 <div className="font-semibold text-gray-700 mb-1">Harga Parkir:</div>
@@ -520,7 +648,7 @@ function Dashboardguest() {
                     {!showTestimoni && (
                         <button
                             onClick={handleShowTestimoni}
-                            className="bg-blue-900 text-white px-6 py-2 rounded font-semibold text-base hover:bg-blue-800 transition"
+                            className="bg-blue-900 text-white px-6 py-2  font-semibold text-base hover:bg-blue-800 transition"
                         >
                             Tampilkan Testimoni
                         </button>
@@ -541,7 +669,7 @@ function Dashboardguest() {
                         {testimoni.map((rev, idx) => (
                             <div
                                 key={idx}
-                                className="bg-white p-5 border border-gray-200 rounded w-80 flex flex-col gap-2 shadow-sm"
+                                className="bg-white p-5 border border-gray-200  w-80 flex flex-col gap-2 shadow-sm"
                             >
                                 <div className="flex items-center gap-3 mb-2">
                                     <img
@@ -550,7 +678,7 @@ function Dashboardguest() {
                                             "https://ui-avatars.com/api/?name=U"
                                         }
                                         alt={rev.author_name}
-                                        className="w-9 h-9 rounded-full border border-gray-200"
+                                        className="w-9 h-9 -full border border-gray-200"
                                     />
                                     <div>
                                         <div className="font-semibold text-blue-900 text-base">
@@ -613,18 +741,18 @@ function Dashboardguest() {
                                 name="email"
                                 required
                                 placeholder="Email Anda"
-                                className="border border-gray-200 rounded px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                className="border border-gray-200  px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-200"
                             />
                             <textarea
                                 name="pesan"
                                 required
                                 placeholder="Tulis pesan Anda..."
                                 rows={3}
-                                className="border border-gray-200 rounded px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                className="border border-gray-200  px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-200"
                             />
                             <button
                                 type="submit"
-                                className="bg-blue-900 text-white rounded px-4 py-2 text-base font-semibold hover:bg-blue-800 transition"
+                                className="bg-blue-900 text-white  px-4 py-2 text-base font-semibold hover:bg-blue-800 transition"
                             >
                                 Kirim Pesan
                             </button>

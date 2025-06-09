@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Illuminate\Support\Facades\Log;
-use App\Models\NetIncome;
 use Carbon\Carbon;
-use App\Models\Ticket_income_details;
-use Illuminate\Support\Facades\Http;
+use Inertia\Inertia;
 use    App\Models\Review;
+use App\Models\NetIncome;
 use App\Models\TotalIncome;
+use App\Models\TotalExpanse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
+use App\Models\Ticket_income_details;
+
 
 class DashboardController extends Controller
 {
@@ -63,16 +66,46 @@ class DashboardController extends Controller
         $today = Carbon::today();
 
 
-        $netincomeharian = NetIncome::whereDate('created_at', now())->value('net_income') ?? 0;
+
+
+          $expanse = TotalExpanse::select(
+            DB::raw('DATE(created_at) as tanggal'),
+            DB::raw('SUM(total_amount) as total')
+        )
+            ->whereYear('created_at', $today->year)
+            ->whereMonth('created_at', $today->month)
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->orderBy('tanggal')
+            ->get();
+
+
 
         $netincomebulanan = NetIncome::whereYear('created_at', $today->year)
             ->whereMonth('created_at', $today->month)
             ->sum('net_income');
 
-        $pengunjungbulanan = Ticket_income_details::whereYear('created_at', $today->year)
+        $pengunjungHarian = Ticket_income_details::select(
+            DB::raw('DATE(created_at) as tanggal'),
+            DB::raw('SUM(jumlah_orang) as total')
+        )
+            ->whereYear('created_at', $today->year)
             ->whereMonth('created_at', $today->month)
-            ->sum('jumlah_orang');
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->orderBy('tanggal')
+            ->get();
 
+
+        $netincomebulanan = NetIncome::select(
+            DB::raw('DATE(created_at) as tanggal'),
+            DB::raw('SUM(net_income) as total')
+        )
+            ->whereYear('created_at', $today->year)
+            ->whereMonth('created_at', $today->month)
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->orderBy('tanggal')
+            ->get();
+
+           
 
         $rekapBulanan = [
             'ticket_total' => TotalIncome::whereYear('created_at', $today->year)
@@ -99,16 +132,16 @@ class DashboardController extends Controller
                 ->whereMonth('created_at', $today->month)
                 ->sum('total_wahana_details'),
 
-            'total_income' => TotalIncome::whereYear('created_at', $today->year)
+            'total_income' => NetIncome::whereYear('created_at', $today->year)
                 ->whereMonth('created_at', $today->month)
-                ->sum('total_amount'),
+                ->sum('net_income'),
         ];
 
 
         return response()->json([
-            'Harian' => $netincomeharian,
+            'Expanse' => $expanse,
             'Bulanan' => $netincomebulanan,
-            'PengunjungBulanan' => $pengunjungbulanan,
+            'PengunjungBulanan' => $pengunjungHarian,
             'Incomes' => $rekapBulanan,
         ]);
     }
