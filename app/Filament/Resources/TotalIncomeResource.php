@@ -20,14 +20,17 @@ use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Spatie\SimpleExcel\SimpleExcelWriter;
 
+
 class TotalIncomeResource extends Resource
 {
 
     protected static ?string $model = TotalIncome::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-banknotes';
 
     protected static ?string $navigationGroup = 'Income';
+
+
 
     public static function form(Form $form): Form
     {
@@ -72,8 +75,7 @@ class TotalIncomeResource extends Resource
             ])
 
             ->headerActions([
-
-                Action::make('Export to Excel')
+                Action::make('Export')
                     ->form([
                         DatePicker::make('start_date')
                             ->label('Tanggal Mulai')
@@ -81,41 +83,65 @@ class TotalIncomeResource extends Resource
                         DatePicker::make('end_date')
                             ->label('Tanggal Selesai')
                             ->required(),
+                        \Filament\Forms\Components\Select::make('format')
+                            ->label('Format')
+                            ->options([
+                                'excel' => 'Excel',
+                                'pdf' => 'PDF',
+                            ])
+                            ->default('excel')
+                            ->required(),
                     ])
                     ->action(function (array $data) {
-                        $filePath = storage_path('app/TotalPemasukanKalimas.xlsx');
-                        $writer = SimpleExcelWriter::create($filePath);
-
-                        // Mengambil tanggal mulai & selesai
                         $startDate = $data['start_date'];
-                        $endDate = \Carbon\Carbon::parse($data['end_date'])->endOfDay(); // Akhir hari (23:59:59)
+                        $endDate = \Carbon\Carbon::parse($data['end_date'])->endOfDay();
+                        $format = $data['format'] ?? 'excel';
 
-                        // Filter data berdasarkan rentang tanggal
-                        $totakhir = TotalIncome::whereBetween('created_at', [$startDate, $endDate])->get();
+                        $totakhir = \App\Models\TotalIncome::whereBetween('created_at', [$startDate, $endDate])->get();
 
-                        // Menulis data ke file Excel
-                        foreach ($totakhir as $data) {
-                            $writer->addRow([
-                                'Total Parking'      => 'Rp ' . number_format($data->total_parking_details ?? 0, 0, ',', '.'),
-                                'Total Ticket'       => 'Rp ' . number_format($data->total_ticket_details ?? 0, 0, ',', '.'),
-                                'Total Bantuan'      => 'Rp ' . number_format($data->total_bantuan_details ?? 0, 0, ',', '.'),
-                                'Total Resto'        => 'Rp ' . number_format($data->total_resto_details ?? 0, 0, ',', '.'),
-                                'Total Toilet'       => 'Rp ' . number_format($data->total_toilet_details ?? 0, 0, ',', '.'),
-                                'Total Wahana'       => 'Rp ' . number_format($data->total_wahana_details ?? 0, 0, ',', '.'),
-                                'Total Expanse'      => 'Rp ' . number_format(optional(optional($data)->total_expanse->first())->total_amount ?? 0, 0, ',', '.'),
-                                'Total Gross Income' => 'Rp ' . number_format($data->total_amount ?? 0, 0, ',', '.'),
-                                'Total Net Income'   => 'Rp ' . number_format(optional(optional($data)->netIncome)->net_income ?? 0, 0, ',', '.'),
-                                'Tanggal Data Dibuat' => optional($data->created_at)->format('Y-m-d') ?? '-',
-                            ]);
+                        if ($format === 'pdf') {
+                            $pdfData = [];
+                            foreach ($totakhir as $row) {
+                                $pdfData[] = [
+                                    'Total Parking'      => 'Rp ' . number_format($row->total_parking_details ?? 0, 0, ',', '.'),
+                                    'Total Ticket'       => 'Rp ' . number_format($row->total_ticket_details ?? 0, 0, ',', '.'),
+                                    'Total Bantuan'      => 'Rp ' . number_format($row->total_bantuan_details ?? 0, 0, ',', '.'),
+                                    'Total Resto'        => 'Rp ' . number_format($row->total_resto_details ?? 0, 0, ',', '.'),
+                                    'Total Toilet'       => 'Rp ' . number_format($row->total_toilet_details ?? 0, 0, ',', '.'),
+                                    'Total Wahana'       => 'Rp ' . number_format($row->total_wahana_details ?? 0, 0, ',', '.'),
+                                    'Total Expanse'      => 'Rp ' . number_format(optional(optional($row)->total_expanse->first())->total_amount ?? 0, 0, ',', '.'),
+                                    'Total Gross Income' => 'Rp ' . number_format($row->total_amount ?? 0, 0, ',', '.'),
+                                    'Total Net Income'   => 'Rp ' . number_format(optional(optional($row)->netIncome)->net_income ?? 0, 0, ',', '.'),
+                                    'Tanggal Data Dibuat' => optional($row->created_at)->format('Y-m-d') ?? '-',
+                                ];
+                            }
+                            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.total_income_pdf', ['rows' => $pdfData]);
+                            $fileName = 'TotalPemasukanKalimas.pdf';
+                            return response()->streamDownload(function () use ($pdf) {
+                                echo $pdf->stream();
+                            }, $fileName);
+                        } else {
+                            $filePath = storage_path('app/TotalPemasukanKalimas.xlsx');
+                            $writer = \Spatie\SimpleExcel\SimpleExcelWriter::create($filePath);
+
+                            foreach ($totakhir as $row) {
+                                $writer->addRow([
+                                    'Total Parking'      => 'Rp ' . number_format($row->total_parking_details ?? 0, 0, ',', '.'),
+                                    'Total Ticket'       => 'Rp ' . number_format($row->total_ticket_details ?? 0, 0, ',', '.'),
+                                    'Total Bantuan'      => 'Rp ' . number_format($row->total_bantuan_details ?? 0, 0, ',', '.'),
+                                    'Total Resto'        => 'Rp ' . number_format($row->total_resto_details ?? 0, 0, ',', '.'),
+                                    'Total Toilet'       => 'Rp ' . number_format($row->total_toilet_details ?? 0, 0, ',', '.'),
+                                    'Total Wahana'       => 'Rp ' . number_format($row->total_wahana_details ?? 0, 0, ',', '.'),
+                                    'Total Expanse'      => 'Rp ' . number_format(optional(optional($row)->total_expanse->first())->total_amount ?? 0, 0, ',', '.'),
+                                    'Total Gross Income' => 'Rp ' . number_format($row->total_amount ?? 0, 0, ',', '.'),
+                                    'Total Net Income'   => 'Rp ' . number_format(optional(optional($row)->netIncome)->net_income ?? 0, 0, ',', '.'),
+                                    'Tanggal Data Dibuat' => optional($row->created_at)->format('Y-m-d') ?? '-',
+                                ]);
+                            }
+                            return response()->download($filePath)->deleteFileAfterSend();
                         }
-
-
-                        // Mengunduh file Excel
-                        return response()->download($filePath)->deleteFileAfterSend();
-                    }),
-
-
-
+                    })
+                    ->icon('heroicon-o-arrow-down-tray'),
             ])
 
             ->filters([
