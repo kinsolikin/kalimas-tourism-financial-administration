@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Bar } from "react-chartjs-2";
+import { Bar, Line } from "react-chartjs-2";
 import {
     Chart as ChartJS,
     CategoryScale,
     LinearScale,
     BarElement,
+    LineElement, // tambahkan ini
+    PointElement, // tambahkan ini
     Title,
     Tooltip,
     Legend,
@@ -14,6 +16,8 @@ ChartJS.register(
     CategoryScale,
     LinearScale,
     BarElement,
+    LineElement, // tambahkan ini
+    PointElement, // tambahkan ini
     Title,
     Tooltip,
     Legend
@@ -78,37 +82,76 @@ function Dashboardguest() {
             },
         ],
     };
+    // Untuk chart pemasukan bulanan fluktuasi
+    const bulananArray = Array.isArray(data.Bulanan) ? data.Bulanan : [];
     const chartBulanan = {
-        labels: ["Bulan Ini"],
+        labels: bulananArray.map(item => item.tanggal ?? item.bulan ?? ""), // gunakan tanggal/bulan
         datasets: [
             {
                 label: "Pemasukan Bulanan",
-                data: [data.Bulanan],
-                backgroundColor: "rgba(96, 165, 250, 0.7)",
+                data: bulananArray.map(item => item.total ?? item.jumlah ?? 0),
+                backgroundColor: "rgba(96, 165, 250, 0.2)",
                 borderColor: "rgba(96, 165, 250, 1)",
                 borderWidth: 2,
+                fill: true,
+                tension: 0.3,
+                pointBackgroundColor: "rgba(96, 165, 250, 1)",
+                pointRadius: 4,
             },
         ],
     };
 
     // Untuk chart pengunjung harian (fluktuasi)
-const pengunjungHarianTerakhir = data.PengunjungBulanan?.slice(-14) || [];
+    const pengunjungHarianTerakhir = Array.isArray(data.PengunjungBulanan) ? data.PengunjungBulanan.slice(-14) : [];
     const chartPengunjung = {
-    labels: pengunjungHarianTerakhir.map(item => item.tanggal),
-    datasets: [
-        {
-            label: "Jumlah Pengunjung",
-            // Gunakan item.total jika backend mengirim {tanggal, total}, atau item.jumlah jika {tanggal, jumlah}
-            data: pengunjungHarianTerakhir.map(item => item.total ?? item.jumlah),
-            backgroundColor: "rgba(34, 197, 94, 0.7)",
-            borderColor: "rgba(34, 197, 94, 1)",
-            borderWidth: 2,
-        },
-    ],
-};
+        labels: pengunjungHarianTerakhir.map(item => item.tanggal),
+        datasets: [
+            {
+                label: "Jumlah Pengunjung",
+                data: pengunjungHarianTerakhir.map(item => item.total ?? item.jumlah),
+                backgroundColor: "rgba(34, 197, 94, 0.2)",
+                borderColor: "rgba(34, 197, 94, 1)",
+                borderWidth: 2,
+                fill: true,
+                tension: 0.3, // garis lebih halus
+                pointBackgroundColor: "rgba(34, 197, 94, 1)",
+                pointRadius: 4,
+            },
+        ],
+    };
+
+    // Untuk chart pengeluaran harian (expanse) selama 1 bulan terakhir
+    // Kelompokkan pengeluaran per tanggal
+    const pengeluaranPerTanggal = {};
+    if (Array.isArray(data.PengunjungBulanan)) {
+        data.PengunjungBulanan.forEach(item => {
+            const tgl = item.tanggal || item.created_at?.slice(0, 10) || "-";
+            if (!pengeluaranPerTanggal[tgl]) pengeluaranPerTanggal[tgl] = 0;
+            pengeluaranPerTanggal[tgl] += parseInt(item.amount, 10) || 0;
+        });
+    }
+    // Ambil 30 hari terakhir, urutkan tanggal naik
+    const tanggalPengeluaran = Object.keys(pengeluaranPerTanggal).sort().slice(-30);
+    const chartExpanseHarian = {
+        labels: tanggalPengeluaran,
+        datasets: [
+            {
+                label: "Pengeluaran Harian",
+                data: tanggalPengeluaran.map(tgl => pengeluaranPerTanggal[tgl]),
+                backgroundColor: "rgba(239, 68, 68, 0.2)",
+                borderColor: "rgba(239, 68, 68, 1)",
+                borderWidth: 2,
+                fill: true,
+                tension: 0.3,
+                pointBackgroundColor: "rgba(239, 68, 68, 1)",
+                pointRadius: 4,
+            },
+        ],
+    };
 
     const optionsRupiah = {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
             legend: { display: false },
             tooltip: {
@@ -142,6 +185,7 @@ const pengunjungHarianTerakhir = data.PengunjungBulanan?.slice(-14) || [];
 
     const optionsPengunjung = {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
             legend: { display: false },
             tooltip: {
@@ -273,31 +317,46 @@ const pengunjungHarianTerakhir = data.PengunjungBulanan?.slice(-14) || [];
                     Statistik Terkini
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div className="bg-white p-6 flex flex-col items-center border border-gray-200  shadow-sm">
+                    <div className="bg-white p-6 flex flex-col items-center border border-gray-200 shadow-sm">
                         <h3 className="font-medium text-blue-900 mb-2 text-base">
-                            Pemasukan Harian
+                            Pengeluaran Harian
                         </h3>
-                        <div className="w-full">
-                            <Bar data={chartHarian} options={optionsRupiah} />
+                        <div className="overflow-x-auto w-full">
+                            <div style={{ minWidth: 600, height: 260 }}>
+                                <Line data={chartExpanseHarian} options={optionsRupiah} />
+                            </div>
+                        </div>
+                        <div className="text-xs text-gray-500 mt-2 text-center italic">
+                            Grafik ini menampilkan fluktuasi pengeluaran harian Wisata Kalimas selama 1 bulan terakhir. Setiap titik pada grafik merepresentasikan total pengeluaran yang terjadi pada hari tersebut, baik untuk kebutuhan operasional maupun pengeluaran mendadak. Anda dapat menggeser grafik ke samping untuk melihat data hari-hari sebelumnya atau berikutnya secara lebih detail.
                         </div>
                     </div>
-                    <div className="bg-white p-6 flex flex-col items-center border border-gray-200  shadow-sm">
+                    <div className="bg-white p-6 flex flex-col items-center border border-gray-200 shadow-sm">
                         <h3 className="font-medium text-blue-900 mb-2 text-base">
                             Pemasukan Bulanan
                         </h3>
-                        <div className="w-full">
-                            <Bar data={chartBulanan} options={optionsRupiah} />
+                        <div className="overflow-x-auto w-full">
+                            <div style={{ minWidth: 600, height: 260 }}>
+                                <Line data={chartBulanan} options={optionsRupiah} />
+                            </div>
+                        </div>
+                        <div className="text-xs text-gray-500 mt-2 text-center italic">
+                            Grafik ini memperlihatkan perubahan pemasukan bulanan dari berbagai sumber seperti tiket, parkir, resto, dan wahana. Setiap titik pada grafik menunjukkan total pemasukan yang diterima pada bulan atau tanggal tertentu. Silakan geser grafik ke samping untuk menelusuri tren pemasukan dari waktu ke waktu secara lebih rinci.
                         </div>
                     </div>
-                    <div className="bg-white p-6 flex flex-col items-center border border-gray-200  shadow-sm">
+                    <div className="bg-white p-6 flex flex-col items-center border border-gray-200 shadow-sm">
                         <h3 className="font-medium text-blue-900 mb-2 text-base">
                             Jumlah Pengunjung
                         </h3>
-                        <div className="w-full">
-                            <Bar
-                                data={chartPengunjung}
-                                options={optionsPengunjung}
-                            />
+                        <div className="overflow-x-auto w-full">
+                            <div style={{ minWidth: 600, height: 260 }}>
+                                <Line
+                                    data={chartPengunjung}
+                                    options={optionsPengunjung}
+                                />
+                            </div>
+                        </div>
+                        <div className="text-xs text-gray-500 mt-2 text-center italic">
+                            Grafik ini menunjukkan fluktuasi jumlah pengunjung harian selama 14 hari terakhir di Wisata Kalimas. Setiap titik pada grafik merepresentasikan total pengunjung yang datang pada hari tersebut. Anda dapat menggeser grafik ke samping untuk melihat data hari-hari lainnya dan memantau tren kunjungan secara lebih menyeluruh.
                         </div>
                     </div>
                 </div>
