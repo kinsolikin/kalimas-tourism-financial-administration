@@ -4,8 +4,14 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Admin;
-use App\Notifications\NetIncome;
 use App\Models\NetIncome as NetIncomeModel;
+use App\Models\Resto_income_details;
+use App\Models\Parking_income_details;
+use App\Models\Ticket_income_details;
+use App\Models\Wahana_income_details;
+use App\Models\Toilet_income_details;
+use App\Models\Bantuan_income_details;
+use App\Notifications\NetIncome as NetIncomeNotification;
 use Carbon\Carbon;
 
 class sendNetIncome extends Command
@@ -33,13 +39,28 @@ class sendNetIncome extends Command
     {
         // total income yang ingin dikirim
 
-        $admin = Admin::first(); 
         // ambil admin pertama (karena hanya satu)
-        $total = NetIncomeModel::where('created_at', Carbon::now()->subHour())
-            ->sum('net_income'); // ambil total income dalam 1 jam terakhir
+        $total = NetIncomeModel::whereDate('created_at', Carbon::now())
+        ->sum('net_income'); // ambil total income dalam 1 jam terakhir
+        $admin = Admin::first(); 
            
+        $resto = Resto_income_details::whereDate('created_at',Carbon::now())->sum('total'); 
+        $parking  = Parking_income_details::whereDate('created_at',Carbon::now())->sum('total');
+        $ticket = Ticket_income_details::whereDate('created_at',Carbon::now())->sum('total');
+        $wahana = Wahana_income_details::whereDate('created_at',Carbon::now())->sum('total');
+        $toilet = Toilet_income_details::whereDate('created_at',Carbon::now())->sum('total');
+        $bantuan = Bantuan_income_details::whereDate('created_at',Carbon::now())->sum('total');
+
         if ($admin) {
-            $admin->notify(new NetIncome($total));
+            $admin->notify(new NetIncomeNotification([
+                'total'=> $total,
+                'resto' => $resto,
+                'parking' => $parking,
+                'ticket' => $ticket,
+                'wahana' => $wahana,
+                'toilet' => $toilet,
+                'bantuan' => $bantuan,
+            ]));
         }
     }
 }
