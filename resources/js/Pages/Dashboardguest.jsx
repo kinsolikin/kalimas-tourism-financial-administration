@@ -25,10 +25,11 @@ ChartJS.register(
 
 function Dashboardguest() {
     const [data, setData] = useState({
-        Harian: 0,
+        Expanse: 0,
         PengunjungBulanan: 0,
         Incomes: [],
-        PengunjungHarian: [], // Tambahkan ini
+        PengunjungHarian: [],
+        // Tambahkan jika belum ada di backend: ExpanseLineHarian: [],
     });
 
     useEffect(() => {
@@ -46,7 +47,6 @@ function Dashboardguest() {
 
      const total = Object.values(data.Incomes).reduce((sum, val) => sum + parseInt(val, 10), 0);
 
-    console.log(data);
     const fasilitas = [
         {
             icon: "🌉",
@@ -75,7 +75,7 @@ function Dashboardguest() {
         datasets: [
             {
                 label: "Pemasukan Harian",
-                data: [data.Harian],
+                data: [data.Expanse],
                 backgroundColor: "rgba(59, 130, 246, 0.7)",
                 borderColor: "rgba(59, 130, 246, 1)",
                 borderWidth: 2,
@@ -120,25 +120,15 @@ function Dashboardguest() {
         ],
     };
 
-    // Untuk chart pengeluaran harian (expanse) selama 1 bulan terakhir
-    // Kelompokkan pengeluaran per tanggal
-    const pengeluaranPerTanggal = {};
-    if (Array.isArray(data.PengunjungBulanan)) {
-        data.PengunjungBulanan.forEach(item => {
-            const tgl = item.tanggal || item.created_at?.slice(0, 10) || "-";
-            if (!pengeluaranPerTanggal[tgl]) pengeluaranPerTanggal[tgl] = 0;
-            pengeluaranPerTanggal[tgl] += parseInt(item.amount, 10) || 0;
-        });
-    }
-    // Ambil 30 hari terakhir, urutkan tanggal naik
-    const tanggalPengeluaran = Object.keys(pengeluaranPerTanggal).sort().slice(-30);
-    const chartExpanseHarian = {
-        labels: tanggalPengeluaran,
+    // Chart garis fluktuasi pengeluaran harian
+    const expanseLineHarianArray = Array.isArray(data.Expanse) ? data.Expanse : [];
+    const chartExpanseLineHarian = {
+        labels: expanseLineHarianArray.map(item => item.tanggal),
         datasets: [
             {
                 label: "Pengeluaran Harian",
-                data: tanggalPengeluaran.map(tgl => pengeluaranPerTanggal[tgl]),
-                backgroundColor: "rgba(239, 68, 68, 0.2)",
+                data: expanseLineHarianArray.map(item => item.total ?? 0),
+                backgroundColor: "rgba(239, 68, 68, 0.15)",
                 borderColor: "rgba(239, 68, 68, 1)",
                 borderWidth: 2,
                 fill: true,
@@ -151,7 +141,6 @@ function Dashboardguest() {
 
     const optionsRupiah = {
         responsive: true,
-        maintainAspectRatio: false,
         plugins: {
             legend: { display: false },
             tooltip: {
@@ -185,7 +174,6 @@ function Dashboardguest() {
 
     const optionsPengunjung = {
         responsive: true,
-        maintainAspectRatio: false,
         plugins: {
             legend: { display: false },
             tooltip: {
@@ -253,8 +241,7 @@ function Dashboardguest() {
         // return () => clearInterval(interval);
     }, []);
 
-    console.log("Pengeluaran:", pengeluaran);
-    
+console.log(data);    
     return (
         <div className="min-h-screen bg-[#f7f8fa] font-sans">
             {/* Header */}
@@ -317,47 +304,48 @@ function Dashboardguest() {
                     Statistik Terkini
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {/* Chart garis pengeluaran harian */}
                     <div className="bg-white p-6 flex flex-col items-center border border-gray-200 shadow-sm">
                         <h3 className="font-medium text-blue-900 mb-2 text-base">
-                            Pengeluaran Harian
+                            Pengeluaran Harian (1 Bulan Terakhir)
                         </h3>
-                        <div className="overflow-x-auto w-full">
-                            <div style={{ minWidth: 600, height: 260 }}>
-                                <Line data={chartExpanseHarian} options={optionsRupiah} />
+                        <div className="w-full overflow-x-auto">
+                            <div style={{ minWidth: 600 }}>
+                                <Line data={chartExpanseLineHarian} options={optionsRupiah} />
                             </div>
                         </div>
-                        <div className="text-xs text-gray-500 mt-2 text-center italic">
-                            Grafik ini menampilkan fluktuasi pengeluaran harian Wisata Kalimas selama 1 bulan terakhir. Setiap titik pada grafik merepresentasikan total pengeluaran yang terjadi pada hari tersebut, baik untuk kebutuhan operasional maupun pengeluaran mendadak. Anda dapat menggeser grafik ke samping untuk melihat data hari-hari sebelumnya atau berikutnya secara lebih detail.
-                        </div>
+                        <div className="mt-2 text-gray-400 text-xs italic text-justify">
+                Grafik ini memperlihatkan fluktuasi pengeluaran harian Kalimas, memudahkan publik memantau transparansi dan pola pengeluaran setiap hari secara real-time.
+            </div>
                     </div>
-                    <div className="bg-white p-6 flex flex-col items-center border border-gray-200 shadow-sm">
+                    <div className="bg-white p-6 flex flex-col items-center border border-gray-200  shadow-sm">
                         <h3 className="font-medium text-blue-900 mb-2 text-base">
                             Pemasukan Bulanan
                         </h3>
-                        <div className="overflow-x-auto w-full">
-                            <div style={{ minWidth: 600, height: 260 }}>
+                        <div className="w-full overflow-x-auto">
+                            <div style={{ minWidth: 600 }}>
                                 <Line data={chartBulanan} options={optionsRupiah} />
                             </div>
                         </div>
-                        <div className="text-xs text-gray-500 mt-2 text-center italic">
-                            Grafik ini memperlihatkan perubahan pemasukan bulanan dari berbagai sumber seperti tiket, parkir, resto, dan wahana. Setiap titik pada grafik menunjukkan total pemasukan yang diterima pada bulan atau tanggal tertentu. Silakan geser grafik ke samping untuk menelusuri tren pemasukan dari waktu ke waktu secara lebih rinci.
-                        </div>
+                        <div className="mt-2 text-gray-400 text-xs italic text-justify">
+                Grafik ini menampilkan tren pemasukan bulanan dari berbagai sumber, membantu masyarakat melihat perkembangan keuangan wisata Kalimas tiap bulan.
+            </div>
                     </div>
-                    <div className="bg-white p-6 flex flex-col items-center border border-gray-200 shadow-sm">
+                    <div className="bg-white p-6 flex flex-col items-center border border-gray-200  shadow-sm">
                         <h3 className="font-medium text-blue-900 mb-2 text-base">
                             Jumlah Pengunjung
                         </h3>
-                        <div className="overflow-x-auto w-full">
-                            <div style={{ minWidth: 600, height: 260 }}>
+                        <div className="w-full overflow-x-auto">
+                            <div style={{ minWidth: 600 }}>
                                 <Line
                                     data={chartPengunjung}
                                     options={optionsPengunjung}
                                 />
                             </div>
                         </div>
-                        <div className="text-xs text-gray-500 mt-2 text-center italic">
-                            Grafik ini menunjukkan fluktuasi jumlah pengunjung harian selama 14 hari terakhir di Wisata Kalimas. Setiap titik pada grafik merepresentasikan total pengunjung yang datang pada hari tersebut. Anda dapat menggeser grafik ke samping untuk melihat data hari-hari lainnya dan memantau tren kunjungan secara lebih menyeluruh.
-                        </div>
+                        <div className="mt-2 text-gray-400 text-xs italic text-justify">
+                Grafik ini menunjukkan jumlah pengunjung harian, memudahkan pemantauan tren kunjungan dan evaluasi efektivitas event atau promosi wisata.
+            </div>
                     </div>
                 </div>
             </section>
