@@ -25,6 +25,12 @@ class WahanaIncomeDetailsResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-puzzle-piece';
 
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -35,11 +41,11 @@ class WahanaIncomeDetailsResource extends Resource
 
     public static function table(Table $table): Table
     {
-        
+
         return $table
 
             ->columns([
-                  TextColumn::make('nama_wahana')
+                TextColumn::make('nama_wahana')
                     ->label('Nama Wahana')->searchable()
                     ->sortable(),
                 TextColumn::make('harga')
@@ -67,14 +73,14 @@ class WahanaIncomeDetailsResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -82,5 +88,5 @@ class WahanaIncomeDetailsResource extends Resource
             'create' => Pages\CreateWahanaIncomeDetails::route('/create'),
             'edit' => Pages\EditWahanaIncomeDetails::route('/{record}/edit'),
         ];
-    }    
+    }
 }

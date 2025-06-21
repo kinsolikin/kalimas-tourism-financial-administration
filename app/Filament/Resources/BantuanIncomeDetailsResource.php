@@ -23,6 +23,11 @@ class BantuanIncomeDetailsResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -33,17 +38,17 @@ class BantuanIncomeDetailsResource extends Resource
 
     public static function table(Table $table): Table
     {
-          
+
 
         return $table
             ->columns([
-                   TextColumn::make('sumber_bantuan')
+                TextColumn::make('sumber_bantuan')
                     ->label('Sumber Bantuan')->searchable()
                     ->sortable(),
-                   TextColumn::make('keterangan')
+                TextColumn::make('keterangan')
                     ->label('Keterangan')->searchable()
                     ->sortable(),
-                   TextColumn::make('total')
+                TextColumn::make('total')
                     ->label('Total')->searchable()
                     ->sortable(),
             ])

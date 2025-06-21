@@ -23,6 +23,11 @@ class ParkingIncomeDetailsResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-cog';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
 
     public static function form(Form $form): Form
     {
@@ -34,10 +39,10 @@ class ParkingIncomeDetailsResource extends Resource
 
     public static function table(Table $table): Table
     {
-        
+
         return $table
             ->columns([
-                   TextColumn::make('jenis_kendaraan')
+                TextColumn::make('jenis_kendaraan')
                     ->label('Jenis Kendaraan')->searchable()
                     ->sortable(),
                 TextColumn::make('jumlah_kendaraan')
@@ -65,14 +70,14 @@ class ParkingIncomeDetailsResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -80,5 +85,5 @@ class ParkingIncomeDetailsResource extends Resource
             'create' => Pages\CreateParkingIncomeDetails::route('/create'),
             'edit' => Pages\EditParkingIncomeDetails::route('/{record}/edit'),
         ];
-    }    
+    }
 }

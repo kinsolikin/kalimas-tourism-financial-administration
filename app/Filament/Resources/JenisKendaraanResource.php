@@ -17,7 +17,9 @@ class JenisKendaraanResource extends Resource
 {
     protected static ?string $model = JenisKendaraan::class;
 
+
     protected static ?string $navigationIcon = 'heroicon-o-cog';
+
 
     protected static ?string $navigationGroup = 'Setting';
 
@@ -26,7 +28,14 @@ class JenisKendaraanResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\TextInput::make('namakendaraan')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('price')
+                    ->required()
+                    ->numeric()
+                    ->default(0.00)
+                    ->prefix('Rp'),
             ]);
     }
 
@@ -34,7 +43,19 @@ class JenisKendaraanResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('namakendaraan')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('price')
+                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state, 0, ',', '.'))
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

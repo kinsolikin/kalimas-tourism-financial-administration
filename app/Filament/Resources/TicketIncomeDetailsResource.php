@@ -25,6 +25,10 @@ class TicketIncomeDetailsResource extends Resource
 
     protected static ?string $model = Ticket_income_details::class;
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
 
 
     public static function form(Form $form): Form
@@ -39,7 +43,7 @@ class TicketIncomeDetailsResource extends Resource
     {
         return $table
             ->columns([
-                 TextColumn::make('jumlah_orang')
+                TextColumn::make('jumlah_orang')
                     ->label('Jumlah Orang')->searchable()
                     ->sortable(),
                 TextColumn::make('harga_satuan')
@@ -64,14 +68,14 @@ class TicketIncomeDetailsResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -79,5 +83,5 @@ class TicketIncomeDetailsResource extends Resource
             'create' => Pages\CreateTicketIncomeDetails::route('/create'),
             'edit' => Pages\EditTicketIncomeDetails::route('/{record}/edit'),
         ];
-    }    
+    }
 }

@@ -23,6 +23,11 @@ class ToiletIncomeDetailsResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
+        public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
     public static function form(Form $form): Form
     {
         return $form
