@@ -14,6 +14,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Models\Parking_income_details;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\Select;
+use App\Models\JenisKendaraan;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\TextInput;
 
 class ParkingIncomeDetailsResource extends Resource
 {
@@ -33,7 +37,62 @@ class ParkingIncomeDetailsResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Hidden::make('user_id')->default(2),
+                Select::make('jenis_kendaraan')
+                    ->label('Jenis Kendaraan')
+                    ->options(JenisKendaraan::pluck('namakendaraan', 'namakendaraan')->toArray())
+                    ->searchable()
+                    ->required()
+                    ->reactive()
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        $harga = JenisKendaraan::where('namakendaraan', $state)->first()?->price ?? 0;
+                        $set('harga_satuan', $harga);
+                    }),
+                TextInput::make('jumlah_kendaraan')
+                    ->label('Jumlah Kendaraan')
+                    ->numeric()
+                    ->required()
+                    ->afterStateUpdated(function ($set, $get) {
+                        $set('total', (
+                            $get('jumlah_kendaraan') * $get('harga_satuan')
+                        ));
+                    })->afterStateUpdated(function ($set, $get) {
+                        // Saat field mana pun berubah, hitung ulang
+                        $set('total', (
+                            $get('jumlah_kendaraan') * $get('harga_satuan')
+                        ));
+                    }),
+                TextInput::make('harga_satuan')
+                    ->label('Harga Satuan')
+                    ->numeric()
+                    ->required()
+                      ->afterStateUpdated(function ($set, $get) {
+                        $set('total', (
+                            $get('jumlah_kendaraan') * $get('harga_satuan')
+                        ));
+                    })->afterStateUpdated(function ($set, $get) {
+                        // Saat field mana pun berubah, hitung ulang
+                        $set('total', (
+                            $get('jumlah_kendaraan') * $get('harga_satuan')
+                        ));
+                    })
+                    ->disabled() // agar user tidak bisa ubah manual
+                    ->dehydrated(), // tetap disimpan ke database
+
+                Hidden::make('income_id')
+                    ->label('Pilih Pendapatan')
+                    ->default(1) // sesuaikan nama kolom
+                    ->required(),
+                TextInput::make('total')
+                    ->label('Total')
+                    ->disabled() // Supaya user tidak bisa input manual
+                    ->dehydrated() // Supaya tetap disimpan ke database
+                    ->reactive()
+                    
+
+
+
+
             ]);
     }
 
