@@ -46,7 +46,8 @@ class NetIncome extends Notification
             ->line('Total Pendapatan di Loket Wahana Rp ' . number_format($this->data['wahana'], 0, ',', '.'))
             ->line('Total Pendapatan di Loket Toilet Rp ' . number_format($this->data['toilet'], 0, ',', '.'))
             ->line('Total Pendapatan di Loket Bantuan Rp ' . number_format($this->data['bantuan'], 0, ',', '.'))
-            
+            ->line('Total Pengeluaran Rp ' . number_format($this->data['expanse'], 0, ',', '.'))
+
             ->line('Total Net Income Rp ' . number_format($this->data['total'], 0, ',', '.'))
 
             ->line('Laporan ini dikirim otomatis setiap 1 jam.')

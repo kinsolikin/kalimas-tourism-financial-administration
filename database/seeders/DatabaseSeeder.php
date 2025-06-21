@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             ExpanseCategorySeeder::class,
             UserSeeder::class,
             AdminSeeder::class,
+            JenisKendaraanSeeder::class,
         ]);
     }
 }

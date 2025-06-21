@@ -11,6 +11,7 @@ use App\Models\Ticket_income_details;
 use App\Models\Wahana_income_details;
 use App\Models\Toilet_income_details;
 use App\Models\Bantuan_income_details;
+use App\Models\TotalExpanse;
 use App\Notifications\NetIncome as NetIncomeNotification;
 use Carbon\Carbon;
 
@@ -50,6 +51,7 @@ class sendNetIncome extends Command
         $wahana = Wahana_income_details::whereDate('created_at',Carbon::now())->sum('total');
         $toilet = Toilet_income_details::whereDate('created_at',Carbon::now())->sum('total');
         $bantuan = Bantuan_income_details::whereDate('created_at',Carbon::now())->sum('total');
+        $expanse = TotalExpanse::whereDate('created_at',Carbon::now())->value('total_amount');
 
         if ($admin) {
             $admin->notify(new NetIncomeNotification([
@@ -60,6 +62,8 @@ class sendNetIncome extends Command
                 'wahana' => $wahana,
                 'toilet' => $toilet,
                 'bantuan' => $bantuan,
+                'expanse' => $expanse,
+                
             ]));
         }
     }

@@ -31,26 +31,23 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-Route::get('/dashboard/expanse/transactions/guest',[TransactionController::class, 'guestexpanses']);
+Route::get('/dashboard/expanse/transactions/guest', [TransactionController::class, 'guestexpanses']);
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
-  
 
-    Route::get('/dashboard/pengeluaran',[ControllerExpanse::class,'index'])->name('dashboard.pengeluaran');
+
+    Route::get('/dashboard/pengeluaran', [ControllerExpanse::class, 'index'])->name('dashboard.pengeluaran');
 
     Route::post('dashboard/expanses/store', [ControllerExpanse::class, 'store']);
-    
-        Route::get('/dashboard/expanse/transactions', [TransactionController::class, 'indexExpanse']);
-        
 
-        Route::delete('/dashboard/expanse/transactions/delete/{id}', [TransactionController::class, 'deletefindexpanse']);
-   
-   
+    Route::get('/dashboard/expanse/transactions', [TransactionController::class, 'indexExpanse']);
+
+
+    Route::delete('/dashboard/expanse/transactions/delete/{id}', [TransactionController::class, 'deletefindexpanse']);
+
+
     Route::post('/dashboard/close-shift', [ControllerShift::class, 'closeShift']);
-
-
-
 
 
 
@@ -61,7 +58,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('/dashboard-tiketparkir', [ControllerTicketParking::class, 'index'])->name('dashboard.tiketparkir');
         Route::get('/dashboard/transaction-history', [TransactionController::class, 'index']);
-
 
         Route::post('/dashboard/store', [ControllerTicketParking::class, 'store']);
 
@@ -85,53 +81,44 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // route untuk role loket wahana
-          Route::middleware(('role:loketwahana'))->group(function(){
+    Route::middleware(('role:loketwahana'))->group(function () {
         Route::post('/dashboard/wahana/store', [DashboardLoketWahana::class, 'store']);
 
         Route::get('/dashboard-loketwahana', [DashboardLoketWahana::class, 'index'])->name('dashboard.wahana');
         Route::get('/dashboard/wahana/transactions', [TransactionController::class, 'indexWahana']);
-        Route::get('/dashboard/wahana/transactions/filter',[TransactionController::class, 'wahanatransactionfilter']);
+        Route::get('/dashboard/wahana/transactions/filter', [TransactionController::class, 'wahanatransactionfilter']);
 
         Route::delete('/dashboard/wahana/transactions/delete/{id}', [TransactionController::class, 'deletefindWahana']);
-        Route::delete('/dashboard/wahana/transactions/delete-all', [TransactionController::class, 'deleteAllWahanaTransactions']);    
-    
+        Route::delete('/dashboard/wahana/transactions/delete-all', [TransactionController::class, 'deleteAllWahanaTransactions']);
     });
 
     // route untuk role lokettoilet
-    Route::middleware(['role:lokettoilet'])->group(function(){
+    Route::middleware(['role:lokettoilet'])->group(function () {
 
         Route::post('/dashboard/toilet/store', [DashboardLoketToilet::class, 'store']);
-        
-        Route::get('/dashboard-lokettoilet',[DashboardLoketToilet::class, 'index'])->name('dashboard.toilet');
-        Route::get('/dashboard/toilet/transactions',[TransactionController::class,'indexToilet']);
-        Route::get('/dashboard/toilet/transactions/filter',[TransactionController::class,'toilettransactionfilter']);
 
-        Route::delete('/dashboard/toilet/transactions/delete/{id}',[TransactionController::class,'deletefindToilet']);
-        Route::delete('/dashboard/toilet/transactions/delete-all',[TransactionController::class,'deleteAllToiletTransactions']);
+        Route::get('/dashboard-lokettoilet', [DashboardLoketToilet::class, 'index'])->name('dashboard.toilet');
+        Route::get('/dashboard/toilet/transactions', [TransactionController::class, 'indexToilet']);
+        Route::get('/dashboard/toilet/transactions/filter', [TransactionController::class, 'toilettransactionfilter']);
+
+        Route::delete('/dashboard/toilet/transactions/delete/{id}', [TransactionController::class, 'deletefindToilet']);
+        Route::delete('/dashboard/toilet/transactions/delete-all', [TransactionController::class, 'deleteAllToiletTransactions']);
     });
 
 
     // route untuk role bantuan
 
-    Route::middleware(['role:bantuan'])->group(function(){
-        Route::get('/dashboard-bantuan',[DashboardBantuan::class,'index'])->name('dashboard.bantuan');
-        Route::get('dashboard/bantuan/transactions',[TransactionController::class,'indexbantuan']);
-        Route::get('/dashboard/bantuan/transactions/filter',[TransactionController::class,'bantuantransactionfilter']);
-        
+    Route::middleware(['role:bantuan'])->group(function () {
+        Route::get('/dashboard-bantuan', [DashboardBantuan::class, 'index'])->name('dashboard.bantuan');
+        Route::get('dashboard/bantuan/transactions', [TransactionController::class, 'indexbantuan']);
+        Route::get('/dashboard/bantuan/transactions/filter', [TransactionController::class, 'bantuantransactionfilter']);
+
 
         Route::post('/dashboard/bantuan-income/store', [DashboardBantuan::class, 'store']);
 
-        Route::delete('dashboard/bantuan/transactions/delete/{id}',[TransactionController::class,'deletefindbantuan']);
-        Route::delete('dashboard/bantuan/transactions/delete-all',[TransactionController::class,'deleteAllBantuanTransactions']);
-
-
-    
+        Route::delete('dashboard/bantuan/transactions/delete/{id}', [TransactionController::class, 'deletefindbantuan']);
+        Route::delete('dashboard/bantuan/transactions/delete-all', [TransactionController::class, 'deleteAllBantuanTransactions']);
     });
-
-
-
-
-
 });
 
 

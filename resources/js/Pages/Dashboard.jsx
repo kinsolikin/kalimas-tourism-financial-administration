@@ -7,6 +7,7 @@ import { router } from "@inertiajs/react";
 
 export default function Dashboard({ auth }) {
     const { props } = usePage();
+    const { jenisKendaraan } = usePage().props;
     const [transactionHistory, setTransactionHistory] = useState([]);
     const [filterCategory, setFilterCategory] = useState("all"); // State for filtering category
     const [startDate, setStartDate] = useState("");
@@ -25,6 +26,7 @@ export default function Dashboard({ auth }) {
     const transactionHistoryRef = useRef(null);
     const shiftSummaryRef = useRef(null);
 
+    console.log(jenisKendaraan);
     const { data, setData, post, processing, errors } = useForm({
         shift: "1",
         operator_name: "",
@@ -39,14 +41,7 @@ export default function Dashboard({ auth }) {
         jam_keluar: "16:00",
     });
 
-    const prices = {
-        motor: 2000,
-        mobil: 5000,
-        eleve: 10000,
-        bis_medium: 20000,
-        bus_besar: 30000,
-    };
-
+ 
     useEffect(() => {
         const now = new Date();
         const hours = String(now.getHours()).padStart(2, "0");
@@ -56,14 +51,29 @@ export default function Dashboard({ auth }) {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setData(name, value);
-
         if (name === "vehicle_type") {
-            setData("price", prices[value] || 0);
-        }
-
-        if (name === "jumlah_tiket") {
-            setData("harga_tiket", value * 5000);
+            // Cari berdasarkan nama kendaraan
+            const selectedVehicle = jenisKendaraan.find(
+                (item) => item.namakendaraan === value
+            );
+            setData({
+                ...data,
+                vehicle_type: value,
+                price: selectedVehicle ? selectedVehicle.price : 0,
+            });
+        } else if (name === "jumlah_tiket") {
+            // Misal harga tiket tetap 5000 per tiket
+            const hargaTiket = 5000;
+            setData({
+                ...data,
+                jumlah_tiket: value,
+                harga_tiket: value * hargaTiket,
+            });
+        } else {
+            setData({
+                ...data,
+                [name]: value,
+            });
         }
     };
 
@@ -277,42 +287,41 @@ export default function Dashboard({ auth }) {
 
     // Handler: Simpan Shift & Logout
     const handleSaveShiftAndLogout = async () => {
-           setClosingShift(true);
-           try {
-               const result = await Swal.fire({
-                   title: "Yakin ingin akhiri shift ?",
-                   text: "Tindakan ini tidak bisa dibatalkan!",
-                   icon: "warning",
-                   showCancelButton: true,
-                   confirmButtonColor: "#d33",
-                   cancelButtonColor: "#3085d6",
-                   confirmButtonText: "Ya, akhiri!",
-                   cancelButtonText: "Batal",
-               });
-               if (result.isConfirmed) {
-                   // Jika perlu, simpan data shift di sini sebelum logout
-                   Swal.fire({
-                       title: "Berhasil",
-                       text: "Shift berhasil disimpan. Anda akan logout.",
-                       icon: "success",
-                       timer: 1500,
-                       showConfirmButton: false,
-                   });
-                   setTimeout(() => {
-                       router.post('/logout');
-                   }, 1500);
-               }
-           } catch (error) {
-               Swal.fire({
-                   icon: "error",
-                   title: "Gagal",
-                   text: "Gagal menyimpan shift atau logout.",
-               });
-           } finally {
-               setClosingShift(false);
-           }
-       };
-   
+        setClosingShift(true);
+        try {
+            const result = await Swal.fire({
+                title: "Yakin ingin akhiri shift ?",
+                text: "Tindakan ini tidak bisa dibatalkan!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Ya, akhiri!",
+                cancelButtonText: "Batal",
+            });
+            if (result.isConfirmed) {
+                // Jika perlu, simpan data shift di sini sebelum logout
+                Swal.fire({
+                    title: "Berhasil",
+                    text: "Shift berhasil disimpan. Anda akan logout.",
+                    icon: "success",
+                    timer: 1500,
+                    showConfirmButton: false,
+                });
+                setTimeout(() => {
+                    router.post("/logout");
+                }, 1500);
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Gagal",
+                text: "Gagal menyimpan shift atau logout.",
+            });
+        } finally {
+            setClosingShift(false);
+        }
+    };
 
     // Scroll ke riwayat transaksi saat dibuka
     const handleShowTransactionHistory = () => {
@@ -355,7 +364,7 @@ export default function Dashboard({ auth }) {
                         {/* Left Column: Form */}
                         <div>
                             <h2 className="text-2xl font-bold text-center text-blue-700 mb-6">
-                                Form Kasir Parkir 
+                                Form Kasir Parkir
                             </h2>
                             <form
                                 onSubmit={handleSubmit}
@@ -421,15 +430,14 @@ export default function Dashboard({ auth }) {
                                         <option value="">
                                             Pilih Kendaraan
                                         </option>
-                                        <option value="motor">Motor</option>
-                                        <option value="mobil">Mobil</option>
-                                        <option value="eleve">Eleve</option>
-                                        <option value="bis_medium">
-                                            Bis Medium
-                                        </option>
-                                        <option value="bus_besar">
-                                            Bus Besar
-                                        </option>
+                                        {jenisKendaraan.map((item) => (
+                                            <option
+                                                key={item.id}
+                                                value={item.namakendaraan}
+                                            >
+                                                {item.namakendaraan} - Rp {item.price.toLocaleString("id-ID")}
+                                            </option>
+                                        ))}
                                     </select>
                                     <small className="text-gray-500">
                                         Pilih jenis kendaraan yang diparkir.
@@ -525,7 +533,7 @@ export default function Dashboard({ auth }) {
                                         Biaya Parkir
                                     </p>
                                     <p className="text-xl font-bold text-blue-600">
-                                        Rp {data.price}
+                                        Rp {data.price ? data.price.toLocaleString("id-ID") : 0}
                                     </p>
                                 </div>
 
@@ -565,7 +573,7 @@ export default function Dashboard({ auth }) {
                                         Total Pembayaran
                                     </p>
                                     <p className="text-2xl font-extrabold text-green-600">
-                                        Rp {data.price + data.harga_tiket}
+                                        Rp {Number(data.price) + Number(data.harga_tiket)}
                                     </p>
                                 </div>
                             </div>
@@ -736,22 +744,20 @@ export default function Dashboard({ auth }) {
                                                             <strong>
                                                                 Jenis Kendaraan:
                                                             </strong>{" "}
-                                                            {transaction.jenis_kendaraan ||
-                                                                "-"}
+                                                            {transaction.jenis_kendaraan || "-"}
                                                         </p>
                                                         <p className="text-sm text-gray-700">
                                                             <strong>
-                                                                Harga satuan:
+                                                                Harga Satuan:
                                                             </strong>{" "}
-                                                            {transaction.harga_satuan ||
-                                                                "-"}
+                                                            Rp {transaction.harga_satuan ? Number(transaction.harga_satuan).toLocaleString("id-ID") : "-"}
                                                         </p>
                                                         <p className="text-sm text-gray-700">
                                                             <strong>
                                                                 Total Harga:
                                                             </strong>{" "}
                                                             Rp{" "}
-                                                            {transaction.total}
+                                                            {transaction.total ? Number(transaction.total).toLocaleString("id-ID") : 0}
                                                         </p>
                                                         <button
                                                             onClick={() =>
@@ -810,8 +816,7 @@ export default function Dashboard({ auth }) {
                                                             <strong>
                                                                 Jumlah Tiket:
                                                             </strong>{" "}
-                                                            {transaction.jumlah_orang ||
-                                                                "-"}
+                                                            {transaction.jumlah_orang || "-"}
                                                         </p>
                                                         <p className="text-sm text-gray-700">
                                                             <strong>
@@ -853,7 +858,10 @@ export default function Dashboard({ auth }) {
                     )}
 
                     {showShiftSummary && (
-                        <div ref={shiftSummaryRef} className="mt-8 bg-gray-50 border border-gray-200   -xl p-6 shadow-lg">
+                        <div
+                            ref={shiftSummaryRef}
+                            className="mt-8 bg-gray-50 border border-gray-200   -xl p-6 shadow-lg"
+                        >
                             <h4 className="text-lg font-bold mb-4 text-center text-green-700">
                                 Rincian Transaksi Shift Hari Ini
                             </h4>
@@ -863,8 +871,7 @@ export default function Dashboard({ auth }) {
                                     {todaySummary.parking.length > 0 ? (
                                         todaySummary.parking.map((t, i) => (
                                             <li key={i}>
-                                                {t.jenis_kendaraan || "-"} | Rp{" "}
-                                                {t.total} |{" "}
+                                                {t.jenis_kendaraan || "-"} | Rp {t.harga_satuan ? Number(t.harga_satuan).toLocaleString("id-ID") : "-"} | Total: Rp {t.total ? Number(t.total).toLocaleString("id-ID") : 0} |{" "}
                                                 {new Date(
                                                     t.created_at
                                                 ).toLocaleTimeString("id-ID")}

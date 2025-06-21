@@ -8,6 +8,7 @@ use App\Models\Parking_income_details;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Inertia\Inertia;
+use App\Models\JenisKendaraan;
 
 
 class ControllerTicketParking extends Controller
@@ -17,9 +18,9 @@ class ControllerTicketParking extends Controller
      */
     public function index()
     {
+        $jeniskendaraan = JenisKendaraan::all();
         return Inertia::render('Dashboard', [
-            'status' => session('status'),
-            'message' => session('message'),
+            'jenisKendaraan' => $jeniskendaraan
         ]);
 
     }
@@ -150,5 +151,14 @@ class ControllerTicketParking extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function fetchJenisKendaraan()
+    {
+     
+
+        $jeniskendaraan = JenisKendaraan::all();
+        return response()->json($jeniskendaraan);
+
     }
 }

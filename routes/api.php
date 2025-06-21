@@ -26,14 +26,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 
-Route::get('dashboard-data',[DashboardController::class, 'fetchdata']);
-Route::get('dashboard/ambilReview',[DashboardController::class, 'ambilReview']);
+Route::get('dashboard-data', [DashboardController::class, 'fetchdata']);
+Route::get('dashboard/ambilReview', [DashboardController::class, 'ambilReview']);
 
 
-    Route::post('ticket', [ControllerTicketParking::class, 'store']);
+Route::post('ticket', [ControllerTicketParking::class, 'store']);
 
 
-    Route::get('totalincome', [ControllerTotalIncome::class, 'index']);
-    Route::get('totalexpanse', [ControllerTotalExpanse::class, 'index']);
-    Route::get('netincome', [ControllerIncomeBersih::class, 'index']);
-
+Route::get('totalincome', [ControllerTotalIncome::class, 'index']);
+Route::get('totalexpanse', [ControllerTotalExpanse::class, 'index']);
+Route::get('netincome', [ControllerIncomeBersih::class, 'index']);
