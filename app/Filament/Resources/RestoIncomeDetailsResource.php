@@ -75,27 +75,23 @@ class RestoIncomeDetailsResource extends Resource
 
 
             ]);
-
-            
-
-      
     }
 
     private static function hitungTotal($set, $get)
-{
-    $qtyMakanan = (int) $get('qty_makanan');
-    $hargaMakanan = (int) $get('harga_satuan_makanan');
-    $qtyMinuman = (int) $get('qty_minuman');
-    $hargaMinuman = (int) $get('harga_satuan_minuman');
+    {
+        $qtyMakanan = (int) $get('qty_makanan');
+        $hargaMakanan = (int) $get('harga_satuan_makanan');
+        $qtyMinuman = (int) $get('qty_minuman');
+        $hargaMinuman = (int) $get('harga_satuan_minuman');
 
-    $total = ($qtyMakanan * $hargaMakanan) + ($qtyMinuman * $hargaMinuman);
+        $total = ($qtyMakanan * $hargaMakanan) + ($qtyMinuman * $hargaMinuman);
 
-    $set('total', $total);
+        $set('total', $total);
 
         if ($get('total') !== $total) {
-        $set('total', $total);
+            $set('total', $total);
+        }
     }
-}
 
     public static function table(Table $table): Table
     {

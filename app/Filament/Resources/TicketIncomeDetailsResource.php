@@ -15,7 +15,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Models\Ticket_income_details;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Contracts\Support\Htmlable;
-
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\TextInput;
 
 class TicketIncomeDetailsResource extends Resource
 {
@@ -25,18 +26,60 @@ class TicketIncomeDetailsResource extends Resource
 
     protected static ?string $model = Ticket_income_details::class;
 
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::count();
-    }
 
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
+
                 //
+                Hidden::make('user_id')->default(3),
+                TextInput::make('jumlah_orang')->label('Jumlah Orang')
+                    ->afterStateUpdated(fn($set, $get) => self::hitungTotal($set, $get)),
+                TextInput::make('harga_satuan')->label('Harga Satuan')
+                    ->afterStateUpdated(fn($set, $get) => self::hitungTotal($set, $get)),
+                Hidden::make('income_id')
+                    ->label('Pilih Pendapatan')
+                    ->default(1) // sesuaikan nama kolom
+                    ->required(),
+                TextInput::make('total')
+                    ->label('Total')
+                    ->disabled() // Supaya user tidak bisa input manual
+                    ->dehydrated() // Supaya tetap disimpan ke database
+                    ->reactive()
+                    ->afterStateHydrated(function ($set, $get) {
+                        // Saat form pertama kali dibuka
+                        $set('total', (
+                            $get('jumlah_orang') * $get('harga_satuan')
+                        ));
+                    })
+                    ->afterStateUpdated(function ($set, $get) {
+                        // Saat field mana pun berubah, hitung ulang
+                        $set('total', (
+                            $get('jumlah_orang') * $get('harga_satuan')
+                        ));
+                    }),
+
+
+
+
             ]);
+    }
+
+    private static function hitungTotal($set, $get)
+    {
+        $jumlahorang = (int) $get('jumlah_orang');
+        $hargasatuan = (int) $get('harga_satuan');
+
+
+        $total = ($jumlahorang * $hargasatuan);
+
+        $set('total', $total);
+
+        if ($get('total') !== $total) {
+            $set('total', $total);
+        }
     }
 
     public static function table(Table $table): Table
