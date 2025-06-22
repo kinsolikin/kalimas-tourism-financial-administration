@@ -13,7 +13,7 @@ class CreateToiletIncomeDetails extends CreateRecord
 
     public function mutateFormDataBeforeCreate(array $data): array  
     {
-        $income = Income::where('income_categori_id',5)
+        $income = Income::where('income_categori_id',$data['user_id'])
         ->whereDate('created_at',now())
         ->first();
 
@@ -23,7 +23,7 @@ class CreateToiletIncomeDetails extends CreateRecord
         }else{
             $income = Income::create([
                 'income_categori_id' => 5,
-                'user_id' => 5, // Menggunakan ID user yang sedang login
+                'user_id' => $data['user_id'], // Menggunakan ID user yang sedang login
                 'amount' => $data['total'] ?? 0,
             ]);
         }
