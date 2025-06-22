@@ -30,15 +30,16 @@ class TotalIncomeResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
 
 
-    
 
     protected static ?string $navigationGroup = 'Income';
 
 
+
+
     public static function getNavigationBadge(): ?string
-{
-    return static::getModel()::count();
-}
+    {
+        return static::getModel()::count();
+    }
 
 
     public static function form(Form $form): Form

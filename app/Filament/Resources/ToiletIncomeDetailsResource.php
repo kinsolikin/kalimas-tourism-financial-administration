@@ -23,7 +23,7 @@ class ToiletIncomeDetailsResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
-        public static function getNavigationBadge(): ?string
+    public static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();
     }
@@ -38,11 +38,11 @@ class ToiletIncomeDetailsResource extends Resource
 
     public static function table(Table $table): Table
     {
-          
+
 
         return $table
             ->columns([
-                    TextColumn::make('jumlah_pengguna')
+                TextColumn::make('jumlah_pengguna')
                     ->label('Jumlah Pengguna')->searchable()
                     ->sortable(),
                 TextColumn::make('harga_per_orang')
@@ -51,7 +51,7 @@ class ToiletIncomeDetailsResource extends Resource
                 TextColumn::make('total')
                     ->label('Total')->searchable()
                     ->sortable(),
-              
+
             ])
             ->filters([
                 //
@@ -68,14 +68,14 @@ class ToiletIncomeDetailsResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -83,5 +83,5 @@ class ToiletIncomeDetailsResource extends Resource
             'create' => Pages\CreateToiletIncomeDetails::route('/create'),
             'edit' => Pages\EditToiletIncomeDetails::route('/{record}/edit'),
         ];
-    }    
+    }
 }
