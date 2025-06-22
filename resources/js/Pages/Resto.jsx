@@ -31,8 +31,15 @@ export default function Resto({ auth }) {
     const historyRef = useRef(null);
 
     useEffect(() => {
-        const hargaMakanan = menuMakanan[form.makanan] || 0;
-        const hargaMinuman = menuMinuman[form.minuman] || 0;
+        // Jika harga satuan diisi manual, gunakan itu, jika tidak, fallback ke menu
+        const hargaMakanan =
+            form.harga_satuan_makanan !== 0
+                ? Number(form.harga_satuan_makanan)
+                : menuMakanan[form.makanan] || 0;
+        const hargaMinuman =
+            form.harga_satuan_minuman !== 0
+                ? Number(form.harga_satuan_minuman)
+                : menuMinuman[form.minuman] || 0;
         const totalMakanan = hargaMakanan * form.qty_makanan;
         const totalMinuman = hargaMinuman * form.qty_minuman;
         const total = totalMakanan + totalMinuman;
@@ -45,15 +52,23 @@ export default function Resto({ auth }) {
             total_minuman: totalMinuman,
             total,
         }));
-    }, [form.makanan, form.minuman, form.qty_makanan, form.qty_minuman]);
+    }, [
+        form.makanan,
+        form.minuman,
+        form.qty_makanan,
+        form.qty_minuman,
+        form.harga_satuan_makanan,
+        form.harga_satuan_minuman,
+    ]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setForm((prev) => ({
             ...prev,
-            [name]: name.includes("qty")
-                ? Math.max(0, parseInt(value) || 0)
-                : value,
+            [name]:
+                name.includes("qty") || name.includes("harga_satuan")
+                    ? Math.max(0, parseInt(value) || 0)
+                    : value,
         }));
     };
 
@@ -314,26 +329,35 @@ export default function Resto({ auth }) {
                             />
                         </div>
 
-                        {/* Pilih Makanan */}
+                        {/* Pilih Makanan (ubah jadi input) */}
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                Pilih Makanan
+                                Makanan
                             </label>
-                            <select
+                            <input
+                                type="text"
                                 name="makanan"
                                 value={form.makanan}
                                 onChange={handleChange}
+                                placeholder="Masukkan nama makanan"
                                 className="w-full px-4 py-3 border border-gray-300   shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                            >
-                                <option value="">-- Pilih Makanan --</option>
-                                {Object.entries(menuMakanan).map(
-                                    ([nama, harga]) => (
-                                        <option key={nama} value={nama}>
-                                            {nama} - Rp {harga.toLocaleString()}
-                                        </option>
-                                    )
-                                )}
-                            </select>
+                            />
+                        </div>
+
+                        {/* Harga Satuan Makanan */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-1">
+                                Harga Satuan Makanan
+                            </label>
+                            <input
+                                type="number"
+                                name="harga_satuan_makanan"
+                                value={form.harga_satuan_makanan}
+                                onChange={handleChange}
+                                min={0}
+                                placeholder="0"
+                                className="w-full px-4 py-3 border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            />
                         </div>
 
                         {/* Jumlah Makanan */}
@@ -352,26 +376,35 @@ export default function Resto({ auth }) {
                             />
                         </div>
 
-                        {/* Pilih Minuman */}
+                        {/* Pilih Minuman (ubah jadi input) */}
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                Pilih Minuman
+                                Minuman
                             </label>
-                            <select
+                            <input
+                                type="text"
                                 name="minuman"
                                 value={form.minuman}
                                 onChange={handleChange}
+                                placeholder="Masukkan nama minuman"
                                 className="w-full px-4 py-3 border border-gray-300   shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                            >
-                                <option value="">-- Pilih Minuman --</option>
-                                {Object.entries(menuMinuman).map(
-                                    ([nama, harga]) => (
-                                        <option key={nama} value={nama}>
-                                            {nama} - Rp {harga.toLocaleString()}
-                                        </option>
-                                    )
-                                )}
-                            </select>
+                            />
+                        </div>
+
+                        {/* Harga Satuan Minuman */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-1">
+                                Harga Satuan Minuman
+                            </label>
+                            <input
+                                type="number"
+                                name="harga_satuan_minuman"
+                                value={form.harga_satuan_minuman}
+                                onChange={handleChange}
+                                min={0}
+                                placeholder="0"
+                                className="w-full px-4 py-3 border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            />
                         </div>
 
                         {/* Jumlah Minuman */}
@@ -408,14 +441,16 @@ export default function Resto({ auth }) {
 
                         {/* Makanan */}
                         <div className="grid grid-cols-2 gap-2 text-sm text-gray-700">
+                            <div>Nama Makanan:</div>
+                            <div className="text-right font-medium text-gray-900">
+                                {form.makanan || "-"}
+                            </div>
                             <div>Harga Satuan Makanan:</div>
                             <div className="text-right font-medium text-gray-900">
                                 Rp {form.harga_satuan_makanan.toLocaleString()}
                             </div>
-
                             <div>Jumlah Makanan:</div>
                             <div className="text-right">{form.qty_makanan}</div>
-
                             <div>Total Makanan:</div>
                             <div className="text-right font-semibold text-green-700">
                                 Rp {form.total_makanan.toLocaleString()}
@@ -426,14 +461,16 @@ export default function Resto({ auth }) {
 
                         {/* Minuman */}
                         <div className="grid grid-cols-2 gap-2 text-sm text-gray-700">
+                            <div>Nama Minuman:</div>
+                            <div className="text-right font-medium text-gray-900">
+                                {form.minuman || "-"}
+                            </div>
                             <div>Harga Satuan Minuman:</div>
                             <div className="text-right font-medium text-gray-900">
                                 Rp {form.harga_satuan_minuman.toLocaleString()}
                             </div>
-
                             <div>Jumlah Minuman:</div>
                             <div className="text-right">{form.qty_minuman}</div>
-
                             <div>Total Minuman:</div>
                             <div className="text-right font-semibold text-green-700">
                                 Rp {form.total_minuman.toLocaleString()}
