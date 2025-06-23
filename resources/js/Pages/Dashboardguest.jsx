@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { usePage } from "@inertiajs/react";
 import { Bar, Line } from "react-chartjs-2";
 import {
     Chart as ChartJS,
@@ -45,7 +46,14 @@ function Dashboardguest() {
         // return () => clearInterval(interval);
     }, []);
 
-     const total = Object.values(data.Incomes).reduce((sum, val) => sum + parseInt(val, 10), 0);
+    const total = Object.values(data.Incomes).reduce(
+        (sum, val) => sum + parseInt(val, 10),
+        0
+    );
+
+    const { priceTicket, jeniskendaraan } = usePage().props;
+
+    console.log(jeniskendaraan);
 
     const fasilitas = [
         {
@@ -85,11 +93,13 @@ function Dashboardguest() {
     // Untuk chart pemasukan bulanan fluktuasi
     const bulananArray = Array.isArray(data.Bulanan) ? data.Bulanan : [];
     const chartBulanan = {
-        labels: bulananArray.map(item => item.tanggal ?? item.bulan ?? ""), // gunakan tanggal/bulan
+        labels: bulananArray.map((item) => item.tanggal ?? item.bulan ?? ""), // gunakan tanggal/bulan
         datasets: [
             {
                 label: "Pemasukan Bulanan",
-                data: bulananArray.map(item => item.total ?? item.jumlah ?? 0),
+                data: bulananArray.map(
+                    (item) => item.total ?? item.jumlah ?? 0
+                ),
                 backgroundColor: "rgba(96, 165, 250, 0.2)",
                 borderColor: "rgba(96, 165, 250, 1)",
                 borderWidth: 2,
@@ -102,13 +112,17 @@ function Dashboardguest() {
     };
 
     // Untuk chart pengunjung harian (fluktuasi)
-    const pengunjungHarianTerakhir = Array.isArray(data.PengunjungBulanan) ? data.PengunjungBulanan.slice(-14) : [];
+    const pengunjungHarianTerakhir = Array.isArray(data.PengunjungBulanan)
+        ? data.PengunjungBulanan.slice(-14)
+        : [];
     const chartPengunjung = {
-        labels: pengunjungHarianTerakhir.map(item => item.tanggal),
+        labels: pengunjungHarianTerakhir.map((item) => item.tanggal),
         datasets: [
             {
                 label: "Jumlah Pengunjung",
-                data: pengunjungHarianTerakhir.map(item => item.total ?? item.jumlah),
+                data: pengunjungHarianTerakhir.map(
+                    (item) => item.total ?? item.jumlah
+                ),
                 backgroundColor: "rgba(34, 197, 94, 0.2)",
                 borderColor: "rgba(34, 197, 94, 1)",
                 borderWidth: 2,
@@ -121,13 +135,15 @@ function Dashboardguest() {
     };
 
     // Chart garis fluktuasi pengeluaran harian
-    const expanseLineHarianArray = Array.isArray(data.Expanse) ? data.Expanse : [];
+    const expanseLineHarianArray = Array.isArray(data.Expanse)
+        ? data.Expanse
+        : [];
     const chartExpanseLineHarian = {
-        labels: expanseLineHarianArray.map(item => item.tanggal),
+        labels: expanseLineHarianArray.map((item) => item.tanggal),
         datasets: [
             {
                 label: "Pengeluaran Harian",
-                data: expanseLineHarianArray.map(item => item.total ?? 0),
+                data: expanseLineHarianArray.map((item) => item.total ?? 0),
                 backgroundColor: "rgba(239, 68, 68, 0.15)",
                 borderColor: "rgba(239, 68, 68, 1)",
                 borderWidth: 2,
@@ -241,12 +257,13 @@ function Dashboardguest() {
         // return () => clearInterval(interval);
     }, []);
 
-console.log(data);    
     return (
         <div className="min-h-screen bg-[#f7f8fa] font-sans">
             {/* Header */}
-            <header className="w-full py-4 px-4 flex flex-col md:flex-row items-center justify-between border-b border-gray-200 bg-white fixed top-0 left-0 z-50 shadow"
-                style={{ backdropFilter: "blur(2px)" }}>
+            <header
+                className="w-full py-4 px-4 flex flex-col md:flex-row items-center justify-between border-b border-gray-200 bg-white fixed top-0 left-0 z-50 shadow"
+                style={{ backdropFilter: "blur(2px)" }}
+            >
                 <div className="flex items-center gap-3">
                     <img
                         src="/assets/images/logo.jpeg"
@@ -258,9 +275,21 @@ console.log(data);
                     </span>
                 </div>
                 <nav className="mt-2 md:mt-0 flex gap-6 text-gray-700 text-base font-medium">
-                    <a href="#data" className="hover:text-blue-900 transition">Data</a>
-                    <a href="#fasilitas" className="hover:text-blue-900 transition">Fasilitas</a>
-                    <a href="#testimoni" className="hover:text-blue-900 transition">Testimoni</a>
+                    <a href="#data" className="hover:text-blue-900 transition">
+                        Data
+                    </a>
+                    <a
+                        href="#fasilitas"
+                        className="hover:text-blue-900 transition"
+                    >
+                        Fasilitas
+                    </a>
+                    <a
+                        href="#testimoni"
+                        className="hover:text-blue-900 transition"
+                    >
+                        Testimoni
+                    </a>
                 </nav>
             </header>
 
@@ -271,16 +300,29 @@ console.log(data);
             <section className="flex flex-col md:flex-row items-center justify-between px-4 md:px-16 py-12 gap-8 bg-white border-b border-gray-200">
                 <div className="flex-1">
                     <h1 className="text-3xl font-bold text-gray-900 mb-4 leading-tight">
-                        Selamat Datang di <span className="text-blue-900">Wisata Kalimas</span>
+                        Selamat Datang di{" "}
+                        <span className="text-blue-900">Wisata Kalimas</span>
                     </h1>
                     <p className="text-base text-gray-700 mb-4">
-                        Nikmati keindahan dan keseruan wisata sungai Kalimas, destinasi wisata keluarga yang memadukan pesona alam, budaya, dan modernitas di jantung kota Surabaya. Kami menyajikan pengalaman menyenangkan untuk semua kalangan: mulai dari susur sungai yang tenang, aneka kuliner khas yang menggugah selera, hingga hiburan menarik untuk seluruh keluarga.
+                        Nikmati keindahan dan keseruan wisata sungai Kalimas,
+                        destinasi wisata keluarga yang memadukan pesona alam,
+                        budaya, dan modernitas di jantung kota Surabaya. Kami
+                        menyajikan pengalaman menyenangkan untuk semua kalangan:
+                        mulai dari susur sungai yang tenang, aneka kuliner khas
+                        yang menggugah selera, hingga hiburan menarik untuk
+                        seluruh keluarga.
                     </p>
                     <p className="text-base text-gray-700 mb-4">
-                        Di <strong>Wisata Kalimas</strong>, kami juga mengedepankan prinsip <strong>transparansi</strong> dalam pengelolaan. Untuk itu, kami menyediakan data terbuka yang mencakup: jumlah pengunjung harian dan bulanan, pemasukan dari tiket dan kegiatan wisata, serta aktivitas yang sedang dan akan berlangsung.
+                        Di <strong>Wisata Kalimas</strong>, kami juga
+                        mengedepankan prinsip <strong>transparansi</strong>{" "}
+                        dalam pengelolaan. Untuk itu, kami menyediakan data
+                        terbuka yang mencakup: jumlah pengunjung harian dan
+                        bulanan, pemasukan dari tiket dan kegiatan wisata, serta
+                        aktivitas yang sedang dan akan berlangsung.
                     </p>
                     <p className="text-base text-gray-700 mb-6">
-                        Jelajahi Kalimas dan lihat bagaimana setiap kunjungan Anda ikut berkontribusi untuk kemajuan wisata lokal.
+                        Jelajahi Kalimas dan lihat bagaimana setiap kunjungan
+                        Anda ikut berkontribusi untuk kemajuan wisata lokal.
                     </p>
                     <a
                         href="#data"
@@ -311,12 +353,18 @@ console.log(data);
                         </h3>
                         <div className="w-full overflow-x-auto">
                             <div style={{ minWidth: 600 }}>
-                                <Line data={chartExpanseLineHarian} options={optionsRupiah} />
+                                <Line
+                                    data={chartExpanseLineHarian}
+                                    options={optionsRupiah}
+                                />
                             </div>
                         </div>
                         <div className="mt-2 text-gray-400 text-xs italic text-justify">
-                Grafik ini memperlihatkan fluktuasi pengeluaran harian Kalimas, memudahkan publik memantau transparansi dan pola pengeluaran setiap hari secara real-time.
-            </div>
+                            Grafik ini memperlihatkan fluktuasi pengeluaran
+                            harian Kalimas, memudahkan publik memantau
+                            transparansi dan pola pengeluaran setiap hari secara
+                            real-time.
+                        </div>
                     </div>
                     <div className="bg-white p-6 flex flex-col items-center border border-gray-200  shadow-sm">
                         <h3 className="font-medium text-blue-900 mb-2 text-base">
@@ -324,12 +372,17 @@ console.log(data);
                         </h3>
                         <div className="w-full overflow-x-auto">
                             <div style={{ minWidth: 600 }}>
-                                <Line data={chartBulanan} options={optionsRupiah} />
+                                <Line
+                                    data={chartBulanan}
+                                    options={optionsRupiah}
+                                />
                             </div>
                         </div>
                         <div className="mt-2 text-gray-400 text-xs italic text-justify">
-                Grafik ini menampilkan tren pemasukan bulanan dari berbagai sumber, membantu masyarakat melihat perkembangan keuangan wisata Kalimas tiap bulan.
-            </div>
+                            Grafik ini menampilkan tren pemasukan bulanan dari
+                            berbagai sumber, membantu masyarakat melihat
+                            perkembangan keuangan wisata Kalimas tiap bulan.
+                        </div>
                     </div>
                     <div className="bg-white p-6 flex flex-col items-center border border-gray-200  shadow-sm">
                         <h3 className="font-medium text-blue-900 mb-2 text-base">
@@ -344,68 +397,115 @@ console.log(data);
                             </div>
                         </div>
                         <div className="mt-2 text-gray-400 text-xs italic text-justify">
-                Grafik ini menunjukkan jumlah pengunjung harian, memudahkan pemantauan tren kunjungan dan evaluasi efektivitas event atau promosi wisata.
-            </div>
+                            Grafik ini menunjukkan jumlah pengunjung harian,
+                            memudahkan pemantauan tren kunjungan dan evaluasi
+                            efektivitas event atau promosi wisata.
+                        </div>
                     </div>
                 </div>
             </section>
 
             {/* Keterbukaan Informasi Publik */}
-            <section id="keterbukaan" className="py-10 px-4 md:px-16 bg-white border-b border-gray-200">
+            <section
+                id="keterbukaan"
+                className="py-10 px-4 md:px-16 bg-white border-b border-gray-200"
+            >
                 <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center tracking-wide">
                     Keterbukaan Informasi Publik
                 </h2>
                 <div className="max-w-4xl mx-auto mb-8">
                     <p className="text-gray-700 text-base text-center mb-4">
-                        Sebagai bentuk transparansi, berikut adalah ringkasan pemasukan dan pengeluaran Wisata Kalimas. Dana yang terkumpul digunakan untuk mendukung operasional, perawatan fasilitas, promosi, dan berbagai kegiatan demi kenyamanan pengunjung.
+                        Sebagai bentuk transparansi, berikut adalah ringkasan
+                        pemasukan dan pengeluaran Wisata Kalimas. Dana yang
+                        terkumpul digunakan untuk mendukung operasional,
+                        perawatan fasilitas, promosi, dan berbagai kegiatan demi
+                        kenyamanan pengunjung.
                     </p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                     {/* Ringkasan Pemasukan */}
                     <div className="bg-[#f7f8fa] border border-gray-200  p-6 shadow-sm self-start">
-                        <h3 className="text-lg font-semibold text-blue-900 mb-3">Ringkasan Pemasukan</h3>
+                        <h3 className="text-lg font-semibold text-blue-900 mb-3">
+                            Ringkasan Pemasukan
+                        </h3>
                         <table className="w-full text-base text-left border">
                             <tbody>
                                 <tr>
-                                    <td className="py-2 px-3 border-b font-medium">Tiket Masuk</td>
+                                    <td className="py-2 px-3 border-b font-medium">
+                                        Tiket Masuk
+                                    </td>
                                     <td className="py-2 px-3 border-b text-blue-900 font-bold">
-                                        Rp {data.Incomes.ticket_total?.toLocaleString("id-ID")}
+                                        Rp{" "}
+                                        {data.Incomes.ticket_total?.toLocaleString(
+                                            "id-ID"
+                                        )}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td className="py-2 px-3 border-b font-medium">Total Parkir</td>
+                                    <td className="py-2 px-3 border-b font-medium">
+                                        Total Parkir
+                                    </td>
                                     <td className="py-2 px-3 border-b text-blue-900 font-bold">
-                                        Rp {data.Incomes.parking_total?.toLocaleString("id-ID") || 0}
+                                        Rp{" "}
+                                        {data.Incomes.parking_total?.toLocaleString(
+                                            "id-ID"
+                                        ) || 0}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td className="py-2 px-3 border-b font-medium">Total Bantuan</td>
+                                    <td className="py-2 px-3 border-b font-medium">
+                                        Total Bantuan
+                                    </td>
                                     <td className="py-2 px-3 border-b text-blue-900 font-bold">
-                                        Rp {data.Incomes.bantuan_total?.toLocaleString("id-ID") || 0}
+                                        Rp{" "}
+                                        {data.Incomes.bantuan_total?.toLocaleString(
+                                            "id-ID"
+                                        ) || 0}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td className="py-2 px-3 border-b font-medium">Total Resto</td>
+                                    <td className="py-2 px-3 border-b font-medium">
+                                        Total Resto
+                                    </td>
                                     <td className="py-2 px-3 border-b text-blue-900 font-bold">
-                                        Rp {data.Incomes.resto_total?.toLocaleString("id-ID") || 0}
+                                        Rp{" "}
+                                        {data.Incomes.resto_total?.toLocaleString(
+                                            "id-ID"
+                                        ) || 0}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td className="py-2 px-3 border-b font-medium">Total Toilet</td>
+                                    <td className="py-2 px-3 border-b font-medium">
+                                        Total Toilet
+                                    </td>
                                     <td className="py-2 px-3 border-b text-blue-900 font-bold">
-                                        Rp {data.Incomes.toilet_total?.toLocaleString("id-ID") || 0}
+                                        Rp{" "}
+                                        {data.Incomes.toilet_total?.toLocaleString(
+                                            "id-ID"
+                                        ) || 0}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td className="py-2 px-3 border-b font-medium">Total Wahana</td>
+                                    <td className="py-2 px-3 border-b font-medium">
+                                        Total Wahana
+                                    </td>
                                     <td className="py-2 px-3 border-b text-blue-900 font-bold">
-                                        Rp {data.Incomes.wahana_total?.toLocaleString("id-ID") || 0}
+                                        Rp{" "}
+                                        {data.Incomes.wahana_total?.toLocaleString(
+                                            "id-ID"
+                                        ) || 0}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td className="py-2 px-3 border-b font-medium">Total Pemasukan</td>
-                                    <td className="py-2 px-3 border-b text-blue-900 font-bold"><span>{""}</span>
-                                        Rp {data.Incomes.total_income?.toLocaleString("id-ID")}
+                                    <td className="py-2 px-3 border-b font-medium">
+                                        Total Pemasukan
+                                    </td>
+                                    <td className="py-2 px-3 border-b text-blue-900 font-bold">
+                                        <span>{""}</span>
+                                        Rp{" "}
+                                        {data.Incomes.total_income?.toLocaleString(
+                                            "id-ID"
+                                        )}
                                     </td>
                                 </tr>
                             </tbody>
@@ -413,54 +513,105 @@ console.log(data);
                         <div className="text-xs text-gray-500 mt-2">
                             <em>
                                 <span>
-                                    Seluruh angka pada tabel di atas merupakan total pemasukan setelah dikurangi pengeluaran. 
+                                    Seluruh angka pada tabel di atas merupakan
+                                    total pemasukan setelah dikurangi
+                                    pengeluaran.
                                     <br />
-                                    <b>Catatan:</b> Nilai pemasukan sudah dikurangi oleh pengeluaran operasional maupun mendadak.
+                                    <b>Catatan:</b> Nilai pemasukan sudah
+                                    dikurangi oleh pengeluaran operasional
+                                    maupun mendadak.
                                 </span>
                             </em>
                         </div>
                     </div>
                     {/* Ringkasan Pengeluaran */}
                     <div className="bg-[#f7f8fa] border border-gray-200  p-6 shadow-sm">
-                        <h3 className="text-lg font-semibold text-blue-900 mb-3">Ringkasan Pengeluaran</h3>
+                        <h3 className="text-lg font-semibold text-blue-900 mb-3">
+                            Ringkasan Pengeluaran
+                        </h3>
                         <div className="mb-4">
                             <div className="mb-2">
-                                <span className="font-semibold text-blue-900">Operasional:</span>
+                                <span className="font-semibold text-blue-900">
+                                    Operasional:
+                                </span>
                                 <span className="text-gray-700 ml-2">
-                                    Digunakan untuk kebutuhan rutin seperti gaji petugas, pembayaran listrik dan air, perawatan fasilitas, serta pembelian perlengkapan operasional harian.
+                                    Digunakan untuk kebutuhan rutin seperti gaji
+                                    petugas, pembayaran listrik dan air,
+                                    perawatan fasilitas, serta pembelian
+                                    perlengkapan operasional harian.
                                 </span>
                             </div>
                             <div>
-                                <span className="font-semibold text-blue-900">Mendadak:</span>
+                                <span className="font-semibold text-blue-900">
+                                    Mendadak:
+                                </span>
                                 <span className="text-gray-700 ml-2">
-                                    Digunakan untuk pengeluaran tak terduga atau kebutuhan mendadak, misalnya perbaikan darurat fasilitas, penanganan insiden, atau kebutuhan penting yang harus segera dipenuhi.
+                                    Digunakan untuk pengeluaran tak terduga atau
+                                    kebutuhan mendadak, misalnya perbaikan
+                                    darurat fasilitas, penanganan insiden, atau
+                                    kebutuhan penting yang harus segera
+                                    dipenuhi.
                                 </span>
                             </div>
                         </div>
                         {/* Rincian Pengeluaran per Kategori */}
                         <div className="mt-6">
-                            <h4 className="font-semibold text-gray-800 mb-2">Rincian Pengeluaran per Kategori:</h4>
+                            <h4 className="font-semibold text-gray-800 mb-2">
+                                Rincian Pengeluaran per Kategori:
+                            </h4>
                             {pengeluaran.length === 0 ? (
-                                <div className="text-gray-400 text-sm">Data pengeluaran belum tersedia.</div>
+                                <div className="text-gray-400 text-sm">
+                                    Data pengeluaran belum tersedia.
+                                </div>
                             ) : (
                                 <div className="max-h-48 overflow-y-auto">
                                     <table className="w-full text-sm border">
                                         <thead>
                                             <tr className="bg-blue-50">
-                                                <th className="py-2 px-3 border-b text-left">Kategori</th>
-                                                <th className="py-2 px-3 border-b text-left">Deskripsi</th>
-                                                <th className="py-2 px-3 border-b text-left">Loket</th>
-                                                <th className="py-2 px-3 border-b text-right">Total Pengeluaran</th>
+                                                <th className="py-2 px-3 border-b text-left">
+                                                    Kategori
+                                                </th>
+                                                <th className="py-2 px-3 border-b text-left">
+                                                    Deskripsi
+                                                </th>
+                                                <th className="py-2 px-3 border-b text-left">
+                                                    Loket
+                                                </th>
+                                                <th className="py-2 px-3 border-b text-right">
+                                                    Total Pengeluaran
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {pengeluaran.map((item, idx) => (
                                                 <tr key={idx}>
-                                                    <td className="py-2 px-3 border-b">{item.expanse_category?.name || "Lain-lain"}</td>
-                                                    <td className="py-2 px-3 border-b">{item.expanse_operasional?.description || item.expanse_mendadak?.description || "-"}</td>
-                                                    <td className="py-2 px-3 border-b">{item.user?.name || "-"}</td>
+                                                    <td className="py-2 px-3 border-b">
+                                                        {item.expanse_category
+                                                            ?.name ||
+                                                            "Lain-lain"}
+                                                    </td>
+                                                    <td className="py-2 px-3 border-b">
+                                                        {item
+                                                            .expanse_operasional
+                                                            ?.description ||
+                                                            item
+                                                                .expanse_mendadak
+                                                                ?.description ||
+                                                            "-"}
+                                                    </td>
+                                                    <td className="py-2 px-3 border-b">
+                                                        {item.user?.name || "-"}
+                                                    </td>
                                                     <td className="py-2 px-3 border-b text-right text-blue-900 font-semibold">
-                                                        Rp {(parseInt(item.amount, 10) || 0).toLocaleString("id-ID")}
+                                                        Rp{" "}
+                                                        {(
+                                                            parseInt(
+                                                                item.amount,
+                                                                10
+                                                            ) || 0
+                                                        ).toLocaleString(
+                                                            "id-ID"
+                                                        )}
                                                     </td>
                                                 </tr>
                                             ))}
@@ -472,32 +623,42 @@ console.log(data);
                         <div className="text-xs text-gray-500 mt-2">
                             <em>
                                 <span>
-                                    Untuk <b>gaji karyawan</b> masuk ke dalam kategori operasional, namun tidak ditampilkan secara rinci demi menjaga etika dan privasi rezeki seseorang.
+                                    Untuk <b>gaji karyawan</b> masuk ke dalam
+                                    kategori operasional, namun tidak
+                                    ditampilkan secara rinci demi menjaga etika
+                                    dan privasi rezeki seseorang.
                                 </span>
                             </em>
                         </div>
                         <div className="mt-6 text-right text-base font-semibold text-blue-900">
-                            Total Pengeluaran: Rp {
-                                pengeluaran
-                                    .reduce(
-                                        (total, item) =>
-                                            total + (parseInt(item.amount, 10) || 0),
-                                        0
-                                    )
-                                    .toLocaleString("id-ID")
-                            }
+                            Total Pengeluaran: Rp{" "}
+                            {pengeluaran
+                                .reduce(
+                                    (total, item) =>
+                                        total +
+                                        (parseInt(item.amount, 10) || 0),
+                                    0
+                                )
+                                .toLocaleString("id-ID")}
                         </div>
                     </div>
                 </div>
                 <div className="max-w-4xl mx-auto mt-8">
                     <div className="bg-blue-50 border-l-4 border-blue-900 p-4  text-blue-900 text-sm">
-                        <strong>Catatan:</strong> Data pemasukan  dan pengeluaran diupdate secara otomatis setiap ada transaksi masuk dan transaksi keluar di rekap setiap 1 bulan sekali dan dapat diakses oleh publik sebagai bentuk akuntabilitas pengelolaan dana Wisata Kalimas.
+                        <strong>Catatan:</strong> Data pemasukan dan pengeluaran
+                        diupdate secara otomatis setiap ada transaksi masuk dan
+                        transaksi keluar di rekap setiap 1 bulan sekali dan
+                        dapat diakses oleh publik sebagai bentuk akuntabilitas
+                        pengelolaan dana Wisata Kalimas.
                     </div>
                 </div>
             </section>
 
             {/* Fasilitas & Harga Tiket Section */}
-            <section id="fasilitas" className="py-10 px-4 md:px-16 bg-white border-b border-gray-200">
+            <section
+                id="fasilitas"
+                className="py-10 px-4 md:px-16 bg-white border-b border-gray-200"
+            >
                 <h2 className="text-2xl font-semibold text-gray-800 mb-8 text-center tracking-wide">
                     Fasilitas Unggulan & Harga Tiket
                 </h2>
@@ -510,7 +671,9 @@ console.log(data);
                                     key={idx}
                                     className="bg-[#f7f8fa] p-5 flex flex-col items-center border border-gray-200  w-56 shadow-sm"
                                 >
-                                    <span className="text-3xl mb-2">{f.icon}</span>
+                                    <span className="text-3xl mb-2">
+                                        {f.icon}
+                                    </span>
                                     <h3 className="text-base font-semibold text-blue-900 mb-1">
                                         {f.title}
                                     </h3>
@@ -523,37 +686,54 @@ console.log(data);
                     </div>
                     {/* Harga Tiket & Parkir */}
                     <div>
-                        <div className="max-w-md mx-auto bg-[#f7f8fa] border border-gray-200  p-6 shadow-sm">
-                            <div className="mb-4">
-                                <div className="font-semibold text-gray-700 mb-1">Tiket Masuk:</div>
-                                <div className="text-blue-900 font-bold text-xl">Rp 10.000</div>
+                        <div className="max-w-md mx-auto bg-[#f7f8fa] border border-gray-200  p-6 shadow-sm rounded-lg">
+                            <div className="mb-6">
+                                <div className="font-semibold text-gray-700 mb-1 text-lg flex items-center gap-2">
+                                    <span className="inline-block bg-blue-900 text-white rounded px-2 py-1 text-sm">
+                                        Tiket Masuk
+                                    </span>
+                                </div>
+                                <div className="text-blue-900 font-bold text-2xl mt-1 mb-2">
+                                    Rp {Number(priceTicket.price).toLocaleString("id-ID")}
+                                </div>
+                                <div className="text-gray-500 text-xs">
+                                    Harga tiket berlaku untuk semua pengunjung, terkadang ada perubahan harga tiket
+                                    bisa cek secara berkala di website resmi kami.
+                                </div>
                             </div>
                             <div>
-                                <div className="font-semibold text-gray-700 mb-1">Harga Parkir:</div>
-                                <table className="w-full text-sm text-left">
+                                <div className="font-semibold text-gray-700 mb-1 text-lg flex items-center gap-2">
+                                    <span className="inline-block bg-blue-900 text-white rounded px-2 py-1 text-sm">
+                                        Harga Parkir
+                                    </span>
+                                </div>
+                                <table className="w-full text-sm text-left border mt-2">
+                                    <thead>
+                                        <tr className="bg-blue-50">
+                                            <th className="py-2 px-3 border-b text-gray-700 font-semibold">
+                                                Jenis
+                                            </th>
+                                            <th className="py-2 px-3 border-b text-gray-700 font-semibold">
+                                                Harga
+                                            </th>
+                                        </tr>
+                                    </thead>
                                     <tbody>
-                                        <tr>
-                                            <td className="py-1 text-gray-700">Motor</td>
-                                            <td className="py-1 text-blue-900 font-semibold">Rp 2.000</td>
-                                        </tr>
-                                        <tr>
-                                            <td className="py-1 text-gray-700">Mobil</td>
-                                            <td className="py-1 text-blue-900 font-semibold">Rp 5.000</td>
-                                        </tr>
-                                        <tr>
-                                            <td className="py-1 text-gray-700">Elf</td>
-                                            <td className="py-1 text-blue-900 font-semibold">Rp 10.000</td>
-                                        </tr>
-                                        <tr>
-                                            <td className="py-1 text-gray-700">Bus Medium</td>
-                                            <td className="py-1 text-blue-900 font-semibold">Rp 20.000</td>
-                                        </tr>
-                                        <tr>
-                                            <td className="py-1 text-gray-700">Bus Besar</td>
-                                            <td className="py-1 text-blue-900 font-semibold">Rp 30.000</td>
-                                        </tr>
+                                        {jeniskendaraan.map((item, index) => (
+                                            <tr key={index}>
+                                                <td className="py-2 px-3 border-b text-gray-700">
+                                                    {item.namakendaraan}
+                                                </td>
+                                                <td className="py-2 px-3 border-b text-blue-900 font-semibold">
+                                                    Rp {Number(item.price).toLocaleString("id-ID")}
+                                                </td>
+                                            </tr>
+                                        ))}
                                     </tbody>
                                 </table>
+                                <div className="text-gray-500 text-xs mt-2">
+                                    Harga parkir sesuai jenis kendaraan update setiap waktu terkadang ada perubahan harga parkir
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -561,7 +741,10 @@ console.log(data);
             </section>
 
             {/* Testimoni Section */}
-            <section id="testimoni" className="py-10 px-4 md:px-16 bg-[#f7f8fa]">
+            <section
+                id="testimoni"
+                className="py-10 px-4 md:px-16 bg-[#f7f8fa]"
+            >
                 <h2 className="text-2xl font-semibold text-gray-800 mb-8 text-center tracking-wide">
                     Testimoni Pengunjung
                 </h2>
@@ -634,26 +817,45 @@ console.log(data);
                 <div className="max-w-5xl mx-auto px-4 flex flex-col md:flex-row gap-8 justify-between">
                     {/* Kontak Info */}
                     <div className="flex-1 mb-6 md:mb-0">
-                        <div className="font-semibold text-gray-700 mb-2">Kontak Wisata Kalimas</div>
-                        <div className="text-gray-700 text-base mb-1">
-                            <span className="font-medium">Alamat:</span> Jl. Kalimas Timur No.1, Surabaya
+                        <div className="font-semibold text-gray-700 mb-2">
+                            Kontak Wisata Kalimas
                         </div>
                         <div className="text-gray-700 text-base mb-1">
-                            <span className="font-medium">Email:</span> <a href="mailto:info@wisatakalimas.com" className="text-blue-900 hover:underline">info@wisatakalimas.com</a>
+                            <span className="font-medium">Alamat:</span> Jl.
+                            Kalimas Timur No.1, Surabaya
                         </div>
                         <div className="text-gray-700 text-base mb-1">
-                            <span className="font-medium">WhatsApp:</span> <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" className="text-blue-900 hover:underline">+62 812-3456-7890</a>
+                            <span className="font-medium">Email:</span>{" "}
+                            <a
+                                href="mailto:info@wisatakalimas.com"
+                                className="text-blue-900 hover:underline"
+                            >
+                                info@wisatakalimas.com
+                            </a>
+                        </div>
+                        <div className="text-gray-700 text-base mb-1">
+                            <span className="font-medium">WhatsApp:</span>{" "}
+                            <a
+                                href="https://wa.me/6281234567890"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-900 hover:underline"
+                            >
+                                +62 812-3456-7890
+                            </a>
                         </div>
                     </div>
                     {/* Box Email */}
                     <div className="flex-1">
-                        <div className="font-semibold text-gray-700 mb-2">Kirim Pesan ke Kami</div>
+                        <div className="font-semibold text-gray-700 mb-2">
+                            Kirim Pesan ke Kami
+                        </div>
                         <form
                             className="flex flex-col gap-2"
-                            onSubmit={e => {
+                            onSubmit={(e) => {
                                 e.preventDefault();
                                 // Implement kirim email sesuai kebutuhan backend
-                                alert('Pesan Anda telah dikirim!');
+                                alert("Pesan Anda telah dikirim!");
                                 e.target.reset();
                             }}
                         >
@@ -681,7 +883,8 @@ console.log(data);
                     </div>
                 </div>
                 <div className="text-center py-4 text-gray-400 text-sm mt-8 border-t border-gray-200">
-                    &copy; {new Date().getFullYear()} Wisata Kalimas. Transparansi untuk semua.
+                    &copy; {new Date().getFullYear()} Wisata Kalimas.
+                    Transparansi untuk semua.
                 </div>
             </footer>
         </div>

@@ -41,6 +41,7 @@ export default function Dashboard({ auth }) {
         jam_keluar: "16:00",
     });
 
+ 
     useEffect(() => {
         const now = new Date();
         const hours = String(now.getHours()).padStart(2, "0");
@@ -434,10 +435,7 @@ export default function Dashboard({ auth }) {
                                                 key={item.id}
                                                 value={item.namakendaraan}
                                             >
-                                                {item.namakendaraan} - Rp{" "}
-                                                {item.price.toLocaleString(
-                                                    "id-ID"
-                                                )}
+                                                {item.namakendaraan} - Rp {item.price.toLocaleString("id-ID")}
                                             </option>
                                         ))}
                                     </select>
@@ -535,10 +533,7 @@ export default function Dashboard({ auth }) {
                                         Biaya Parkir
                                     </p>
                                     <p className="text-xl font-bold text-blue-600">
-                                        Rp{" "}
-                                        {data.price
-                                            ? data.price.toLocaleString("id-ID")
-                                            : 0}
+                                        Rp {data.price ? data.price.toLocaleString("id-ID") : 0}
                                     </p>
                                 </div>
 
@@ -578,9 +573,7 @@ export default function Dashboard({ auth }) {
                                         Total Pembayaran
                                     </p>
                                     <p className="text-2xl font-extrabold text-green-600">
-                                        Rp{" "}
-                                        {Number(data.price) +
-                                            Number(data.harga_tiket)}
+                                        Rp {Number(data.price) + Number(data.harga_tiket)}
                                     </p>
                                 </div>
                             </div>
@@ -751,34 +744,20 @@ export default function Dashboard({ auth }) {
                                                             <strong>
                                                                 Jenis Kendaraan:
                                                             </strong>{" "}
-                                                            {transaction.jenis_kendaraan ||
-                                                                "-"}
+                                                            {transaction.jenis_kendaraan || "-"}
                                                         </p>
                                                         <p className="text-sm text-gray-700">
                                                             <strong>
                                                                 Harga Satuan:
                                                             </strong>{" "}
-                                                            Rp{" "}
-                                                            {transaction.harga_satuan
-                                                                ? Number(
-                                                                      transaction.harga_satuan
-                                                                  ).toLocaleString(
-                                                                      "id-ID"
-                                                                  )
-                                                                : "-"}
+                                                            Rp {transaction.harga_satuan ? Number(transaction.harga_satuan).toLocaleString("id-ID") : "-"}
                                                         </p>
                                                         <p className="text-sm text-gray-700">
                                                             <strong>
                                                                 Total Harga:
                                                             </strong>{" "}
                                                             Rp{" "}
-                                                            {transaction.total
-                                                                ? Number(
-                                                                      transaction.total
-                                                                  ).toLocaleString(
-                                                                      "id-ID"
-                                                                  )
-                                                                : 0}
+                                                            {transaction.total ? Number(transaction.total).toLocaleString("id-ID") : 0}
                                                         </p>
                                                         <button
                                                             onClick={() =>
@@ -837,8 +816,7 @@ export default function Dashboard({ auth }) {
                                                             <strong>
                                                                 Jumlah Tiket:
                                                             </strong>{" "}
-                                                            {transaction.jumlah_orang ||
-                                                                "-"}
+                                                            {transaction.jumlah_orang || "-"}
                                                         </p>
                                                         <p className="text-sm text-gray-700">
                                                             <strong>
@@ -893,19 +871,7 @@ export default function Dashboard({ auth }) {
                                     {todaySummary.parking.length > 0 ? (
                                         todaySummary.parking.map((t, i) => (
                                             <li key={i}>
-                                                {t.jenis_kendaraan || "-"} | Rp{" "}
-                                                {t.harga_satuan
-                                                    ? Number(
-                                                          t.harga_satuan
-                                                      ).toLocaleString("id-ID")
-                                                    : "-"}{" "}
-                                                | Total: Rp{" "}
-                                                {t.total
-                                                    ? Number(
-                                                          t.total
-                                                      ).toLocaleString("id-ID")
-                                                    : 0}{" "}
-                                                |{" "}
+                                                {t.jenis_kendaraan || "-"} | Rp {t.harga_satuan ? Number(t.harga_satuan).toLocaleString("id-ID") : "-"} | Total: Rp {t.total ? Number(t.total).toLocaleString("id-ID") : 0} |{" "}
                                                 {new Date(
                                                     t.created_at
                                                 ).toLocaleTimeString("id-ID")}

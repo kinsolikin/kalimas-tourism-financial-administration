@@ -13,7 +13,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use App\Models\Ticket_income_details;
-
+use App\Models\SetingTicket;
+use App\Models\JenisKendaraan;
 
 class DashboardController extends Controller
 {
@@ -58,7 +59,12 @@ class DashboardController extends Controller
     }
     public function index()
     {
-        return Inertia::render('Dashboardguest');
+        $priceTicket = SetingTicket::first();
+        $jeniskendaraan = JenisKendaraan::all();
+        return Inertia::render('Dashboardguest',[
+            'priceTicket' => $priceTicket,
+            'jeniskendaraan' => $jeniskendaraan,
+        ]);
     }
 
     public function fetchdata()

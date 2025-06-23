@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { router, useForm } from "@inertiajs/react";
+import React, { useEffect, useState,Props } from "react";
+import { router, useForm,usePage } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import Swal from "sweetalert2";
 import dayjs from "dayjs";
@@ -12,13 +12,15 @@ const Toilet = ({ auth }) => {
     const [toDate, setToDate] = useState("");
     const [showEndShiftModal, setShowEndShiftModal] = useState(false);
     const [todayTransactions, setTodayTransactions] = useState([]);
+    const { priceToilet } = usePage().props;
 
-    const fixedHarga = 2000;
+    console.log("Price Toilet:", priceToilet);
+    const fixedHarga = parseInt(priceToilet.price) || 0; // Default to 2000 if priceToilet is not available
 
     const { data, setData, post, processing, errors } = useForm({
        
         jumlah: 0,
-        harga_perorang: 2000,
+        harga_perorang: fixedHarga,
         total: 0,
     });
 
@@ -36,9 +38,11 @@ const Toilet = ({ auth }) => {
             onSuccess: () => {
                 setData({
                     jumlah: 0,
-                    harga_perorang: 2000,
+                    harga_perorang: fixedHarga,
                     total: 0,
                 });
+                openModal();
+                setShowModal(true);
                 Swal.fire("Berhasil", "Data Toilet berhasil disimpan", "success");
             },
             onError: () => {
@@ -148,7 +152,7 @@ const Toilet = ({ auth }) => {
                 <h1 className="text-2xl font-bold text-center mb-4">Form Pemasukan Toilet</h1>
 
                 <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4  ">
-                    <p><strong>Informasi:</strong> Setiap 1 orang pengguna toilet dikenakan biaya <strong>Rp 2.000</strong>.</p>
+                    <p><strong>Informasi:</strong> Setiap 1 orang pengguna toilet dikenakan biaya <strong>Rp {Number(priceToilet.price).toLocaleString('id-ID')}</strong>.</p>
                 </div>
 
                 <form

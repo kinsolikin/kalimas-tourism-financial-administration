@@ -7,6 +7,7 @@ use Inertia\Inertia;
 use Carbon\Carbon;
 use App\Models\Income;
 use App\Models\Toilet_income_details;
+use App\Models\SetingToilet;    
 class DashboardLoketToilet extends Controller
 {
     /**
@@ -14,7 +15,11 @@ class DashboardLoketToilet extends Controller
      */
     public function index()
     {
-        return Inertia::render('Toilet');
+        $priceToilet = SetingToilet::first();
+
+        return Inertia::render('Toilet',[
+            'priceToilet'=>$priceToilet 
+        ]);
     }
 
     /**
