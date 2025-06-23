@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Income;
 use App\Models\Wahana_income_details;
+use App\Models\Wahana;
+
 class DashboardLoketWahana extends Controller
 {
     /**
@@ -13,7 +15,10 @@ class DashboardLoketWahana extends Controller
      */
     public function index()
     {
-        return inertia('Wahana');
+        $wahanaoption = Wahana::all();
+        return inertia('Wahana', [
+            'wahanaoption' => $wahanaoption,
+        ]);
     }
 
     /**
@@ -29,39 +34,41 @@ class DashboardLoketWahana extends Controller
      */
     public function store(Request $request)
     {
+
+
         $validatedata = $request->validate([
-            'nama_wahana'=> 'required|string',
-            'harga'=> 'required|integer|min:0',
-            'jumlah'=> 'required|integer|min:0',
-            'total'=> 'required|numeric',
+            'nama_wahana' => 'required|string',
+            'harga' => 'required|integer|min:0',
+            'jumlah' => 'required|integer|min:0',
+            'total' => 'required|numeric',
         ]);
 
         $user = auth()->user();
 
-         $wahanaincome = Income::where('income_categori_id',$user->id)
-        ->where('user_id',$user->id)
-        ->whereDate('created_at',Carbon::today())
-        ->first();
+        $wahanaincome = Income::where('income_categori_id', $user->id)
+            ->where('user_id', $user->id)
+            ->whereDate('created_at', Carbon::today())
+            ->first();
 
-        if(!$wahanaincome){
-            $wahanaincome=Income::create([
-                'income_categori_id'=> $user->id,
-                'user_id'=>$user->id,
-                'amount'=>0,
+        if (!$wahanaincome) {
+            $wahanaincome = Income::create([
+                'income_categori_id' => $user->id,
+                'user_id' => $user->id,
+                'amount' => 0,
             ]);
         }
-            
-        if($validatedata['jumlah'] > 0){
+
+        if ($validatedata['jumlah'] > 0) {
             Wahana_income_details::create([
-                'user_id'=>$user->id,
-                'income_id'=>$wahanaincome->id,
-                'nama_wahana'=>$validatedata['nama_wahana'],
-                'harga'=>$validatedata['harga'],
-                'jumlah'=>$validatedata['jumlah'],
-                'total'=>$validatedata['total'],
+                'user_id' => $user->id,
+                'income_id' => $wahanaincome->id,
+                'nama_wahana' => $validatedata['nama_wahana'],
+                'harga' => $validatedata['harga'],
+                'jumlah' => $validatedata['jumlah'],
+                'total' => $validatedata['total'],
             ]);
         }
-
+       
     }
 
     /**

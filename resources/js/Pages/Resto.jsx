@@ -441,16 +441,14 @@ export default function Resto({ auth }) {
 
                         {/* Makanan */}
                         <div className="grid grid-cols-2 gap-2 text-sm text-gray-700">
-                            <div>Nama Makanan:</div>
-                            <div className="text-right font-medium text-gray-900">
-                                {form.makanan || "-"}
-                            </div>
                             <div>Harga Satuan Makanan:</div>
                             <div className="text-right font-medium text-gray-900">
                                 Rp {form.harga_satuan_makanan.toLocaleString()}
                             </div>
+
                             <div>Jumlah Makanan:</div>
                             <div className="text-right">{form.qty_makanan}</div>
+
                             <div>Total Makanan:</div>
                             <div className="text-right font-semibold text-green-700">
                                 Rp {form.total_makanan.toLocaleString()}
@@ -461,16 +459,14 @@ export default function Resto({ auth }) {
 
                         {/* Minuman */}
                         <div className="grid grid-cols-2 gap-2 text-sm text-gray-700">
-                            <div>Nama Minuman:</div>
-                            <div className="text-right font-medium text-gray-900">
-                                {form.minuman || "-"}
-                            </div>
                             <div>Harga Satuan Minuman:</div>
                             <div className="text-right font-medium text-gray-900">
                                 Rp {form.harga_satuan_minuman.toLocaleString()}
                             </div>
+
                             <div>Jumlah Minuman:</div>
                             <div className="text-right">{form.qty_minuman}</div>
+
                             <div>Total Minuman:</div>
                             <div className="text-right font-semibold text-green-700">
                                 Rp {form.total_minuman.toLocaleString()}

@@ -1,20 +1,15 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useForm } from "@inertiajs/react";
+import { useForm, usePage } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import Swal from "sweetalert2";
 import dayjs from "dayjs";
 import axios from "axios";
 import { router } from "@inertiajs/react";
 
-const wahanaOptions = [
-    { nama: "Flying Fox", harga: 20000 },
-    { nama: "ATV", harga: 50000 },
-    { nama: "Bebek Air", harga: 30000 },
-    { nama: "Outbound Anak", harga: 25000 },
-    { nama: "Paintball", harga: 45000 },
-];
+const Wahana = ({ auth }) => {
+    const { wahanaoption } = usePage().props;
 
-const Wahana = ({ incomeId, userId, auth }) => {
+    console.log("Wahana Options:", wahanaoption);
     const [transactions, setTransactions] = useState([]);
     const [fromDate, setFromDate] = useState("");
     const [toDate, setToDate] = useState("");
@@ -27,12 +22,12 @@ const Wahana = ({ incomeId, userId, auth }) => {
     const shiftSummaryRef = useRef(null);
 
     const { data, setData, post, processing, errors } = useForm({
-        user_id: userId,
-        income_id: incomeId,
-        nama_wahana: "",
+    
+     
         harga: 0,
         jumlah: 0,
         total: 0,
+        nama_wahana: "",
     });
 
     // Ambil data transaksi saat mount & setelah submit/hapus
@@ -50,36 +45,45 @@ const Wahana = ({ incomeId, userId, auth }) => {
     }, []);
 
     useEffect(() => {
-        const wahana = wahanaOptions.find((w) => w.nama === data.nama_wahana);
-        const harga = wahana ? wahana.harga : 0;
-        setData((prevData) => ({
-            ...prevData,
+        // Update harga, total, dan nama_wahana jika wahana_id atau jumlah berubah
+        const selected = Object.values(wahanaoption || {}).find(
+            (w) => String(w.id) === String(data.wahana_id)
+        );
+        const harga = selected ? Number(selected.price) : 0;
+        const nama_wahana = selected ? selected.jeniswahana : "";
+        setData((prev) => ({
+            ...prev,
             harga,
-            total: harga * prevData.jumlah,
+            total: harga * (Number(prev.jumlah) || 0),
+            nama_wahana,
         }));
-    }, [data.nama_wahana, data.jumlah]);
+    }, [data.wahana_id, data.jumlah, wahanaoption]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        post("/dashboard/wahana/store", {
+        // Ambil jeniswahana dari wahanaoption berdasarkan wahana_id
+        const selected = Object.values(wahanaoption || {}).find(
+            (w) => String(w.id) === String(data.wahana_id)
+        );
+        const nama_wahana = selected ? selected.jeniswahana : "";
+        const submitData = {
+            ...data,
+            nama_wahana,
+        };
+        post("/dashboard/wahana/store", submitData, {
             onSuccess: () => {
                 setData({
-                    user_id: userId,
-                    income_id: incomeId,
-                    nama_wahana: "",
+              
+                   
                     harga: 0,
                     jumlah: 0,
                     total: 0,
+                    nama_wahana: "",
                 });
-                Swal.fire({
-                    title: "Berhasil",
-                    text: "Data Wahana berhasil disimpan",
-                    icon: "success",
-                    confirmButtonColor: "#3085d6",
-                });
+                Swal.fire("Berhasil", "Data Toilet berhasil disimpan", "success");
                 fetchTransactions();
             },
-            onerror: () => {
+            onError: () => {
                 Swal.fire({
                     title: "gagal",
                     text: "data wahana gagal disimpan",
@@ -249,40 +253,6 @@ const Wahana = ({ incomeId, userId, auth }) => {
                     >
                         <div>
                             <label
-                                htmlFor="nama_wahana"
-                                className="block text-sm font-semibold mb-1"
-                            >
-                                Nama Wahana
-                            </label>
-                            <select
-                                id="nama_wahana"
-                                value={data.nama_wahana}
-                                onChange={(e) =>
-                                    setData("nama_wahana", e.target.value)
-                                }
-                                className="w-full border border-gray-300   px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                required
-                            >
-                                <option value="">-- Pilih Wahana --</option>
-                                {wahanaOptions.map((option) => (
-                                    <option
-                                        key={option.nama}
-                                        value={option.nama}
-                                    >
-                                        {option.nama} - Rp{" "}
-                                        {option.harga.toLocaleString()}
-                                    </option>
-                                ))}
-                            </select>
-                            {errors.nama_wahana && (
-                                <p className="text-red-500 text-sm mt-1">
-                                    {errors.nama_wahana}
-                                </p>
-                            )}
-                        </div>
-
-                        <div>
-                            <label
                                 htmlFor="harga"
                                 className="block text-sm font-semibold mb-1"
                             >
@@ -291,7 +261,7 @@ const Wahana = ({ incomeId, userId, auth }) => {
                             <input
                                 type="text"
                                 id="harga"
-                                value={data.harga.toLocaleString()}
+                                value={(Number(data.harga) || 0).toLocaleString()}
                                 disabled
                                 className="w-full bg-gray-100 border border-gray-300   px-4 py-2 text-gray-600"
                             />
@@ -309,9 +279,10 @@ const Wahana = ({ incomeId, userId, auth }) => {
                                 id="jumlah"
                                 min="1"
                                 value={data.jumlah}
-                                onChange={(e) =>
-                                    setData("jumlah", parseInt(e.target.value))
-                                }
+                                onChange={e => {
+                                    const val = e.target.value;
+                                    setData("jumlah", val === "" ? "" : parseInt(val));
+                                }}
                                 className="w-full border border-gray-300   px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 required
                             />
@@ -320,6 +291,29 @@ const Wahana = ({ incomeId, userId, auth }) => {
                                     {errors.jumlah}
                                 </p>
                             )}
+                        </div>
+
+                        <div>
+                            <label
+                                htmlFor="wahana_id"
+                                className="block text-sm font-semibold mb-1"
+                            >
+                                Jenis Wahana
+                            </label>
+                            <select
+                                id="wahana_id"
+                                value={data.wahana_id}
+                                onChange={e => setData({ ...data, wahana_id: e.target.value })}
+                                className="w-full border border-gray-300   px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                            >
+                                <option value="">-- Pilih Jenis Wahana --</option>
+                                {Object.values(wahanaoption || {}).map(option => (
+                                    <option key={option.id} value={option.id}>
+                                        {option.jeniswahana}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
 
                         <div>
@@ -357,7 +351,7 @@ const Wahana = ({ incomeId, userId, auth }) => {
                             </p>
                             <hr className="my-2" />
                             <p className="text-lg font-bold text-blue-600">
-                                Total: Rp {data.total.toLocaleString()}
+                                Total: Rp {(Number(data.total) || 0).toLocaleString()}
                             </p>
                         </div>
                         {/* Tombol Akhiri Shift */}
