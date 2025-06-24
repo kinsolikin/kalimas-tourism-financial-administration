@@ -10,5 +10,11 @@ class JenisKendaraan extends Model
     use HasFactory;
 
     protected $guarded=['id'];
+
+
+    public function parkingIncome()
+    {
+        return $this->hasMany(Parking_income_details::class);
+    }
     
 }

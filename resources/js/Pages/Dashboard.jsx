@@ -7,8 +7,13 @@ import { router } from "@inertiajs/react";
 
 export default function Dashboard({ auth }) {
     const { props } = usePage();
-    const { jenisKendaraan } = usePage().props;
-    const [transactionHistory, setTransactionHistory] = useState([]);
+    const { jenisKendaraan,priceticket } = usePage().props;
+
+    console.log("priceticket:", priceticket);
+    const [transactionHistory, setTransactionHistory] = useState({
+        parkingTransactions: [],
+        ticketTransactions: [],
+    });
     const [filterCategory, setFilterCategory] = useState("all"); // State for filtering category
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
@@ -26,7 +31,6 @@ export default function Dashboard({ auth }) {
     const transactionHistoryRef = useRef(null);
     const shiftSummaryRef = useRef(null);
 
-    console.log(jenisKendaraan);
     const { data, setData, post, processing, errors } = useForm({
         shift: "1",
         operator_name: "",
@@ -41,6 +45,7 @@ export default function Dashboard({ auth }) {
         jam_keluar: "16:00",
     });
 
+
  
     useEffect(() => {
         const now = new Date();
@@ -52,18 +57,16 @@ export default function Dashboard({ auth }) {
     const handleChange = (e) => {
         const { name, value } = e.target;
         if (name === "vehicle_type") {
-            // Cari berdasarkan nama kendaraan
-            const selectedVehicle = jenisKendaraan.find(
-                (item) => item.namakendaraan === value
-            );
+            // Cari kendaraan berdasarkan id
+            const selectedVehicle = jenisKendaraan.find((item) => item.id == value);
             setData({
                 ...data,
-                vehicle_type: value,
+                vehicle_type: value, // id kendaraan
                 price: selectedVehicle ? selectedVehicle.price : 0,
             });
         } else if (name === "jumlah_tiket") {
-            // Misal harga tiket tetap 5000 per tiket
-            const hargaTiket = 5000;
+            // Gunakan harga tiket dari props priceticket
+            const hargaTiket = Number(priceticket);
             setData({
                 ...data,
                 jumlah_tiket: value,
@@ -116,13 +119,16 @@ export default function Dashboard({ auth }) {
     const fetchTransactionHistory = async () => {
         try {
             const response = await axios.get("/dashboard/transaction-history");
-            const { parkingTransactions, ticketTransactions } = response.data;
-
+            const parkingTransactions = response.data.parkingTransactions || [];
+            const ticketTransactions = response.data.ticketTransactions || [];
             setTransactionHistory({ parkingTransactions, ticketTransactions });
+
+            console.log(response.data);
         } catch (error) {
             console.error("Error fetching transaction history:", error);
         }
     };
+
 
     const filteredTransactions = () => {
         const transactionsByDate = filterTransactionsByDate();
@@ -433,7 +439,7 @@ export default function Dashboard({ auth }) {
                                         {jenisKendaraan.map((item) => (
                                             <option
                                                 key={item.id}
-                                                value={item.namakendaraan}
+                                                value={item.id}
                                             >
                                                 {item.namakendaraan} - Rp {item.price.toLocaleString("id-ID")}
                                             </option>
@@ -744,7 +750,7 @@ export default function Dashboard({ auth }) {
                                                             <strong>
                                                                 Jenis Kendaraan:
                                                             </strong>{" "}
-                                                            {transaction.jenis_kendaraan || "-"}
+                                                            {transaction.jenis_kendaraan?.namakendaraan || "-"}
                                                         </p>
                                                         <p className="text-sm text-gray-700">
                                                             <strong>
@@ -871,7 +877,7 @@ export default function Dashboard({ auth }) {
                                     {todaySummary.parking.length > 0 ? (
                                         todaySummary.parking.map((t, i) => (
                                             <li key={i}>
-                                                {t.jenis_kendaraan || "-"} | Rp {t.harga_satuan ? Number(t.harga_satuan).toLocaleString("id-ID") : "-"} | Total: Rp {t.total ? Number(t.total).toLocaleString("id-ID") : 0} |{" "}
+                                                {t.jenis_kendaraan.namakendaraan || "-"} | Rp {t.harga_satuan ? Number(t.harga_satuan).toLocaleString("id-ID") : "-"} | Total: Rp {t.total ? Number(t.total).toLocaleString("id-ID") : 0} |{" "}
                                                 {new Date(
                                                     t.created_at
                                                 ).toLocaleTimeString("id-ID")}

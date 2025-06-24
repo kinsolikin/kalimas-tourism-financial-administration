@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('income_id')->constrained('incomes')->onDelete('cascade');
-            $table->string('jenis_kendaraan');
+            $table->foreignId('jenis_kendaraan_id')->constrainde('jenis_kendaraans')->onDelete('cascade');
             $table->integer('jumlah_kendaraan');
             $table->decimal('harga_satuan',12,2);
             $table->decimal('total', 12, 2);

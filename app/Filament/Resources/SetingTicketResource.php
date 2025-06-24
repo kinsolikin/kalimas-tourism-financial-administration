@@ -31,7 +31,7 @@ class SetingTicketResource extends Resource
                     ->numeric()
                     ->default(0.00)
                     ->prefix('Rp')
-                    ->disabledOn('create')
+                   
 
             ]);
     }

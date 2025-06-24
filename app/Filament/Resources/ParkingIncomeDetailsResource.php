@@ -101,7 +101,7 @@ class ParkingIncomeDetailsResource extends Resource
 
         return $table
             ->columns([
-                TextColumn::make('jenis_kendaraan')
+                TextColumn::make('jenisKendaraan.namakendaraan')
                     ->label('Jenis Kendaraan')->searchable()
                     ->sortable(),
                 TextColumn::make('jumlah_kendaraan')

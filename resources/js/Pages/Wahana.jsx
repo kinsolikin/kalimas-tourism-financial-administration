@@ -411,7 +411,7 @@ const Wahana = ({ auth }) => {
                                 {todaySummary.wahana.length > 0 ? (
                                     todaySummary.wahana.map((t, i) => (
                                         <li key={i}>
-                                            {t.nama_wahana || "-"} | Jumlah:{" "}
+                                            {t.jenis_wahana.jeniswahana || "-"} | Jumlah:{" "}
                                             {t.jumlah} | Rp {t.harga} | Total:
                                             Rp{" "}
                                             {(
@@ -528,7 +528,7 @@ const Wahana = ({ auth }) => {
                                                 )}
                                             </td>
                                             <td className="px-2 py-1">
-                                                {t.nama_wahana}
+                                                {t.jenis_wahana.jeniswahana}
                                             </td>
                                             <td className="px-2 py-1 text-right">
                                                 {t.jumlah}

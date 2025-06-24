@@ -56,8 +56,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['role:lokettiketparkir'])->group(function () {
 
 
-        Route::get('/dashboard-tiketparkir', [ControllerTicketParking::class, 'index'])->name('dashboard.tiketparkir');
         Route::get('/dashboard/transaction-history', [TransactionController::class, 'index']);
+        Route::get('/dashboard-tiketparkir', [ControllerTicketParking::class, 'index'])->name('dashboard.tiketparkir');
 
         Route::post('/dashboard/store', [ControllerTicketParking::class, 'store']);
 

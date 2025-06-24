@@ -20,4 +20,9 @@ class Wahana_income_details extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function jenisWahana()
+    {
+        return $this->belongsTo(Wahana::class,'wahana_id');
+    }
 }

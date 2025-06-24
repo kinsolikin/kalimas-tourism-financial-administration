@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             AdminSeeder::class,
             JenisKendaraanSeeder::class,
+            JenisWahana::class,
         ]);
     }
 }

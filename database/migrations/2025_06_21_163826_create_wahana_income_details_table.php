@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('income_id')->constrained('incomes')->onDelete('cascade');
-            $table->string('nama_wahana');
+            $table->foreignId('wahana_id')->constrained()->onDelete('cascade');
             $table->integer('harga');
             $table->integer('jumlah');
             $table->decimal('total', 12, 2);

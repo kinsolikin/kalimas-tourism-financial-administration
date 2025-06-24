@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Inertia\Inertia;
 use App\Models\JenisKendaraan;
-
+use App\Models\SetingTicket;
 
 class ControllerTicketParking extends Controller
 {
@@ -19,8 +19,10 @@ class ControllerTicketParking extends Controller
     public function index()
     {
         $jeniskendaraan = JenisKendaraan::all();
+        $priceticket = SetingTicket::pluck('price')->first();
         return Inertia::render('Dashboard', [
-            'jenisKendaraan' => $jeniskendaraan
+            'jenisKendaraan' => $jeniskendaraan,
+            'priceticket' => $priceticket,
         ]);
 
     }
@@ -45,7 +47,7 @@ class ControllerTicketParking extends Controller
 
             "shift" => "required|string",
             "operator_name" => "required|string",
-            "vehicle_type" => "required|string",
+            "vehicle_type" => "required|integer|exists:jenis_kendaraans,id",
             "price" => "required|numeric",
             "jumlah_tiket" => "required|integer|min:0",
             "harga_tiket" => "required|numeric",
@@ -103,7 +105,7 @@ class ControllerTicketParking extends Controller
             $detailparking = Parking_income_details::create([
                 'user_id' =>1,
                 'income_id' => $incomeparking->id,
-                'jenis_kendaraan' => $validatedData['vehicle_type'],
+                'jenis_kendaraan_id' => $validatedData['vehicle_type'],
                 'jumlah_kendaraan' => 1,
                 'harga_satuan' => $validatedData['price'],
                 'total' => 1 * $validatedData['price'],

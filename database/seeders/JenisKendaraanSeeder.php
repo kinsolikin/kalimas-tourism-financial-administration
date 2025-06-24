@@ -14,31 +14,31 @@ class JenisKendaraanSeeder extends Seeder
      */
     public function run(): void
     {
-        // JenisKendaraan::insert([
-        //     [
-        //         'namakendaraan' => 'Motor',
-        //         'price' => 2000,
-        //         'created_at' => Carbon::now(),
-        //         'updated_at' => Carbon::now(),
-        //     ],
-        //     [
-        //         'namakendaraan' => 'Mobil',
-        //         'price' => 5000,
-        //         'created_at' => Carbon::now(),
-        //         'updated_at' => Carbon::now(),
-        //     ],
-        //     [
-        //         'namakendaraan' => 'Bus',
-        //         'price' => 15000,
-        //         'created_at' => Carbon::now(),
-        //         'updated_at' => Carbon::now(),
-        //     ],
-        //     [
-        //         'namakendaraan' => 'Elve',
-        //         'price' => 10000,
-        //         'created_at' => Carbon::now(),
-        //         'updated_at' => Carbon::now(),
-        //     ],
-        // ]);
+        JenisKendaraan::insert([
+            [
+                'namakendaraan' => 'Motor',
+                'price' => 2000,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'namakendaraan' => 'Mobil',
+                'price' => 5000,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'namakendaraan' => 'Bus',
+                'price' => 15000,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'namakendaraan' => 'Elve',
+                'price' => 10000,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+        ]);
     }
 }

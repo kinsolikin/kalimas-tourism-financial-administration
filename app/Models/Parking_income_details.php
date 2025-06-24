@@ -11,6 +11,11 @@ class Parking_income_details extends Model
 
     protected $guarded =['id'];
 
+    public function jenisKendaraan()
+    {
+        return $this->belongsTo(JenisKendaraan::class);
+    }
+
     public function income()
     {
         return $this->belongsTo(Income::class);

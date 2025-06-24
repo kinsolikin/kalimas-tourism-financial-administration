@@ -38,6 +38,7 @@ class DashboardLoketWahana extends Controller
 
         $validatedata = $request->validate([
             'nama_wahana' => 'required|string',
+            'wahana_id' => 'required|exists:wahanas,id|integer',
             'harga' => 'required|integer|min:0',
             'jumlah' => 'required|integer|min:0',
             'total' => 'required|numeric',
@@ -62,7 +63,7 @@ class DashboardLoketWahana extends Controller
             Wahana_income_details::create([
                 'user_id' => $user->id,
                 'income_id' => $wahanaincome->id,
-                'nama_wahana' => $validatedata['nama_wahana'],
+                'wahana_id' => $validatedata['wahana_id'],
                 'harga' => $validatedata['harga'],
                 'jumlah' => $validatedata['jumlah'],
                 'total' => $validatedata['total'],

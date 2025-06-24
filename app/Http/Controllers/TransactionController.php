@@ -23,7 +23,7 @@ class TransactionController extends Controller
 
     public function index()
     {
-        $parkingTransactions = Parking_income_details::with('user')->orderBy('created_at', 'desc')->get();
+        $parkingTransactions = Parking_income_details::with(['user','jenisKendaraan'])->orderBy('created_at', 'desc')->get();
         $ticketTransactions = Ticket_income_details::with('user')->orderBy('created_at', 'desc')->get();
 
         return response()->json([
@@ -120,9 +120,9 @@ class TransactionController extends Controller
     public function indexWahana()
     {
 
-
+        
         // Ambil semua transaksi wahana
-        return response()->json(Wahana_income_details::latest()->get());
+        return response()->json(Wahana_income_details::with('jenisWahana')->get());
     }
 
 

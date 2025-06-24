@@ -30,10 +30,15 @@ class SetingToiletResource extends Resource
                     ->required()
                     ->numeric()
                     ->default(0.00)
-                    ->prefix('Rp'),
+                    ->prefix('Rp')
             ]);
     }
 
+     public static function canCreate(): bool
+    {
+        // Hanya tampilkan tombol create jika belum ada data
+        return \App\Models\SetingToilet::count() < 1;
+    }
     public static function table(Table $table): Table
     {
         return $table

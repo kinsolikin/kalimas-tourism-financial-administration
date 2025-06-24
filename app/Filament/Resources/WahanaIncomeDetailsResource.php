@@ -93,7 +93,7 @@ class WahanaIncomeDetailsResource extends Resource
         return $table
 
             ->columns([
-                TextColumn::make('nama_wahana')
+                TextColumn::make('jenisWahana.jeniswahana')
                     ->label('Nama Wahana')->searchable()
                     ->sortable(),
                 TextColumn::make('harga')
