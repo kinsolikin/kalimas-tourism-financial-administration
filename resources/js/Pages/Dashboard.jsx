@@ -376,6 +376,28 @@ export default function Dashboard({ auth }) {
                                 onSubmit={handleSubmit}
                                 className="space-y-6 bg-white p-8   -2xl shadow-2xl border border-gray-200 max-w-xl mx-auto"
                             >
+                                     <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4  ">
+                    {priceticket  ? (
+                        <p>
+                            <strong>Informasi:</strong> Setiap 1 Ticket dikenakan biaya{" "}
+                            <strong>
+                                Rp{" "}
+                                {Number(priceticket).toLocaleString(
+                                    "id-ID"
+                                )}
+                            </strong>
+                            
+                        </p>
+                    ) : (
+                        <p className="text-red-600">
+                            <strong>
+                                Maaf, silakan hubungi Admin/Ketua Wisata karena
+                                harga ticket belum ditetapkan.
+                            </strong>
+                        </p>
+                    )}
+                </div>
+
                                 {/* Shift Kerja */}
                                 <div>
                                     <label
@@ -385,6 +407,7 @@ export default function Dashboard({ auth }) {
                                         Shift Kerja
                                     </label>
                                     <select
+                                    disabled={!priceticket}
                                         id="shift"
                                         name="shift"
                                         value={data.shift}
@@ -408,6 +431,8 @@ export default function Dashboard({ auth }) {
                                         Nama Operator Kasir
                                     </label>
                                     <input
+                                    disabled={!priceticket}
+
                                         type="text"
                                         id="operator_name"
                                         name="operator_name"
@@ -427,6 +452,7 @@ export default function Dashboard({ auth }) {
                                         Jenis Kendaraan Parkir
                                     </label>
                                     <select
+                                    disabled={!priceticket}
                                         id="vehicle_type"
                                         name="vehicle_type"
                                         value={data.vehicle_type}
@@ -459,7 +485,9 @@ export default function Dashboard({ auth }) {
                                         Jumlah Tiket Wisata
                                     </label>
                                     <input
-                                        type="number"
+                                    
+                                       type="number"
+                                       disabled={!priceticket}
                                         id="jumlah_tiket"
                                         name="jumlah_tiket"
                                         value={data.jumlah_tiket}
@@ -479,6 +507,7 @@ export default function Dashboard({ auth }) {
                                         Waktu Masuk Kendaraan
                                     </label>
                                     <input
+                                    disabled={!priceticket}
                                         type="time"
                                         id="jam_masuk"
                                         name="jam_masuk"
@@ -506,6 +535,7 @@ export default function Dashboard({ auth }) {
                                         Waktu Keluar Kendaraan
                                     </label>
                                     <input
+                                    disabled={!priceticket}
                                         type="time"
                                         id="jam_keluar"
                                         name="jam_keluar"
@@ -626,6 +656,7 @@ export default function Dashboard({ auth }) {
                                             Tanggal Mulai:
                                         </label>
                                         <input
+                                        disabled={!priceticket}
                                             type="date"
                                             id="start_date"
                                             value={startDate}
@@ -643,6 +674,7 @@ export default function Dashboard({ auth }) {
                                             Tanggal Akhir:
                                         </label>
                                         <input
+                                        disabled={!priceticket}
                                             type="date"
                                             id="end_date"
                                             value={endDate}

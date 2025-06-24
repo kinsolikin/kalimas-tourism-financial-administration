@@ -1,5 +1,5 @@
-import React, { useEffect, useState,Props } from "react";
-import { router, useForm,usePage } from "@inertiajs/react";
+import React, { useEffect, useState, Props } from "react";
+import { router, useForm, usePage } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import Swal from "sweetalert2";
 import dayjs from "dayjs";
@@ -15,10 +15,10 @@ const Toilet = ({ auth }) => {
     const { priceToilet } = usePage().props;
 
     console.log("Price Toilet:", priceToilet);
-    const fixedHarga = parseInt(priceToilet.price) || 0; // Default to 2000 if priceToilet is not available
+    const fixedHarga = parseInt(priceToilet?.price ?? 0);
+    // Default to 2000 if priceToilet is not available
 
     const { data, setData, post, processing, errors } = useForm({
-       
         jumlah: 0,
         harga_perorang: fixedHarga,
         total: 0,
@@ -43,7 +43,11 @@ const Toilet = ({ auth }) => {
                 });
                 openModal();
                 setShowModal(true);
-                Swal.fire("Berhasil", "Data Toilet berhasil disimpan", "success");
+                Swal.fire(
+                    "Berhasil",
+                    "Data Toilet berhasil disimpan",
+                    "success"
+                );
             },
             onError: () => {
                 Swal.fire("Gagal", "Data Toilet gagal disimpan", "error");
@@ -63,9 +67,12 @@ const Toilet = ({ auth }) => {
 
     const fetchTransactions = async () => {
         try {
-            const res = await axios.get("/dashboard/toilet/transactions/filter", {
-                params: { from: fromDate, to: toDate },
-            });
+            const res = await axios.get(
+                "/dashboard/toilet/transactions/filter",
+                {
+                    params: { from: fromDate, to: toDate },
+                }
+            );
             setTransactions(res.data);
         } catch (err) {
             console.error("Gagal filter data", err);
@@ -86,7 +93,11 @@ const Toilet = ({ auth }) => {
             try {
                 await axios.delete("/dashboard/toilet/transactions/delete-all");
                 setTransactions([]);
-                Swal.fire("Berhasil!", "Semua transaksi telah dihapus.", "success");
+                Swal.fire(
+                    "Berhasil!",
+                    "Semua transaksi telah dihapus.",
+                    "success"
+                );
             } catch (err) {
                 console.error("Gagal hapus transaksi", err);
             }
@@ -105,7 +116,9 @@ const Toilet = ({ auth }) => {
 
         if (result.isConfirmed) {
             try {
-                await axios.delete(`/dashboard/toilet/transactions/delete/${id}`);
+                await axios.delete(
+                    `/dashboard/toilet/transactions/delete/${id}`
+                );
                 setTransactions((prev) => prev.filter((t) => t.id !== id));
                 Swal.fire("Berhasil!", "Transaksi telah dihapus.", "success");
             } catch (err) {
@@ -120,7 +133,11 @@ const Toilet = ({ auth }) => {
             setTodayTransactions(res.data);
             setShowEndShiftModal(true);
         } catch (err) {
-            Swal.fire("Gagal!", "Gagal mengambil data transaksi hari ini.", "error");
+            Swal.fire(
+                "Gagal!",
+                "Gagal mengambil data transaksi hari ini.",
+                "error"
+            );
         }
     };
 
@@ -137,9 +154,11 @@ const Toilet = ({ auth }) => {
         if (result.isConfirmed) {
             try {
                 await router.post("/logout");
-                Swal.fire("Berhasil!", "Shift telah diakhiri.", "success").then(() => {
-                    window.location.reload();
-                });
+                Swal.fire("Berhasil!", "Shift telah diakhiri.", "success").then(
+                    () => {
+                        window.location.reload();
+                    }
+                );
             } catch (err) {
                 Swal.fire("Gagal!", "Gagal mengakhiri shift.", "error");
             }
@@ -149,10 +168,31 @@ const Toilet = ({ auth }) => {
     return (
         <AuthenticatedLayout user={auth.user}>
             <div className="max-w-3xl mx-auto px-4 py-6">
-                <h1 className="text-2xl font-bold text-center mb-4">Form Pemasukan Toilet</h1>
+                <h1 className="text-2xl font-bold text-center mb-4">
+                    Form Pemasukan Toilet
+                </h1>
 
                 <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4  ">
-                    <p><strong>Informasi:</strong> Setiap 1 orang pengguna toilet dikenakan biaya <strong>Rp {Number(priceToilet.price).toLocaleString('id-ID')}</strong>.</p>
+                    {priceToilet && priceToilet.price ? (
+                        <p>
+                            <strong>Informasi:</strong> Setiap 1 orang pengguna
+                            toilet dikenakan biaya{" "}
+                            <strong>
+                                Rp{" "}
+                                {Number(priceToilet.price).toLocaleString(
+                                    "id-ID"
+                                )}
+                            </strong>
+                            .
+                        </p>
+                    ) : (
+                        <p className="text-red-600">
+                            <strong>
+                                Maaf, silakan hubungi Admin/Ketua Wisata karena
+                                harga toilet belum ditetapkan.
+                            </strong>
+                        </p>
+                    )}
                 </div>
 
                 <form
@@ -160,20 +200,28 @@ const Toilet = ({ auth }) => {
                     className="bg-white p-6   shadow-md space-y-6"
                 >
                     <div>
-                        <label htmlFor="jumlah" className="block mb-1 font-medium">
+                        <label
+                            htmlFor="jumlah"
+                            className="block mb-1 font-medium"
+                        >
                             Jumlah Pengguna Toilet
                         </label>
                         <input
+                        disabled={!priceToilet || !priceToilet.price}
                             type="number"
                             id="jumlah"
                             min="1"
                             value={data.jumlah}
-                            onChange={(e) => setData("jumlah", parseInt(e.target.value))}
+                            onChange={(e) =>
+                                setData("jumlah", parseInt(e.target.value))
+                            }
                             className="w-full border px-4 py-2  "
                             required
                         />
                         {errors.jumlah && (
-                            <p className="text-red-500 text-sm">{errors.jumlah}</p>
+                            <p className="text-red-500 text-sm">
+                                {errors.jumlah}
+                            </p>
                         )}
                     </div>
 
@@ -224,7 +272,10 @@ const Toilet = ({ auth }) => {
                             <tbody>
                                 {todayTransactions.length === 0 ? (
                                     <tr>
-                                        <td colSpan="3" className="p-4 text-center">
+                                        <td
+                                            colSpan="3"
+                                            className="p-4 text-center"
+                                        >
                                             Tidak ada transaksi hari ini
                                         </td>
                                     </tr>
@@ -232,9 +283,13 @@ const Toilet = ({ auth }) => {
                                     todayTransactions.map((trx) => (
                                         <tr key={trx.id}>
                                             <td className="p-2 border">
-                                                {dayjs(trx.created_at).format("DD/MM/YYYY")}
+                                                {dayjs(trx.created_at).format(
+                                                    "DD/MM/YYYY"
+                                                )}
                                             </td>
-                                            <td className="p-2 border">{trx.jumlah_pengguna}</td>
+                                            <td className="p-2 border">
+                                                {trx.jumlah_pengguna}
+                                            </td>
                                             <td className="p-2 border">
                                                 Rp {trx.total.toLocaleString()}
                                             </td>
@@ -273,7 +328,9 @@ const Toilet = ({ auth }) => {
                                 <input
                                     type="date"
                                     value={fromDate}
-                                    onChange={(e) => setFromDate(e.target.value)}
+                                    onChange={(e) =>
+                                        setFromDate(e.target.value)
+                                    }
                                     className="border p-2  "
                                 />
                             </div>
@@ -308,7 +365,10 @@ const Toilet = ({ auth }) => {
                             <tbody>
                                 {transactions.length === 0 ? (
                                     <tr>
-                                        <td colSpan="4" className="p-4 text-center">
+                                        <td
+                                            colSpan="4"
+                                            className="p-4 text-center"
+                                        >
                                             Belum ada transaksi
                                         </td>
                                     </tr>
@@ -316,15 +376,23 @@ const Toilet = ({ auth }) => {
                                     transactions.map((trx) => (
                                         <tr key={trx.id}>
                                             <td className="p-2 border">
-                                                {dayjs(trx.created_at).format("DD/MM/YYYY")}
+                                                {dayjs(trx.created_at).format(
+                                                    "DD/MM/YYYY"
+                                                )}
                                             </td>
-                                            <td className="p-2 border">{trx.jumlah_pengguna}</td>
+                                            <td className="p-2 border">
+                                                {trx.jumlah_pengguna}
+                                            </td>
                                             <td className="p-2 border">
                                                 Rp {trx.total.toLocaleString()}
                                             </td>
                                             <td className="p-2 border">
                                                 <button
-                                                    onClick={() => deleteTransaction(trx.id)}
+                                                    onClick={() =>
+                                                        deleteTransaction(
+                                                            trx.id
+                                                        )
+                                                    }
                                                     className="text-red-600 hover:underline"
                                                 >
                                                     Hapus
