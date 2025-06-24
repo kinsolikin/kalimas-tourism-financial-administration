@@ -30,7 +30,9 @@ class SetingTicketResource extends Resource
                     ->required()
                     ->numeric()
                     ->default(0.00)
-                    ->prefix('Rp'),
+                    ->prefix('Rp')
+                    ->disabledOn('create')
+
             ]);
     }
 
@@ -64,6 +66,11 @@ class SetingTicketResource extends Resource
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
             ]);
+    }
+    public static function canCreate(): bool
+    {
+        // Hanya tampilkan tombol create jika belum ada data
+        return \App\Models\SetingTicket::count() < 1;
     }
 
     public static function getRelations(): array

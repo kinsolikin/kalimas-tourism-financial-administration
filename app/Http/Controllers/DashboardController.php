@@ -4,17 +4,18 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use Inertia\Inertia;
+use App\Models\Wahana;
 use    App\Models\Review;
 use App\Models\NetIncome;
 use App\Models\TotalIncome;
+use App\Models\SetingTicket;
 use App\Models\TotalExpanse;
 use Illuminate\Http\Request;
+use App\Models\JenisKendaraan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use App\Models\Ticket_income_details;
-use App\Models\SetingTicket;
-use App\Models\JenisKendaraan;
 
 class DashboardController extends Controller
 {
@@ -61,9 +62,11 @@ class DashboardController extends Controller
     {
         $priceTicket = SetingTicket::first();
         $jeniskendaraan = JenisKendaraan::all();
+        $jeniswahana = Wahana::all();
         return Inertia::render('Dashboardguest',[
             'priceTicket' => $priceTicket,
             'jeniskendaraan' => $jeniskendaraan,
+            'jeniswahana' => $jeniswahana,
         ]);
     }
 

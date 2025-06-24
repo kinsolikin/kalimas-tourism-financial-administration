@@ -12,6 +12,7 @@ import {
     Tooltip,
     Legend,
 } from "chart.js";
+import useFadeInOnScroll from "../hooks/useFadeInOnScroll";
 
 ChartJS.register(
     CategoryScale,
@@ -51,9 +52,9 @@ function Dashboardguest() {
         0
     );
 
-    const { priceTicket, jeniskendaraan } = usePage().props;
+    const { priceTicket, jeniskendaraan, jeniswahana } = usePage().props;
 
-    console.log(jeniskendaraan);
+    console.log(jeniswahana);
 
     const fasilitas = [
         {
@@ -257,6 +258,13 @@ function Dashboardguest() {
         // return () => clearInterval(interval);
     }, []);
 
+    // Tambahkan hook animasi untuk setiap section
+    const [heroRef, heroVisible] = useFadeInOnScroll();
+    const [dataRef, dataVisible] = useFadeInOnScroll();
+    const [keterbukaanRef, keterbukaanVisible] = useFadeInOnScroll();
+    const [fasilitasRef, fasilitasVisible] = useFadeInOnScroll();
+    const [testimoniRef, testimoniVisible] = useFadeInOnScroll();
+
     return (
         <div className="min-h-screen bg-[#f7f8fa] font-sans">
             {/* Header */}
@@ -297,7 +305,14 @@ function Dashboardguest() {
             <div className="h-24"></div>
 
             {/* Hero Section */}
-            <section className="flex flex-col md:flex-row items-center justify-between px-4 md:px-16 py-12 gap-8 bg-white border-b border-gray-200">
+            <section
+                ref={heroRef}
+                className={`flex flex-col md:flex-row items-center justify-between px-4 md:px-16 py-12 gap-8 bg-white border-b border-gray-200 transition-all duration-700 ease-out ${
+                    heroVisible
+                        ? "opacity-100 translate-y-0"
+                        : "opacity-0 translate-y-8"
+                }`}
+            >
                 <div className="flex-1">
                     <h1 className="text-3xl font-bold text-gray-900 mb-4 leading-tight">
                         Selamat Datang di{" "}
@@ -341,7 +356,14 @@ function Dashboardguest() {
             </section>
 
             {/* Data Section */}
-            <section className="py-10 px-4 md:px-16 bg-[#f7f8fa] border-b border-gray-200">
+            <section
+                ref={dataRef}
+                className={`py-10 px-4 md:px-16 bg-[#f7f8fa] border-b border-gray-200 transition-all duration-700 ease-out ${
+                    dataVisible
+                        ? "opacity-100 translate-y-0"
+                        : "opacity-0 translate-y-8"
+                }`}
+            >
                 <h2 className="text-2xl font-semibold text-gray-800 mb-8 text-center tracking-wide">
                     Statistik Terkini
                 </h2>
@@ -407,8 +429,13 @@ function Dashboardguest() {
 
             {/* Keterbukaan Informasi Publik */}
             <section
+                ref={keterbukaanRef}
                 id="keterbukaan"
-                className="py-10 px-4 md:px-16 bg-white border-b border-gray-200"
+                className={`py-10 px-4 md:px-16 bg-white border-b border-gray-200 transition-all duration-700 ease-out ${
+                    keterbukaanVisible
+                        ? "opacity-100 translate-y-0"
+                        : "opacity-0 translate-y-8"
+                }`}
             >
                 <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center tracking-wide">
                     Keterbukaan Informasi Publik
@@ -656,20 +683,25 @@ function Dashboardguest() {
 
             {/* Fasilitas & Harga Tiket Section */}
             <section
+                ref={fasilitasRef}
                 id="fasilitas"
-                className="py-10 px-4 md:px-16 bg-white border-b border-gray-200"
+                className={`py-10 px-4 md:px-16 bg-white border-b border-gray-200 transition-all duration-700 ease-out ${
+                    fasilitasVisible
+                        ? "opacity-100 translate-y-0"
+                        : "opacity-0 translate-y-8"
+                }`}
             >
                 <h2 className="text-2xl font-semibold text-gray-800 mb-8 text-center tracking-wide">
                     Fasilitas Unggulan & Harga Tiket
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start md:items-start">
                     {/* Fasilitas */}
-                    <div>
+                    <div className="flex flex-col h-full justify-start">
                         <div className="flex flex-wrap justify-center gap-6">
                             {fasilitas.map((f, idx) => (
                                 <div
                                     key={idx}
-                                    className="bg-[#f7f8fa] p-5 flex flex-col items-center border border-gray-200  w-56 shadow-sm"
+                                    className="bg-[#f7f8fa] p-5 flex flex-col items-center border border-gray-200 w-56 shadow-sm rounded-lg mb-4"
                                 >
                                     <span className="text-3xl mb-2">
                                         {f.icon}
@@ -684,9 +716,10 @@ function Dashboardguest() {
                             ))}
                         </div>
                     </div>
-                    {/* Harga Tiket & Parkir */}
-                    <div>
-                        <div className="max-w-md mx-auto bg-[#f7f8fa] border border-gray-200  p-6 shadow-sm rounded-lg">
+                    {/* Harga Tiket & Parkir & Wahana */}
+                    <div className="flex flex-col h-full justify-start">
+                        <div className="max-w-md w-full mx-auto bg-[#f7f8fa] border border-gray-200 p-6 shadow-sm rounded-lg">
+                            {/* Tiket Masuk */}
                             <div className="mb-6">
                                 <div className="font-semibold text-gray-700 mb-1 text-lg flex items-center gap-2">
                                     <span className="inline-block bg-blue-900 text-white rounded px-2 py-1 text-sm">
@@ -694,45 +727,143 @@ function Dashboardguest() {
                                     </span>
                                 </div>
                                 <div className="text-blue-900 font-bold text-2xl mt-1 mb-2">
-                                    Rp {Number(priceTicket.price).toLocaleString("id-ID")}
+                                    Rp{" "}
+                                    {priceTicket && priceTicket.price ? (
+                                        Number(
+                                            priceTicket.price
+                                        ).toLocaleString("id-ID")
+                                    ) : (
+                                        <span className="text-gray-500">
+                                            Tidak tersedia
+                                        </span>
+                                    )}
                                 </div>
                                 <div className="text-gray-500 text-xs">
-                                    Harga tiket berlaku untuk semua pengunjung, terkadang ada perubahan harga tiket
-                                    bisa cek secara berkala di website resmi kami.
+                                    Harga tiket berlaku untuk semua pengunjung,
+                                    update setiap waktu karena terkadang ada
+                                    perubahan harga tiket cek langsung diwebsite
+                                    resmi kami
                                 </div>
                             </div>
-                            <div>
-                                <div className="font-semibold text-gray-700 mb-1 text-lg flex items-center gap-2">
-                                    <span className="inline-block bg-blue-900 text-white rounded px-2 py-1 text-sm">
-                                        Harga Parkir
-                                    </span>
-                                </div>
-                                <table className="w-full text-sm text-left border mt-2">
-                                    <thead>
-                                        <tr className="bg-blue-50">
-                                            <th className="py-2 px-3 border-b text-gray-700 font-semibold">
-                                                Jenis
-                                            </th>
-                                            <th className="py-2 px-3 border-b text-gray-700 font-semibold">
-                                                Harga
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {jeniskendaraan.map((item, index) => (
-                                            <tr key={index}>
-                                                <td className="py-2 px-3 border-b text-gray-700">
-                                                    {item.namakendaraan}
-                                                </td>
-                                                <td className="py-2 px-3 border-b text-blue-900 font-semibold">
-                                                    Rp {Number(item.price).toLocaleString("id-ID")}
-                                                </td>
+                            {/* Harga Parkir & Wahana Side by Side */}
+                            <div className="flex flex-col md:flex-row gap-6 w-full">
+                                {/* Harga Parkir */}
+                                <div className="flex-1">
+                                    <div className="font-semibold text-gray-700 mb-1 text-lg flex items-center gap-2">
+                                        <span className="inline-block bg-blue-900 text-white rounded px-2 py-1 text-sm">
+                                            Harga Parkir
+                                        </span>
+                                    </div>
+                                    <table className="w-full text-sm text-left border mt-2">
+                                        <thead>
+                                            <tr className="bg-blue-50">
+                                                <th className="py-2 px-3 border-b text-gray-700 font-semibold">
+                                                    Jenis
+                                                </th>
+                                                <th className="py-2 px-3 border-b text-gray-700 font-semibold">
+                                                    Harga
+                                                </th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                                <div className="text-gray-500 text-xs mt-2">
-                                    Harga parkir sesuai jenis kendaraan update setiap waktu terkadang ada perubahan harga parkir
+                                        </thead>
+                                        <tbody>
+                                            {jeniskendaraan &&
+                                            jeniskendaraan.length > 0 ? (
+                                                jeniskendaraan.map(
+                                                    (item, index) => (
+                                                        <tr key={index}>
+                                                            <td className="py-2 px-3 border-b text-gray-700">
+                                                                {
+                                                                    item.namakendaraan
+                                                                }
+                                                            </td>
+                                                            <td className="py-2 px-3 border-b text-blue-900 font-semibold">
+                                                                Rp{" "}
+                                                                {Number(
+                                                                    item.price
+                                                                ).toLocaleString(
+                                                                    "id-ID"
+                                                                )}
+                                                            </td>
+                                                        </tr>
+                                                    )
+                                                )
+                                            ) : (
+                                                <tr>
+                                                    <td
+                                                        colSpan="2"
+                                                        className="text-center text-gray-500 py-2"
+                                                    >
+                                                        Tidak ada data
+                                                        kendaraan.
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                    <div className="text-gray-500 text-xs mt-2">
+                                        Harga parkir sesuai jenis kendaraan
+                                        update sewaktu waktu jadi pastikan
+                                        pantau diwebsite resmi kami
+                                    </div>
+                                </div>
+                                {/* Harga Wahana */}
+                                <div className="flex-1">
+                                    <div className="font-semibold text-gray-700 mb-1 text-lg flex items-center gap-2">
+                                        <span className="inline-block bg-blue-900 text-white rounded px-2 py-1 text-sm">
+                                            Harga Wahana
+                                        </span>
+                                    </div>
+                                    <table className="w-full text-sm text-left border mt-2">
+                                        <thead>
+                                            <tr className="bg-blue-50">
+                                                <th className="py-2 px-3 border-b text-gray-700 font-semibold">
+                                                    Wahana
+                                                </th>
+                                                <th className="py-2 px-3 border-b text-gray-700 font-semibold">
+                                                    Harga
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {/* Contoh data, ganti dengan data asli jika sudah ada di props */}
+
+                                            {jeniswahana &&
+                                            jeniswahana.length > 0 ? (
+                                                jeniswahana.map(
+                                                    (item, index) => (
+                                                        <tr key={index}>
+                                                            <td className="py-2 px-3 border-b text-gray-700">
+                                                                {
+                                                                    item.jeniswahana
+                                                                }
+                                                            </td>
+                                                            <td className="py-2 px-3 border-b text-blue-900 font-semibold">
+                                                                Rp{" "}
+                                                                {Number(
+                                                                    item.price
+                                                                ).toLocaleString(
+                                                                    "id-ID"
+                                                                )}
+                                                            </td>
+                                                        </tr>
+                                                    )
+                                                )
+                                            ) : (
+                                                <tr>
+                                                    <td
+                                                        colSpan="2"
+                                                        className="text-center text-gray-500 py-2"
+                                                    >
+                                                        Tidak ada data Wahana.
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                    <div className="text-gray-500 text-xs mt-2">
+                                        Harga wahana dapat berubah sewaktu-waktu
+                                        sesuai kebijakan pengelola.
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -742,12 +873,23 @@ function Dashboardguest() {
 
             {/* Testimoni Section */}
             <section
+                ref={testimoniRef}
                 id="testimoni"
-                className="py-10 px-4 md:px-16 bg-[#f7f8fa]"
+                className={`py-10 px-4 md:px-16 bg-[#f7f8fa] transition-all duration-700 ease-out ${
+                    testimoniVisible
+                        ? "opacity-100 translate-y-0"
+                        : "opacity-0 translate-y-8"
+                }`}
             >
-                <h2 className="text-2xl font-semibold text-gray-800 mb-8 text-center tracking-wide">
-                    Testimoni Pengunjung
-                </h2>
+                <div className="mb-8 text-center tracking-wide">
+                    <h2 className="text-2xl font-semibold text-gray-800 ">
+                        Testimoni Pengunjung
+                    </h2>
+                    <div className="text-gray-500 text-xs">
+                        Ulasan ini di peroleh dari review di GoogleMaps, data
+                        update berkala jika ada ulasan terbaru.
+                    </div>
+                </div>
                 <div className="flex justify-center mb-4">
                     {!showTestimoni && (
                         <button
