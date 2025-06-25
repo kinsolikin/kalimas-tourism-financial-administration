@@ -27,7 +27,6 @@ export default function Dashboard({ auth }) {
         totalAll: 0,
     });
     const [showTransactionHistory, setShowTransactionHistory] = useState(false);
-    const [showReceiptModal, setShowReceiptModal] = useState(false);
     const [lastTransaction, setLastTransaction] = useState(null);
     // Tambahkan ref untuk scroll
     const transactionHistoryRef = useRef(null);
@@ -121,7 +120,7 @@ export default function Dashboard({ auth }) {
                         }
                     });
                 }
-                setShowReceiptModal(true);
+              
             },
             onError: () => {
                 Swal.fire({
@@ -379,71 +378,12 @@ export default function Dashboard({ auth }) {
         });
     };
 
-    // Fungsi print area modal
-    const handlePrintReceipt = () => {
-        const printContents = document.getElementById("receipt-modal-content").innerHTML;
-        const originalContents = document.body.innerHTML;
-        document.body.innerHTML = printContents;
-        window.print();
-        document.body.innerHTML = originalContents;
-        window.location.reload(); // reload untuk mengembalikan event React
-    };
 
-    // Fungsi generate isi struk (HTML menarik untuk thermal)
-    const generateReceiptHTML = (trx) => {
-        return `
-        <div style="font-family:monospace;text-align:center;width:260px;">
-            <div style="font-size:18px;font-weight:bold;margin-bottom:4px;">WISATA KALIMAS</div>
-            <div style="font-size:12px;">Jl. Kalimas, Surabaya</div>
-            <div style="margin:8px 0;border-top:1px dashed #000;border-bottom:1px dashed #000;padding:4px 0;">STRUK TRANSAKSI</div>
-            <div style="font-size:12px;text-align:left;margin-bottom:4px;">
-                <div>Waktu: <span style="float:right">${new Date(trx.created_at || Date.now()).toLocaleString('id-ID')}</span></div>
-                ${trx.jenis_kendaraan ? `<div>Kendaraan: <span style='float:right'>${trx.jenis_kendaraan.namakendaraan}</span></div>` : ''}
-                ${trx.harga_satuan ? `<div>Harga Parkir: <span style='float:right'>Rp ${Number(trx.harga_satuan).toLocaleString('id-ID')}</span></div>` : ''}
-                ${trx.jumlah_orang ? `<div>Jumlah Tiket: <span style='float:right'>${trx.jumlah_orang}</span></div>` : ''}
-                ${(trx.harga_satuan && trx.jumlah_orang) ? `<div>Harga Tiket: <span style='float:right'>Rp ${Number(priceticket).toLocaleString('id-ID')}</span></div>` : ''}
-            </div>
-            <div style="border-top:1px dashed #000;margin:8px 0;"></div>
-            <div style="font-size:16px;font-weight:bold;">TOTAL: Rp ${Number(trx.total).toLocaleString('id-ID')}</div>
-            <div style="border-top:1px dashed #000;margin:8px 0;"></div>
-            <div style="font-size:11px;">Terima kasih & selamat berwisata!</div>
-        </div>
-        `;
-    };
-
-    // Fungsi cetak ke RawBT/PrintHand (buka window baru dengan struk HTML)
-    const handleRawBTPrint = () => {
-        if (!lastTransaction) return;
-        const receiptHTML = generateReceiptHTML(lastTransaction);
-        const win = window.open('', '_blank', 'width=300,height=600');
-        win.document.write('<html><head><title>Struk Transaksi</title></head><body style="margin:0;padding:0;">' + receiptHTML + '</body></html>');
-        win.document.close();
-    };
 
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Kasir" />
-            {/* Modal Struk */}
-            {showReceiptModal && lastTransaction && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-                    <div className="bg-white rounded shadow-lg p-6 w-full max-w-xs relative" id="receipt-modal-content">
-                        <h2 className="text-center font-bold text-lg mb-2">Struk Transaksi</h2>
-                        <div className="text-xs whitespace-pre-line" dangerouslySetInnerHTML={{__html: generateReceiptHTML(lastTransaction)}} />
-                        <button
-                            className="mt-4 w-full bg-blue-600 text-white py-2 rounded font-bold"
-                            onClick={handleRawBTPrint}
-                        >
-                            Cetak Struk (RawBT)
-                        </button>
-                        <button
-                            className="mt-2 w-full bg-gray-400 text-white py-2 rounded"
-                            onClick={() => setShowReceiptModal(false)}
-                        >
-                            Tutup
-                        </button>
-                    </div>
-                </div>
-            )}
+         
             <div className="py-2">
                 <div className="max-w-4xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-none shadow-none   -nonw p-6 md:p-8 mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">

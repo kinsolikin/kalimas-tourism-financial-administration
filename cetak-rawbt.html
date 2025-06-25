@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Cetak Struk ke RawBT</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .struk { border: 1px solid #ccc; padding: 20px; width: 300px; margin-bottom: 20px; }
+        button { padding: 10px 20px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <div class="struk" id="struk">
+        <h3>Struk Pembayaran</h3>
+        <p>Nomor: 123456</p>
+        <p>Tanggal: 2024-06-11</p>
+        <p>Nama: Budi</p>
+        <p>Total: Rp 100.000</p>
+    </div>
+    <button onclick="cetakRawBT()">Cetak di RawBT</button>
+    <button onclick="window.print()">Cetak Lewat Browser</button>
+    <button onclick="transaksiBerhasil()">Transaksi Berhasil</button>
+    <button onclick="tampilkanQR()">Tampilkan QR untuk RawBT</button>
+    <div id="qrcode" style="margin-top:20px;"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+    function cetakRawBT() {
+        var struk = document.getElementById('struk').innerText;
+        if (navigator.share) {
+            navigator.share({
+                title: 'Struk Pembayaran',
+                text: struk
+            }).catch(function(err) {
+                alert('Gagal membagikan struk: ' + err);
+            });
+        } else {
+            // Fallback lama
+            var encoded = encodeURIComponent(struk);
+            var url = 'rawbt:print?text=' + encoded;
+            window.location.href = url;
+        }
+    }
+
+    function transaksiBerhasil() {
+        var struk = document.getElementById('struk').innerText;
+        if (navigator.share) {
+            navigator.share({
+                title: 'Struk Pembayaran',
+                text: struk
+            }).catch(function(err) {
+                alert('Gagal membagikan struk: ' + err);
+            });
+        } else {
+            alert('Web Share API tidak didukung di browser ini.');
+        }
+    }
+
+    function tampilkanQR() {
+        var struk = document.getElementById('struk').innerText;
+        var qrcodeDiv = document.getElementById('qrcode');
+        qrcodeDiv.innerHTML = '';
+        new QRCode(qrcodeDiv, {
+            text: struk,
+            width: 256,
+            height: 256
+        });
+    }
+    </script>
+    <p style="color:gray;font-size:12px;">*Fitur ini hanya berjalan di Android dengan aplikasi RawBT terinstal.</p>
+</body>
+</html>
