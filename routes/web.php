@@ -59,12 +59,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/dashboard/transaction-history', [TransactionController::class, 'index']);
         Route::get('/dashboard-tiketparkir', [ControllerTicketParking::class, 'index'])->name('dashboard.tiketparkir');
 
+
+
         Route::post('/dashboard/store', [ControllerTicketParking::class, 'store']);
 
         Route::delete('/dashboard/parking/{id}', [TransactionController::class, 'deleteParking']);
         Route::delete('/dashboard/ticket/{id}', [TransactionController::class, 'deleteTicket']);
         Route::delete('/dashboard/transactions/delete-all', [TransactionController::class, 'deleteAllTransactions']);
     });
+
+
+
 
     // route untuk role loketresto
     Route::middleware(['role:loketresto'])->group(function () {
@@ -134,5 +139,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+
+
 
 require __DIR__ . '/auth.php';

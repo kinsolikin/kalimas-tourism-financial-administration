@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 use App\Providers\RouteServiceProvider;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\User;
-
+use App\Models\ListShift;
 class AuthenticatedSessionController extends Controller
 {
     /**
@@ -21,9 +21,14 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): Response
     {
+
+
+        $shifts = ListShift::with('employe')->get();
+        
         return Inertia::render('Auth/Login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
+            'shifts' => $shifts,
         ]);
     }
 

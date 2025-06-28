@@ -1,13 +1,14 @@
 <?php
 
-use App\Http\Controllers\ControllerExpanse;
-use App\Http\Controllers\ControllerIncomeBersih;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ControllerTotalIncome;
-use App\Http\Controllers\ControllerTicketParking;
-use App\Http\Controllers\ControllerTotalExpanse;
+use App\Http\Controllers\ControllerExpanse;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ControllerTotalIncome;
+use App\Http\Controllers\ControllerIncomeBersih;
+use App\Http\Controllers\ControllerTotalExpanse;
+use App\Http\Controllers\ControllerTicketParking;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -22,7 +23,6 @@ use App\Http\Controllers\DashboardController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-
 
 
 

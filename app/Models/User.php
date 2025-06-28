@@ -44,6 +44,11 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+    public function employe()
+    {
+        return $this->hasMany(Employe::class);
+    }
+
     public function expanse_mendadak()
     {
         return $this->hasMany(Expanse_Mendadak::class);

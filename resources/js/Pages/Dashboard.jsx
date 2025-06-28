@@ -3,13 +3,14 @@ import { Head, useForm, usePage } from "@inertiajs/react";
 import { useEffect, useState, useRef } from "react";
 import Swal from "sweetalert2";
 import axios from "axios";
+
 import { router } from "@inertiajs/react";
 
 export default function Dashboard({ auth }) {
     const { props } = usePage();
-    const { jenisKendaraan,priceticket } = usePage().props;
+    const { jenisKendaraan, priceticket, snapToken } = usePage().props;
 
-    console.log("priceticket:", priceticket);
+    console.log("snapToken:", snapToken);
     const [transactionHistory, setTransactionHistory] = useState({
         parkingTransactions: [],
         ticketTransactions: [],
@@ -46,8 +47,6 @@ export default function Dashboard({ auth }) {
         jam_keluar: "16:00",
     });
 
-
- 
     useEffect(() => {
         const now = new Date();
         const hours = String(now.getHours()).padStart(2, "0");
@@ -59,7 +58,9 @@ export default function Dashboard({ auth }) {
         const { name, value } = e.target;
         if (name === "vehicle_type") {
             // Cari kendaraan berdasarkan id
-            const selectedVehicle = jenisKendaraan.find((item) => item.id == value);
+            const selectedVehicle = jenisKendaraan.find(
+                (item) => item.id == value
+            );
             setData({
                 ...data,
                 vehicle_type: value, // id kendaraan
@@ -85,6 +86,7 @@ export default function Dashboard({ auth }) {
         e.preventDefault();
         post("/dashboard/store", {
             onSuccess: (page) => {
+                
                 Swal.fire({
                     icon: "success",
                     title: "Berhasil",
@@ -120,7 +122,6 @@ export default function Dashboard({ auth }) {
                         }
                     });
                 }
-              
             },
             onError: () => {
                 Swal.fire({
@@ -145,7 +146,6 @@ export default function Dashboard({ auth }) {
             console.error("Error fetching transaction history:", error);
         }
     };
-
 
     const filteredTransactions = () => {
         const transactionsByDate = filterTransactionsByDate();
@@ -378,12 +378,16 @@ export default function Dashboard({ auth }) {
         });
     };
 
+   
 
+    // For example trigger on button clicked, or any time you need
+
+   
 
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Kasir" />
-         
+
             <div className="py-2">
                 <div className="max-w-4xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-none shadow-none   -nonw p-6 md:p-8 mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -396,27 +400,28 @@ export default function Dashboard({ auth }) {
                                 onSubmit={handleSubmit}
                                 className="space-y-6 bg-white p-8   -2xl shadow-2xl border border-gray-200 max-w-xl mx-auto"
                             >
-                                     <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4  ">
-                    {priceticket  ? (
-                        <p>
-                            <strong>Informasi:</strong> Setiap 1 Ticket dikenakan biaya{" "}
-                            <strong>
-                                Rp{" "}
-                                {Number(priceticket).toLocaleString(
-                                    "id-ID"
-                                )}
-                            </strong>
-                            
-                        </p>
-                    ) : (
-                        <p className="text-red-600">
-                            <strong>
-                                Maaf, silakan hubungi Admin/Ketua Wisata karena
-                                harga ticket belum ditetapkan.
-                            </strong>
-                        </p>
-                    )}
-                </div>
+                                <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4  ">
+                                    {priceticket ? (
+                                        <p>
+                                            <strong>Informasi:</strong> Setiap 1
+                                            Ticket dikenakan biaya{" "}
+                                            <strong>
+                                                Rp{" "}
+                                                {Number(
+                                                    priceticket
+                                                ).toLocaleString("id-ID")}
+                                            </strong>
+                                        </p>
+                                    ) : (
+                                        <p className="text-red-600">
+                                            <strong>
+                                                Maaf, silakan hubungi
+                                                Admin/Ketua Wisata karena harga
+                                                ticket belum ditetapkan.
+                                            </strong>
+                                        </p>
+                                    )}
+                                </div>
 
                                 {/* Shift Kerja */}
                                 <div>
@@ -427,7 +432,7 @@ export default function Dashboard({ auth }) {
                                         Shift Kerja
                                     </label>
                                     <select
-                                    disabled={!priceticket}
+                                        disabled={!priceticket}
                                         id="shift"
                                         name="shift"
                                         value={data.shift}
@@ -451,8 +456,7 @@ export default function Dashboard({ auth }) {
                                         Nama Operator Kasir
                                     </label>
                                     <input
-                                    disabled={!priceticket}
-
+                                        disabled={!priceticket}
                                         type="text"
                                         id="operator_name"
                                         name="operator_name"
@@ -472,7 +476,7 @@ export default function Dashboard({ auth }) {
                                         Jenis Kendaraan Parkir
                                     </label>
                                     <select
-                                    disabled={!priceticket}
+                                        disabled={!priceticket}
                                         id="vehicle_type"
                                         name="vehicle_type"
                                         value={data.vehicle_type}
@@ -487,7 +491,10 @@ export default function Dashboard({ auth }) {
                                                 key={item.id}
                                                 value={item.id}
                                             >
-                                                {item.namakendaraan} - Rp {item.price.toLocaleString("id-ID")}
+                                                {item.namakendaraan} - Rp{" "}
+                                                {item.price.toLocaleString(
+                                                    "id-ID"
+                                                )}
                                             </option>
                                         ))}
                                     </select>
@@ -505,9 +512,8 @@ export default function Dashboard({ auth }) {
                                         Jumlah Tiket Wisata
                                     </label>
                                     <input
-                                    
-                                       type="number"
-                                       disabled={!priceticket}
+                                        type="number"
+                                        disabled={!priceticket}
                                         id="jumlah_tiket"
                                         name="jumlah_tiket"
                                         value={data.jumlah_tiket}
@@ -527,7 +533,7 @@ export default function Dashboard({ auth }) {
                                         Waktu Masuk Kendaraan
                                     </label>
                                     <input
-                                    disabled={!priceticket}
+                                        disabled={!priceticket}
                                         type="time"
                                         id="jam_masuk"
                                         name="jam_masuk"
@@ -555,7 +561,7 @@ export default function Dashboard({ auth }) {
                                         Waktu Keluar Kendaraan
                                     </label>
                                     <input
-                                    disabled={!priceticket}
+                                        disabled={!priceticket}
                                         type="time"
                                         id="jam_keluar"
                                         name="jam_keluar"
@@ -568,6 +574,7 @@ export default function Dashboard({ auth }) {
                                 {/* Submit Button */}
                                 <div className="pt-4">
                                     <button
+                                      
                                         type="submit"
                                         disabled={processing}
                                         className="w-full py-3 text-white text-base font-semibold bg-blue-600 hover:bg-blue-700   shadow-md transition duration-200 ease-in-out focus:ring-4 focus:ring-blue-300"
@@ -589,7 +596,10 @@ export default function Dashboard({ auth }) {
                                         Biaya Parkir
                                     </p>
                                     <p className="text-xl font-bold text-blue-600">
-                                        Rp {data.price ? data.price.toLocaleString("id-ID") : 0}
+                                        Rp{" "}
+                                        {data.price
+                                            ? data.price.toLocaleString("id-ID")
+                                            : 0}
                                     </p>
                                 </div>
 
@@ -629,7 +639,9 @@ export default function Dashboard({ auth }) {
                                         Total Pembayaran
                                     </p>
                                     <p className="text-2xl font-extrabold text-green-600">
-                                        Rp {Number(data.price) + Number(data.harga_tiket)}
+                                        Rp{" "}
+                                        {Number(data.price) +
+                                            Number(data.harga_tiket)}
                                     </p>
                                 </div>
                             </div>
@@ -676,7 +688,7 @@ export default function Dashboard({ auth }) {
                                             Tanggal Mulai:
                                         </label>
                                         <input
-                                        disabled={!priceticket}
+                                            disabled={!priceticket}
                                             type="date"
                                             id="start_date"
                                             value={startDate}
@@ -694,7 +706,7 @@ export default function Dashboard({ auth }) {
                                             Tanggal Akhir:
                                         </label>
                                         <input
-                                        disabled={!priceticket}
+                                            disabled={!priceticket}
                                             type="date"
                                             id="end_date"
                                             value={endDate}
@@ -802,20 +814,36 @@ export default function Dashboard({ auth }) {
                                                             <strong>
                                                                 Jenis Kendaraan:
                                                             </strong>{" "}
-                                                            {transaction.jenis_kendaraan?.namakendaraan || "-"}
+                                                            {transaction
+                                                                .jenis_kendaraan
+                                                                ?.namakendaraan ||
+                                                                "-"}
                                                         </p>
                                                         <p className="text-sm text-gray-700">
                                                             <strong>
                                                                 Harga Satuan:
                                                             </strong>{" "}
-                                                            Rp {transaction.harga_satuan ? Number(transaction.harga_satuan).toLocaleString("id-ID") : "-"}
+                                                            Rp{" "}
+                                                            {transaction.harga_satuan
+                                                                ? Number(
+                                                                      transaction.harga_satuan
+                                                                  ).toLocaleString(
+                                                                      "id-ID"
+                                                                  )
+                                                                : "-"}
                                                         </p>
                                                         <p className="text-sm text-gray-700">
                                                             <strong>
                                                                 Total Harga:
                                                             </strong>{" "}
                                                             Rp{" "}
-                                                            {transaction.total ? Number(transaction.total).toLocaleString("id-ID") : 0}
+                                                            {transaction.total
+                                                                ? Number(
+                                                                      transaction.total
+                                                                  ).toLocaleString(
+                                                                      "id-ID"
+                                                                  )
+                                                                : 0}
                                                         </p>
                                                         <button
                                                             onClick={() =>
@@ -874,7 +902,8 @@ export default function Dashboard({ auth }) {
                                                             <strong>
                                                                 Jumlah Tiket:
                                                             </strong>{" "}
-                                                            {transaction.jumlah_orang || "-"}
+                                                            {transaction.jumlah_orang ||
+                                                                "-"}
                                                         </p>
                                                         <p className="text-sm text-gray-700">
                                                             <strong>
@@ -929,7 +958,21 @@ export default function Dashboard({ auth }) {
                                     {todaySummary.parking.length > 0 ? (
                                         todaySummary.parking.map((t, i) => (
                                             <li key={i}>
-                                                {t.jenis_kendaraan.namakendaraan || "-"} | Rp {t.harga_satuan ? Number(t.harga_satuan).toLocaleString("id-ID") : "-"} | Total: Rp {t.total ? Number(t.total).toLocaleString("id-ID") : 0} |{" "}
+                                                {t.jenis_kendaraan
+                                                    .namakendaraan || "-"}{" "}
+                                                | Rp{" "}
+                                                {t.harga_satuan
+                                                    ? Number(
+                                                          t.harga_satuan
+                                                      ).toLocaleString("id-ID")
+                                                    : "-"}{" "}
+                                                | Total: Rp{" "}
+                                                {t.total
+                                                    ? Number(
+                                                          t.total
+                                                      ).toLocaleString("id-ID")
+                                                    : 0}{" "}
+                                                |{" "}
                                                 {new Date(
                                                     t.created_at
                                                 ).toLocaleTimeString("id-ID")}

@@ -24,7 +24,6 @@ class ControllerTicketParking extends Controller
             'jenisKendaraan' => $jeniskendaraan,
             'priceticket' => $priceticket,
         ]);
-
     }
 
     /**
@@ -53,11 +52,11 @@ class ControllerTicketParking extends Controller
             "harga_tiket" => "required|numeric",
             "jam_masuk" => "required|string",
             "jam_keluar" => "required|string"
-          
-           
+
+
         ]);
 
-        
+
         $user = auth()->user();
 
 
@@ -90,38 +89,30 @@ class ControllerTicketParking extends Controller
 
 
         // Simpan data tiket ke tabel Ticket_income_details jika field terkait tiket diisi
-        
-            $detailticket = Ticket_income_details::create([
-                'user_id' => 1,
-                'income_id' => $incometicket->id,
-                'jumlah_orang' => $validatedData['jumlah_tiket'],
-                'harga_satuan' => 5000,
-                'total' => $validatedData['jumlah_tiket'] * 5000,
-            ]);
+
+        $detailticket = Ticket_income_details::create([
+            'user_id' => 1,
+            'income_id' => $incometicket->id,
+            'jumlah_orang' => $validatedData['jumlah_tiket'],
+            'harga_satuan' => 5000,
+            'total' => $validatedData['jumlah_tiket'] * 5000,
+        ]);
 
 
         // Simpan data parkir ke tabel Parking_income_details jika field terkait parkir diisi
-        
-            $detailparking = Parking_income_details::create([
-                'user_id' =>1,
-                'income_id' => $incomeparking->id,
-                'jenis_kendaraan_id' => $validatedData['vehicle_type'],
-                'jumlah_kendaraan' => 1,
-                'harga_satuan' => $validatedData['price'],
-                'total' => 1 * $validatedData['price'],
-            ]);
 
-
-
-            
-
-
-
-        return redirect()->back()->with([
-            'status' => 'success',
-            'message' => 'Data saved successfully!',
+        $detailparking = Parking_income_details::create([
+            'user_id' => 1,
+            'income_id' => $incomeparking->id,
+            'jenis_kendaraan_id' => $validatedData['vehicle_type'],
+            'jumlah_kendaraan' => 1,
+            'harga_satuan' => $validatedData['price'],
+            'total' => 1 * $validatedData['price'],
         ]);
+
     }
+
+       
 
     /**
      * Display the specified resource.
@@ -157,10 +148,9 @@ class ControllerTicketParking extends Controller
 
     public function fetchJenisKendaraan()
     {
-     
+
 
         $jeniskendaraan = JenisKendaraan::all();
         return response()->json($jeniskendaraan);
-
     }
 }

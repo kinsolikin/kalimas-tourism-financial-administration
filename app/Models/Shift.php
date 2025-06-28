@@ -11,6 +11,8 @@ class Shift extends Model
 
     protected $guarded = ['id'];
 
+    
+
     public function income_categori()
     {
         return $this->hasOne(Income_categori::class);
