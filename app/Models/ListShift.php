@@ -11,6 +11,11 @@ class ListShift extends Model
 
     protected $guarded = ['id'];
 
+    public function shift()
+    {
+        return $this->belongsTo(Shift::class);
+    }
+
     public function employe()
     {
         return $this->belongsToMany(Employe::class,'shift_employe','list_shift_id','employe_id')->withTimestamps();

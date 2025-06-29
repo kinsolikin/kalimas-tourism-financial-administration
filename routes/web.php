@@ -57,7 +57,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
         Route::get('/dashboard/transaction-history', [TransactionController::class, 'index']);
-        Route::get('/dashboard-tiketparkir', [ControllerTicketParking::class, 'index'])->name('dashboard.tiketparkir');
+
+        Route::get('/dashboard-tiketparkir', [ControllerTicketParking::class, 'shift'])->name('dashboard.tiketparkir');
+        Route::post('/dashboard-tiketparkir-masuk', [ControllerTicketParking::class, 'index'])->name('dashboard.tiketparkir.parkir');
 
 
 

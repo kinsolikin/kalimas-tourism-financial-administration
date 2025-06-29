@@ -11,7 +11,16 @@ class Shift extends Model
 
     protected $guarded = ['id'];
 
-    
+
+    public function list_shift()
+    {
+        return $this->hasMany(ListShift::class);
+    }
+
+    public function employe()
+    {
+        return $this->hasMany(Employe::class);
+    }
 
     public function income_categori()
     {

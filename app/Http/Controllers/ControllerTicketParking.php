@@ -10,14 +10,68 @@ use Carbon\Carbon;
 use Inertia\Inertia;
 use App\Models\JenisKendaraan;
 use App\Models\SetingTicket;
+use App\Models\ListShift;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Shift;
+
 
 class ControllerTicketParking extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+
+
+
+
+
+    public function shift()
     {
+
+        $shifts = ListShift::with('employe')->get();
+
+        return Inertia::render('Auth/Shift', [
+            'shifts' => $shifts
+        ]);
+    }
+
+
+    public function index(Request $request)
+
+
+    {
+
+      
+        $user = Auth::user();
+
+        if ($user->id == 1) {
+            // Buatkan entri shift untuk user id 1 dan 2
+            $targetUserIds = [1, 2];
+        } else {
+            // Hanya untuk user yang sedang login
+            $targetUserIds = [$user->id];
+        }
+
+        foreach ($targetUserIds as $userId) {
+            Shift::firstOrCreate(
+                [
+                    'user_id' => $userId,
+                    'end_time' => null,
+                    'created_at' => now()->startOfDay(),
+                ],
+                [
+                    'list_shift_id' => $request->shift,
+                    'employe_id' => $request->employe,
+                    'start_time' => now(),
+                    'total_pendapatan' => 0,
+                    'total_pengeluaran' => 0,
+                ]
+            );
+        }
+
+
+
+
         $jeniskendaraan = JenisKendaraan::all();
         $priceticket = SetingTicket::pluck('price')->first();
         return Inertia::render('Dashboard', [
@@ -109,10 +163,9 @@ class ControllerTicketParking extends Controller
             'harga_satuan' => $validatedData['price'],
             'total' => 1 * $validatedData['price'],
         ]);
-
     }
 
-       
+
 
     /**
      * Display the specified resource.

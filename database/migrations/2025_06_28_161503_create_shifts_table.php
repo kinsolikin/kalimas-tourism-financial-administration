@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('shifts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('list_shift_id')->constrained()->onDelete('cascade');
+            $table->foreignId('employe_id')->constrained()->onDelete('cascade');
             $table->timestamp('start_time')->nullable();
             $table->timestamp('end_time')->nullable();
             $table->integer('total_pendapatan')->default(0);

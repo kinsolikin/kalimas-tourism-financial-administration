@@ -47,7 +47,7 @@ export default function Login({ status, canResetPassword, shifts }) {
             )}
 
             <form onSubmit={submit}>
-                <div className="mb-4">
+                {/* <div className="mb-4">
                     <InputLabel htmlFor="shift" value="Shift" />
                     <select
                         id="shift"
@@ -86,7 +86,7 @@ export default function Login({ status, canResetPassword, shifts }) {
                         ))}
                     </select>
                 </div>
-            )}
+            )} */}
                 <div className="mb-4">
                     <InputLabel htmlFor="email" value="Email" />
                     <TextInput

@@ -14,6 +14,7 @@ use App\Providers\RouteServiceProvider;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\User;
 use App\Models\ListShift;
+
 class AuthenticatedSessionController extends Controller
 {
     /**
@@ -39,30 +40,8 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
         $request->session()->regenerate();
+        
         $user = Auth::user();
-
-        if ($user->id == 1) {
-            // Buatkan entri shift untuk user id 1 dan 2
-            $targetUserIds = [1, 2];
-        } else {
-            // Hanya untuk user yang sedang login
-            $targetUserIds = [$user->id];
-        }
-
-        foreach ($targetUserIds as $userId) {
-            Shift::firstOrCreate(
-                [
-                    'user_id' => $userId,
-                    'end_time' => null,
-                    'created_at' => now()->startOfDay(),
-                ],
-                [
-                    'start_time' => now(),
-                    'total_pendapatan' => 0,
-                    'total_pengeluaran' => 0,
-                ]
-            );
-        }
 
 
         return redirect()->intended(match ($user->role) {
