@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             AdminSeeder::class,
             JenisKendaraanSeeder::class,
             JenisWahana::class,
+            ListShiftSeeder::class
         ]);
     }
 }

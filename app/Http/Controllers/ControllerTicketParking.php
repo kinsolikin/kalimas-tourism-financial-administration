@@ -22,54 +22,12 @@ class ControllerTicketParking extends Controller
      */
 
 
-
-
-
-    public function shift()
-    {
-
-        $shifts = ListShift::with('employe')->get();
-
-        return Inertia::render('Auth/Shift', [
-            'shifts' => $shifts
-        ]);
-    }
-
-
     public function index(Request $request)
 
 
     {
 
       
-        $user = Auth::user();
-
-        if ($user->id == 1) {
-            // Buatkan entri shift untuk user id 1 dan 2
-            $targetUserIds = [1, 2];
-        } else {
-            // Hanya untuk user yang sedang login
-            $targetUserIds = [$user->id];
-        }
-
-        foreach ($targetUserIds as $userId) {
-            Shift::firstOrCreate(
-                [
-                    'user_id' => $userId,
-                    'end_time' => null,
-                    'created_at' => now()->startOfDay(),
-                ],
-                [
-                    'list_shift_id' => $request->shift,
-                    'employe_id' => $request->employe,
-                    'start_time' => now(),
-                    'total_pendapatan' => 0,
-                    'total_pengeluaran' => 0,
-                ]
-            );
-        }
-
-
 
 
         $jeniskendaraan = JenisKendaraan::all();

@@ -24,12 +24,10 @@ class AuthenticatedSessionController extends Controller
     {
 
 
-        $shifts = ListShift::with('employe')->get();
         
         return Inertia::render('Auth/Login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
-            'shifts' => $shifts,
         ]);
     }
 
@@ -43,15 +41,11 @@ class AuthenticatedSessionController extends Controller
         
         $user = Auth::user();
 
+       
 
-        return redirect()->intended(match ($user->role) {
-            'lokettiketparkir' => route('dashboard.tiketparkir'),
-            'loketresto' => route('dashboard.resto'),
-            'loketwahana' => route('dashboard.wahana'),
-            'lokettoilet' => route('dashboard.toilet'),
-            'bantuan' => route('dashboard.bantuan'),
-            // default => RouteServiceProvider::HOME,
-        });
+        return redirect()->route('dashboard.shift');
+
+      
     }
 
     /**

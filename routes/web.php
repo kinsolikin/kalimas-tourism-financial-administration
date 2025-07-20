@@ -33,6 +33,8 @@ Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
 Route::get('/dashboard/expanse/transactions/guest', [TransactionController::class, 'guestexpanses']);
 
+
+
 Route::middleware(['auth', 'verified'])->group(function () {
 
 
@@ -50,16 +52,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/dashboard/close-shift', [ControllerShift::class, 'closeShift']);
 
 
+    // shift
+    Route::get('/dashboard-shift', [ControllerShift::class, 'index'])->name('dashboard.shift');
+
+    Route::post('/dashboard-shift-store', [ControllerShift::class, 'store'])->name('dashboard.tiketparkir.parkir');
 
 
     // route untuk role lokettiketparkir
-    Route::middleware(['role:lokettiketparkir'])->group(function () {
+    Route::middleware(['role:lokettiketparkirparkir'])->group(function () {
 
+
+
+
+
+        Route::get('/dashboard-tiketparkir', [ControllerTicketParking::class, 'index'])->name('dashboard.tiketparkir.masuk');
 
         Route::get('/dashboard/transaction-history', [TransactionController::class, 'index']);
 
-        Route::get('/dashboard-tiketparkir', [ControllerTicketParking::class, 'shift'])->name('dashboard.tiketparkir');
-        Route::post('/dashboard-tiketparkir-masuk', [ControllerTicketParking::class, 'index'])->name('dashboard.tiketparkir.parkir');
 
 
 

@@ -23,6 +23,8 @@ function Shift({ shifts }) {
         post(route("dashboard.tiketparkir.parkir"));
     };
 
+    console.log("shifts", shifts);
+
     return (
         <GuestLayout>
             <Head title="Login" />

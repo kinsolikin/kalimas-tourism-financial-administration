@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
+use App\Models\ListShift;
+use App\Models\Shift;
 
 class ControllerShift extends Controller
 {
@@ -11,14 +14,21 @@ class ControllerShift extends Controller
      * Display a listing of the resource.
      */
 
-    public  function closeShift(Request $request)
-    {
-
-    
-    }
+    public  function closeShift(Request $request) {}
     public function index()
     {
-        //
+
+
+        $userId = Auth::id(); // ID dari user yang sedang login
+
+        $shifts = ListShift::with(['employe' => function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        }])->get();
+
+        
+        return Inertia::render('Auth/Shift', [
+            'shifts' => $shifts,
+        ]);
     }
 
     /**
@@ -34,7 +44,45 @@ class ControllerShift extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+
+        $user = Auth::user();
+
+
+        if ($user->id == 1) {
+            // Buatkan entri shift untuk user id 1 dan 2
+            $targetUserIds = [1, 2];
+        } else {
+            // Hanya untuk user yang sedang login
+            $targetUserIds = [$user->id];
+        }
+
+        foreach ($targetUserIds as $userId) {
+            Shift::firstOrCreate(
+                [
+                    'user_id' => $userId,
+                    'end_time' => null,
+                    'created_at' => now()->startOfDay(),
+                ],
+                [
+                    'list_shift_id' => $request->shift,
+                    'employe_id' => 1,
+                    'start_time' => now(),
+                    'total_pendapatan' => 0,
+                    'total_pengeluaran' => 0,
+                ]
+            );
+        }
+
+
+        return redirect()->intended(match ($user->role) {
+            'lokettiketparkirparkir' => route('dashboard.tiketparkir.masuk'),
+            'loketresto' => route('dashboard.resto'),
+            'loketwahana' => route('dashboard.wahana'),
+            'lokettoilet' => route('dashboard.toilet'),
+            'bantuan' => route('dashboard.bantuan'),
+            // default => RouteServiceProvider::HOME,
+        });
     }
 
     /**

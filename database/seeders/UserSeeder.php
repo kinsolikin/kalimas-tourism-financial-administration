@@ -14,29 +14,29 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         User::insert([[
-            'name' => 'lokettiket',
-            'email' => 'lokettiket@loket.com',
-            'password' => bcrypt('lokettiket'),
-            'role' => 'lokettiketparkir',
+            'name' => 'lokettiketparkir',
+            'email' => 'lokettiketparkir@loket.com',
+            'password' => bcrypt('loket'),
+            'role' => 'lokettiketparkirparkir',
         ],[
             'name' => 'loketparkir',
             'email' => 'loketparkir@loket.com',
-            'password' => bcrypt('loketparkir'),
+            'password' => bcrypt('loket'),
             'role' => 'loketparkir',
         ],[
             'name' => 'loketresto',
             'email' => 'loketresto@loket.com',
-            'password' => bcrypt('loketresto'),
+            'password' => bcrypt('loket'),
             'role' => 'loketresto',
         ],[
             'name' => 'loketwahana',
             'email' => 'loketwahana@loket.com',
-            'password' => bcrypt('loketwahana'),
+            'password' => bcrypt('loket'),
             'role' => 'loketwahana',
         ],[
             'name' => 'lokettoilet',
             'email' => 'lokettoilet@loket.com',
-            'password' => bcrypt('lokettoilet'),
+            'password' => bcrypt('loket'),
             'role' => 'lokettoilet',
         ],[
             'name' => 'bantuan',

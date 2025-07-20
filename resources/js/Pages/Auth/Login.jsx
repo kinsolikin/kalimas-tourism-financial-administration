@@ -31,7 +31,6 @@ export default function Login({ status, canResetPassword, shifts }) {
         post(route("login"));
     };
 
-    const selectedShift = shifts.find((s) => s.id === parseInt(data.shift));
     return (
         <GuestLayout>
             <Head title="Login" />

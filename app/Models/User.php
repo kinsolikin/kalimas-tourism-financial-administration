@@ -44,6 +44,12 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+
+    public function listShift()
+    {
+        return $this->hasMany(ListShift::class);
+    }
+    
     public function employe()
     {
         return $this->hasMany(Employe::class);

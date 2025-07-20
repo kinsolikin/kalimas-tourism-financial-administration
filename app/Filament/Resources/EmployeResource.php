@@ -13,6 +13,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\BelongsToManyMultiSelect;
 
 class EmployeResource extends Resource
 {
@@ -24,13 +26,19 @@ class EmployeResource extends Resource
     {
         return $form
             ->schema([
-          Select::make('shift')
-                    ->multiple() 
+
+                BelongsToManyMultiSelect::make('list_shift')
+                    ->label('Pilih Shift')
                     ->relationship('list_shift', 'shift_name')
-                    ->label('Pilih shift')
                     ->searchable()
                     ->preload(),
-                Forms\Components\TextInput::make('name')
+                Select::make('user_id') 
+                    ->relationship('user', 'name') 
+                    ->label('Loket')
+                    ->searchable()
+                    ->preload()
+                    ->required(),
+                TextInput::make('name')
                     ->required()
                     ->maxLength(255),
             ]);
@@ -40,7 +48,7 @@ class EmployeResource extends Resource
     {
         return $table
             ->columns([
-                
+
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')

@@ -258,6 +258,8 @@ function Dashboardguest() {
         // return () => clearInterval(interval);
     }, []);
 
+    console.log("Pengeluaran:", pengeluaran);
+
     // Tambahkan hook animasi untuk setiap section
     const [heroRef, heroVisible] = useFadeInOnScroll();
     const [dataRef, dataVisible] = useFadeInOnScroll();
@@ -265,9 +267,7 @@ function Dashboardguest() {
     const [fasilitasRef, fasilitasVisible] = useFadeInOnScroll();
     const [testimoniRef, testimoniVisible] = useFadeInOnScroll();
 
-    
     return (
-        
         <div className="min-h-screen bg-[#f7f8fa] font-sans">
             {/* Header */}
             <header
