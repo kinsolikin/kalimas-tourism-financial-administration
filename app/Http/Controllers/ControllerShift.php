@@ -15,6 +15,7 @@ class ControllerShift extends Controller
      */
 
     public  function closeShift(Request $request) {}
+
     public function index()
     {
 
@@ -25,7 +26,7 @@ class ControllerShift extends Controller
             $query->where('user_id', $userId);
         }])->get();
 
-        
+
         return Inertia::render('Auth/Shift', [
             'shifts' => $shifts,
         ]);
@@ -44,6 +45,22 @@ class ControllerShift extends Controller
      */
     public function store(Request $request)
     {
+
+
+        $request->validate([
+            'shift' => 'required|exists:list_shifts,id',
+            'employe' => 'required|exists:employes,id',
+        ], [
+            'shift.required' => 'Silakan pilih shift terlebih dahulu.',
+            'shift.exists' => 'Shift yang dipilih tidak valid.',
+            'employe.required' => 'Silakan pilih pegawai terlebih dahulu.',
+            'employe.exists' => 'Pegawai yang dipilih tidak valid.',
+        ]);
+
+        session([
+            'shift' => $request->shift,
+            'employe' => $request->employe,
+        ]);
 
 
         $user = Auth::user();

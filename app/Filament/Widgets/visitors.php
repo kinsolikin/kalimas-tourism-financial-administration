@@ -8,13 +8,13 @@ use Flowframe\Trend\TrendValue;
 use Flowframe\Trend\Trend;
 class visitors extends ChartWidget
 {
-    protected static ?string $heading = 'Graph Visitors';
+    protected static ?string $heading = 'Grafik Pengunjung';
 
     protected static ?int $sort = 3;
     
     protected static ?string $pollingInterval = '2s';
 
-    public ?string $filter = 'week';
+    public ?string $filter = 'Mingguan';
     
     protected function getTodaydata() : array 
     
@@ -30,7 +30,7 @@ class visitors extends ChartWidget
     return [
         'datasets' => [
             [
-                'label' => 'total visitors today',
+                'label' => 'Pengunjung Hari ini',
                 'data' => $data->map(fn(TrendValue $value) => $value->aggregate),
             ],
 
@@ -52,7 +52,7 @@ class visitors extends ChartWidget
     return [
         'datasets' => [
             [
-                'label' => 'total visitors Week',
+                'label' => 'Pengunjung Hari ini',
                 'data' => $data->map(fn(TrendValue $value) => $value->aggregate),
             ],
 
@@ -75,7 +75,7 @@ class visitors extends ChartWidget
     return [
         'datasets' => [
             [
-                'label' => 'total visitors Week',
+                'label' => 'Pengunjung Minggu ini',
                 'data' => $data->map(fn(TrendValue $value) => $value->aggregate),
             ],
 
@@ -87,11 +87,11 @@ class visitors extends ChartWidget
 
     protected function getData(): array
     {
-        if ($this->filter === 'today') {
+        if ($this->filter === 'Harian') {
             return $this->getTodaydata();
-        } elseif ($this->filter === 'week') {
+        } elseif ($this->filter === 'Mingguan') {
             return $this->getWeekData();
-        } elseif ($this->filter === 'month') {
+        } elseif ($this->filter === 'Bulanan') {
             return $this->getMonthData();
         }
 
@@ -107,9 +107,9 @@ class visitors extends ChartWidget
     protected function getFilters(): ?array
     {
         return [
-            'today' => 'Today',
-            'week' => 'This week',
-            'month' => 'This month',
+            'Harian' => 'Hari ini',
+            'Mingguan' => 'Minggu ini',
+            'Bulanan' => 'Bulan ini',
 
 
         ];
@@ -117,6 +117,6 @@ class visitors extends ChartWidget
 
     public function getDescription(): ?string
     {
-        return 'total visitor graph taken from ticket purchases';
+        return 'Total pengunung merupakan jumlah total pengunjung yang masuk ke tempat wisata pada hari ini, minggu ini, atau bulan ini. Data ini diambil dari jumlah orang yang membeli tiket masuk.';
     }
 }

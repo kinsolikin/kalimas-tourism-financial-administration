@@ -20,7 +20,11 @@ class EmployeResource extends Resource
 {
     protected static ?string $model = Employe::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-cog';
+
+    protected static ?string $modelLabel ='Karyawan';
+
+    protected static ?string $navigationGroup = 'Pengaturan';
 
     public static function form(Form $form): Form
     {

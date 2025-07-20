@@ -19,8 +19,9 @@ class SetingTicketResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-cog';
 
+    protected static ?string $navigationGroup = 'Pengaturan';
 
-    protected static ?string $navigationGroup = 'Setting';
+    protected static ?string $modelLabel ='Harga Tiket';
 
     public static function form(Form $form): Form
     {

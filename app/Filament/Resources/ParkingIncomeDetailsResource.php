@@ -21,11 +21,15 @@ use Filament\Forms\Components\TextInput;
 
 class ParkingIncomeDetailsResource extends Resource
 {
-    protected static ?string $navigationGroup = 'Details Income';
+    protected static ?string $navigationGroup = 'Detail Pendapatan';
+
 
     protected static ?string $model = Parking_income_details::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-cog';
+
+    protected static ?string $modelLabel = 'Parkir';
+
 
     public static function getNavigationBadge(): ?string
     {
@@ -66,7 +70,7 @@ class ParkingIncomeDetailsResource extends Resource
                     ->label('Harga Satuan')
                     ->numeric()
                     ->required()
-                      ->afterStateUpdated(function ($set, $get) {
+                    ->afterStateUpdated(function ($set, $get) {
                         $set('total', (
                             $get('jumlah_kendaraan') * $get('harga_satuan')
                         ));
@@ -88,7 +92,7 @@ class ParkingIncomeDetailsResource extends Resource
                     ->disabled() // Supaya user tidak bisa input manual
                     ->dehydrated() // Supaya tetap disimpan ke database
                     ->reactive()
-                    
+
 
 
 

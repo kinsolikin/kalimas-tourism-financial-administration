@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Laporan Total Income</title>
+    <title>Laporan Total Pendapatan</title>
     <style>
         body { font-family: sans-serif; font-size: 12px; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
@@ -11,21 +11,22 @@
     </style>
 </head>
 <body>
-    <h2>Laporan Total Income</h2>
+    <h2>Laporan Total Pendapatan </h2>
+    <br>Wisasta Kalimas Kemuning</br>
     <p>Tanggal: {{ $startDate }} s.d {{ $endDate }}</p>
 
     <table>
         <thead>
             <tr>
-                <th>Total Parking</th>
-                <th>Total Ticket</th>
+                <th>Total Parkir</th>
+                <th>Total Tiket</th>
                 <th>Total Bantuan</th>
                 <th>Total Resto</th>
                 <th>Total Toilet</th>
                 <th>Total Wahana</th>
-                <th>Total Expanse</th>
-                <th>Total Gross</th>
-                <th>Total Net</th>
+                <th>Total Pengeluaran</th>
+                <th>Total Pendaptan kotor</th>
+                <th>Total Pendapatan bersih</th>
                 <th>Tanggal</th>
             </tr>
         </thead>
@@ -40,7 +41,7 @@
                     <td>Rp {{ number_format((float)($data->total_wahana_details ?? 0), 0, ',', '.') }}</td>
                     <td>Rp {{ number_format((float)optional($data->total_expanse->first())->total_amount ?? 0, 0, ',', '.') }}</td>
                     <td>Rp {{ number_format((float)($data->total_amount ?? 0), 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format((float)optional($data->netIncome)->net_income ?? 0, 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format((float)optional($data->net_income)->net_income ?? 0, 0, ',', '.') }}</td>
                     <td>{{ optional($data->created_at)->format('Y-m-d') ?? '-' }}</td>
                 </tr>
             @endforeach

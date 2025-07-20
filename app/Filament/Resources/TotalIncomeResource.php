@@ -29,9 +29,9 @@ class TotalIncomeResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
 
+    protected static ?string $modelLabel = 'Total Pendapatan';
 
-
-    protected static ?string $navigationGroup = 'Income';
+    protected static ?string $navigationGroup = 'Pendapatan';
 
 
 
@@ -137,7 +137,7 @@ class TotalIncomeResource extends Resource
                                     'Total Wahana'       => 'Rp ' . number_format($row->total_wahana_details ?? 0, 0, ',', '.'),
                                     'Total Expanse'      => 'Rp ' . number_format(optional(optional($row)->total_expanse->first())->total_amount ?? 0, 0, ',', '.'),
                                     'Total Gross Income' => 'Rp ' . number_format($row->total_amount ?? 0, 0, ',', '.'),
-                                    'Total Net Income'   => 'Rp ' . number_format(optional(optional($row)->netIncome)->net_income ?? 0, 0, ',', '.'),
+                                    'Total Net Income'   => 'Rp ' . number_format(optional(optional($row)->net_income)->net_income ?? 0, 0, ',', '.'),
                                     'Tanggal Data Dibuat' => optional($row->created_at)->format('Y-m-d') ?? '-',
                                 ]);
                             }

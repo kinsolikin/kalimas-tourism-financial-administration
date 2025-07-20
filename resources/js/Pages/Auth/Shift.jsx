@@ -6,9 +6,11 @@ import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import PrimaryButton from "@/Components/PrimaryButton";
 import TextInput from "@/Components/TextInput";
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, Link, useForm, usePage } from "@inertiajs/react";
 
 function Shift({ shifts }) {
+    const { flash } = usePage().props;
+
     const { data, setData, post, processing, errors, reset } = useForm({
         shift: "",
         employe: "",
@@ -17,10 +19,9 @@ function Shift({ shifts }) {
 
     const selectedShift = shifts.find((s) => s.id === parseInt(data.shift));
 
-
-       const submit = (e) => {
+    const submit = (e) => {
         e.preventDefault();
-        post(route("dashboard.tiketparkir.parkir"));
+        post(route("dashboard.shift.store"));
     };
 
     console.log("shifts", shifts);
@@ -28,7 +29,11 @@ function Shift({ shifts }) {
     return (
         <GuestLayout>
             <Head title="Login" />
-
+            {flash.error && (
+                <div className="bg-red-100 text-red-800 px-4 py-2 rounded mb-4">
+                    {flash.error}
+                </div>
+            )}
             <p className=" text-gray-500 font-bold text-left mb-6">
                 Pilih Shift Kamu
             </p>
@@ -49,7 +54,7 @@ function Shift({ shifts }) {
                             </option>
                         ))}
                     </select>
-                    <InputError message={errors.shift} className="mt-2" />
+                    <InputError message={errors.shift} className="text-red-500 text-sm mt-2" />
                 </div>
                 {selectedShift && selectedShift.employe.length > 0 && (
                     <div className="mb-4">
@@ -75,14 +80,16 @@ function Shift({ shifts }) {
                                 </option>
                             ))}
                         </select>
+                    <InputError message={errors.employe} className="text-red-500 text-sm mt-2" />
+
                     </div>
                 )}
-                        <PrimaryButton
-                            className="w-full justify-center"
-                            disabled={processing}
-                        >
-                            Masuk
-                        </PrimaryButton>
+                <PrimaryButton
+                    className="w-full justify-center"
+                    disabled={processing}
+                >
+                    Masuk
+                </PrimaryButton>
             </form>
         </GuestLayout>
     );

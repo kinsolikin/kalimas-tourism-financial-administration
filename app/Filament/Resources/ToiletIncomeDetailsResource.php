@@ -19,9 +19,13 @@ use Filament\Forms\Components\Hidden;
 
 class ToiletIncomeDetailsResource extends Resource
 {
-    protected static ?string $navigationGroup = 'Details Income';
+
+    protected static ?string $navigationGroup = 'Detail Pendapatan';
 
     protected static ?string $model = Toilet_income_details::class;
+
+    protected static ?string $modelLabel = 'Toilet';
+
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
 

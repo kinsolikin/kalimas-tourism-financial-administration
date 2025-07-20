@@ -24,9 +24,13 @@ class RestoIncomeDetailsResource extends Resource
 {
     protected static ?string $model = Resto_income_details::class;
 
-    protected static ?string $navigationGroup = 'Details Income';
+    protected static ?string $navigationGroup = 'Detail Pendapatan';
+
 
     protected static ?string $navigationIcon = 'heroicon-o-cake';
+
+    protected static ?string $modelLabel = 'Resto';
+
 
     public static function getNavigationBadge(): ?string
     {

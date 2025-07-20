@@ -57,20 +57,20 @@ class StatsOverview extends BaseWidget
         return [
 
 
-            Stat::make('Total Gross Income Today', number_format($totalgrossincome, 2))
-                ->description(($increase >= 0 ? '+' : '') . number_format($increase, 2) . ' from yesterday')
+            Stat::make('Total Pendapatan Kotor Hari ini', number_format($totalgrossincome, 2))
+                ->description(($increase >= 0 ? '+' : '') . number_format($increase, 2) . ' dari hari kemarin')
                 ->descriptionIcon($increase >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
                 ->chart($chartData) // Grafik dinamis berdasarkan data hari ini dan kemarin
                 ->color($increase >= 0 ? 'success' : 'danger'),
                 
-            Stat::make('Total Net Income Today', number_format($totalnetincometoday, 2))
-                ->description(($increasenetincome >= 0 ? '+' : '') . number_format($increasenetincome, 2) . ' from yesterday')
+            Stat::make('Total Pendapatan Bersih Hari ini', number_format($totalnetincometoday, 2))
+                ->description(($increasenetincome >= 0 ? '+' : '') . number_format($increasenetincome, 2) . ' dari hari kemarin')
                 ->descriptionIcon($increasenetincome >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
                 ->chart($chartdatanetincome) // Grafik dinamis berdasarkan data hari ini dan kemarin
                 ->color($increasenetincome >= 0 ? 'success' : 'danger'),
  
-            Stat::make('Total Expanse Today', number_format($totalexpanse, 2))
-                ->description(($increaseexpanse >= 0 ? '+' : '') . number_format($increaseexpanse, 2) . ' from yesterday')
+            Stat::make('Total Pengeluaran Hari ini', number_format($totalexpanse, 2))
+                ->description(($increaseexpanse >= 0 ? '+' : '') . number_format($increaseexpanse, 2) . ' dari hari kemarin')
                 ->descriptionIcon($increaseexpanse >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
                 ->chart($chartexpanse) // Grafik dinamis berdasarkan data hari ini dan kemarin
                 ->color($increaseexpanse >= 0 ? 'success' : 'danger'),

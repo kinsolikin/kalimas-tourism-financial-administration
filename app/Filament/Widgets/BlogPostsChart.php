@@ -10,25 +10,26 @@ use Flowframe\Trend\TrendValue;
 
 class BlogPostsChart extends ChartWidget
 {
-    protected static ?string $heading = 'Gross income table';
+    protected static ?string $heading = 'Tabel Penapatan Kotor';
 
     protected static ?string $pollingInterval = '2s';
 
-    public ?string $filter = 'week';
+    public ?string $filter = 'Mingguan';
     
 
     protected static ?int $sort = 2;
 
+    
     protected function getData(): array
 
 
     {
 
-        if ($this->filter === 'today') {
+        if ($this->filter === 'Harian') {
             return $this->getTodayData();
-        } elseif ($this->filter === 'week') {
+        } elseif ($this->filter === 'Mingguan') {
             return $this->getWeekData();
-        } elseif ($this->filter === 'month') {
+        } elseif ($this->filter === 'Bulanan') {
             return $this->getMonthData();
         }
 
@@ -48,7 +49,7 @@ class BlogPostsChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'total income week',
+                    'label' => 'total Pendapatan Mingguan',
                     'data' => $data->map(fn(TrendValue $value) => $value->aggregate),
                 ],
 
@@ -71,7 +72,7 @@ class BlogPostsChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'total income today',
+                    'label' => 'total Pendaptan Hari ini',
                     'data' => $data->map(fn(TrendValue $value) => $value->aggregate),
                 ],
 
@@ -94,7 +95,7 @@ class BlogPostsChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'total income perHour',
+                    'label' => 'total Pendapatan per Jam',
                     'data' => $data->map(fn(TrendValue $value) => $value->aggregate),
                 ],
 
@@ -106,9 +107,9 @@ class BlogPostsChart extends ChartWidget
     protected function getFilters(): ?array
     {
         return [
-            'today' => 'Today',
-            'week' => 'This week',
-            'month' => 'This month',
+            'Harian' => 'Hari ini',
+            'Mingguan' => 'Minggu ini',
+            'Bulanan' => 'Bulan ini',
 
 
         ];
@@ -120,6 +121,6 @@ class BlogPostsChart extends ChartWidget
 
     public function getDescription(): ?string
     {
-        return 'gross income graph';
+        return 'Pendapatan kotor merupakan pendapatan yang belum dikurangi dengan pengeluaran.Pendapatan kotor ini mencakup dari semu loket wisat, serta dari bantuan';
     }
 }

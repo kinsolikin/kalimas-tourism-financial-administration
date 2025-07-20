@@ -55,11 +55,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // shift
     Route::get('/dashboard-shift', [ControllerShift::class, 'index'])->name('dashboard.shift');
 
-    Route::post('/dashboard-shift-store', [ControllerShift::class, 'store'])->name('dashboard.tiketparkir.parkir');
+    Route::post('/dashboard-shift-store', [ControllerShift::class, 'store'])->name('dashboard.shift.store');
 
 
     // route untuk role lokettiketparkir
-    Route::middleware(['role:lokettiketparkirparkir'])->group(function () {
+    Route::middleware(['role:lokettiketparkirparkir','shift'])->group(function () {
 
 
 
@@ -83,7 +83,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
     // route untuk role loketresto
-    Route::middleware(['role:loketresto'])->group(function () {
+    Route::middleware(['role:loketresto','shift'])->group(function () {
 
         Route::get('/dashboard-loketresto', [DashboardLoketResto::class, 'index'])->name('dashboard.resto');
         Route::get('/dashboard/resto/transactions', [TransactionController::class, 'indexResto']);
@@ -97,7 +97,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // route untuk role loket wahana
-    Route::middleware(('role:loketwahana'))->group(function () {
+    Route::middleware(['role:loketwahana','shift'])->group(function () {
         Route::post('/dashboard/wahana/store', [DashboardLoketWahana::class, 'store']);
 
         Route::get('/dashboard-loketwahana', [DashboardLoketWahana::class, 'index'])->name('dashboard.wahana');
@@ -109,7 +109,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // route untuk role lokettoilet
-    Route::middleware(['role:lokettoilet'])->group(function () {
+    Route::middleware(['role:lokettoilet','shift'])->group(function () {
 
         Route::post('/dashboard/toilet/store', [DashboardLoketToilet::class, 'store']);
 
@@ -124,7 +124,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // route untuk role bantuan
 
-    Route::middleware(['role:bantuan'])->group(function () {
+    Route::middleware(['role:bantuan','shift'])->group(function () {
         Route::get('/dashboard-bantuan', [DashboardBantuan::class, 'index'])->name('dashboard.bantuan');
         Route::get('dashboard/bantuan/transactions', [TransactionController::class, 'indexbantuan']);
         Route::get('/dashboard/bantuan/transactions/filter', [TransactionController::class, 'bantuantransactionfilter']);

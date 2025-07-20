@@ -21,7 +21,7 @@ class JenisKendaraanResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-cog';
 
 
-    protected static ?string $navigationGroup = 'Setting';
+    protected static ?string $navigationGroup = 'Pengaturan';
 
 
     public static function form(Form $form): Form

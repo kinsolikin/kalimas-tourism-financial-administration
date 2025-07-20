@@ -22,7 +22,11 @@ class TicketIncomeDetailsResource extends Resource
 {
     protected static ?string $navigationIcon = 'heroicon-o-ticket';
 
-    protected static ?string $navigationGroup = 'Details Income';
+    protected static ?string $navigationGroup = 'Detail Pendapatan';
+
+
+    protected static ?string $modelLabel = 'Tiket';
+
 
     protected static ?string $model = Ticket_income_details::class;
 

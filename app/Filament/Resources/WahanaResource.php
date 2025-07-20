@@ -21,7 +21,9 @@ class WahanaResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-cog';
 
 
-    protected static ?string $navigationGroup = 'Setting';
+    protected static ?string $navigationGroup = 'Pengaturan';
+
+    protected static ?string $modelLabel = 'Jenis wahana';
 
 
     public static function form(Form $form): Form
@@ -46,7 +48,7 @@ class WahanaResource extends Resource
                 Tables\Columns\TextColumn::make('jeniswahana')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('price')
-                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state, 0, ',', '.'))
+                    ->formatStateUsing(fn($state) => 'Rp ' . number_format($state, 0, ',', '.'))
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -72,14 +74,14 @@ class WahanaResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -87,5 +89,5 @@ class WahanaResource extends Resource
             'create' => Pages\CreateWahana::route('/create'),
             'edit' => Pages\EditWahana::route('/{record}/edit'),
         ];
-    }    
+    }
 }
