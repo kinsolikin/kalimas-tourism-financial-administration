@@ -2,24 +2,27 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Forms;
+use Filament\Tables;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use App\Models\TotalIncome;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Filament\Resources\Resource;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Support\Facades\Mail;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
+use Spatie\SimpleExcel\SimpleExcelWriter;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TotalIncomeResource\Pages;
 use App\Filament\Resources\TotalIncomeResource\RelationManagers;
-use App\Models\TotalIncome;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Actions\ExportAction;
-use Filament\Tables\Actions\Action;
-use Filament\Forms\Components\DatePicker;
-use Spatie\SimpleExcel\SimpleExcelWriter;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 
 class TotalIncomeResource extends Resource
@@ -101,28 +104,38 @@ class TotalIncomeResource extends Resource
                             ])
                             ->default('excel')
                             ->required(),
+                        TextInput::make('email')
+                            ->label('Kirim ke Email (Opsional)')
+                            ->email()
+                            ->placeholder('contoh@email.com'),
                     ])
                     ->action(function (array $data) {
                         $startDate = $data['start_date'];
                         $endDate = \Carbon\Carbon::parse($data['end_date'])->endOfDay();
                         $format = $data['format'] ?? 'excel';
+                        $email = $data['email'] ?? null;
 
                         $totakhir = \App\Models\TotalIncome::whereBetween('created_at', [$startDate, $endDate])->get();
 
                         if ($format === 'pdf') {
-                            // Pass the original Eloquent collection and date range to the view
                             $pdf = Pdf::loadView(
                                 'exports.total-income-pdf',
                                 [
-                                    'records'   => $totakhir,
+                                    'records' => $totakhir,
                                     'startDate' => $startDate,
-                                    'endDate'   => $endDate->format('Y-m-d'),
+                                    'endDate' => $endDate->format('Y-m-d'),
                                 ]
                             );
-                            $fileName = 'TotalPemasukanKalimas.pdf';
-                            return response()->streamDownload(function () use ($pdf) {
-                                echo $pdf->stream();
-                            }, $fileName);
+
+                            $filePath = storage_path('app/TotalPemasukanKalimas.pdf');
+                            $pdf->save($filePath); // simpan dulu agar bisa dikirim ke email
+
+                            // Kirim email jika ada
+                            if ($email) {
+                                Mail::to($email)->send(new \App\Mail\ExportEmail($filePath, 'TotalPemasukanKalimas.pdf'));
+                            }
+
+                            return response()->download($filePath)->deleteFileAfterSend();
                         } else {
                             $filePath = storage_path('app/TotalPemasukanKalimas.xlsx');
                             $writer = \Spatie\SimpleExcel\SimpleExcelWriter::create($filePath);
@@ -141,11 +154,24 @@ class TotalIncomeResource extends Resource
                                     'Tanggal Data Dibuat' => optional($row->created_at)->format('Y-m-d') ?? '-',
                                 ]);
                             }
+
+                            if ($email) {
+                                Mail::to($email)->send(new \App\Mail\ExportEmail($filePath, 'TotalPemasukanKalimas.xlsx'));
+                            }
+
+                            Notification::make()
+                                ->title('Sukses!')
+                                ->body('File berhasil dikirim ke email dan disimpan ke perangkat.')
+                                ->success()
+                                ->duration(10000) // dalam milidetik
+                                ->send();
+
                             return response()->download($filePath)->deleteFileAfterSend();
                         }
                     })
                     ->icon('heroicon-o-arrow-down-tray'),
             ])
+
 
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
