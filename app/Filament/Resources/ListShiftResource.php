@@ -17,11 +17,11 @@ class ListShiftResource extends Resource
 {
     protected static ?string $model = ListShift::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-cog';
 
     protected static ?string $modelLabel = 'Shift';
 
-    protected static ?string $navigationGroup =' Pengaturan';
+    protected static ?string $navigationGroup ='Pengaturan';
     
     public static function form(Form $form): Form
     {
