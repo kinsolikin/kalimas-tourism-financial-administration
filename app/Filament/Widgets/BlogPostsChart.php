@@ -17,6 +17,8 @@ class BlogPostsChart extends ChartWidget
     public ?string $filter = 'Mingguan';
     
 
+    protected static bool $isLazy = false;
+
     protected static ?int $sort = 2;
 
     

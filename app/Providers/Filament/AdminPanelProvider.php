@@ -26,9 +26,9 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-          
-        
-        ->brandName('Administrasi Kalimas')
+
+
+            ->brandName('Administrasi Kalimas')
             ->default()
             ->authGuard('admin')
             ->id('admin')
@@ -62,8 +62,10 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+            ])->navigationGroups([
+                'Pendapatan',
+                'Detail Pendapatan',
+                'Pengaturan',
             ]);
-           
-           
     }
 }

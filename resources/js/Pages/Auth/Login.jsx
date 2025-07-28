@@ -116,7 +116,7 @@ export default function Login({ status, canResetPassword, shifts }) {
                 </div>
 
                 <div className="flex items-center justify-between mb-6">
-                    <label className="flex items-center text-sm text-gray-600">
+                    {/* <label className="flex items-center text-sm text-gray-600">
                         <Checkbox
                             name="remember"
                             checked={data.remember}
@@ -125,16 +125,16 @@ export default function Login({ status, canResetPassword, shifts }) {
                             }
                         />
                         <span className="ml-2">Remember me</span>
-                    </label>
+                    </label> */}
 
-                    {canResetPassword && (
+                    {/* {canResetPassword && (
                         <Link
                             href={route("password.request")}
                             className="text-sm text-indigo-600 hover:underline"
                         >
                             Forgot password?
                         </Link>
-                    )}
+                    )} */}
                 </div>
 
                 <PrimaryButton
@@ -145,7 +145,7 @@ export default function Login({ status, canResetPassword, shifts }) {
                 </PrimaryButton>
             </form>
 
-            <div className="mt-6 text-center text-sm text-gray-600">
+            {/* <div className="mt-6 text-center text-sm text-gray-600">
                 Don't have an account?{" "}
                 <Link
                     href={route("register")}
@@ -153,7 +153,7 @@ export default function Login({ status, canResetPassword, shifts }) {
                 >
                     Register
                 </Link>
-            </div>
+            </div> */}
         </GuestLayout>
     );
 }

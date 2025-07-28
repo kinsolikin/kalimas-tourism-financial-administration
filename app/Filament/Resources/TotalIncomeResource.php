@@ -109,6 +109,7 @@ class TotalIncomeResource extends Resource
                             ->email()
                             ->placeholder('contoh@email.com'),
                     ])
+                    
                     ->action(function (array $data) {
                         $startDate = $data['start_date'];
                         $endDate = \Carbon\Carbon::parse($data['end_date'])->endOfDay();
