@@ -32,10 +32,16 @@ class RestoIncomeDetailsResource extends Resource
     protected static ?string $modelLabel = 'Resto';
 
 
+     public static function canViewAny(): bool
+    {
+        return auth()->user()?->role === 'admin';
+    }
+    
     public static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();
     }
+
 
 
     public static function form(Form $form): Form

@@ -16,6 +16,7 @@ class visitors extends ChartWidget
 
     public ?string $filter = 'Mingguan';
     
+    
     protected function getTodaydata() : array 
     
     {

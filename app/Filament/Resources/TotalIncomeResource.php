@@ -38,6 +38,10 @@ class TotalIncomeResource extends Resource
 
 
 
+ public static function canViewAny(): bool
+    {
+        return auth()->user()?->role === 'admin';
+    }
 
     public static function getNavigationBadge(): ?string
     {
@@ -109,7 +113,7 @@ class TotalIncomeResource extends Resource
                             ->email()
                             ->placeholder('contoh@email.com'),
                     ])
-                    
+
                     ->action(function (array $data) {
                         $startDate = $data['start_date'];
                         $endDate = \Carbon\Carbon::parse($data['end_date'])->endOfDay();

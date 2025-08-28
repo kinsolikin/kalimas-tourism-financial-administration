@@ -57,7 +57,7 @@ class ControllerTicketParking extends Controller
         $validatedData = $request->validate([
 
             "shift" => "required|string",
-            "operator_name" => "required|string",
+           
             "vehicle_type" => "required|integer|exists:jenis_kendaraans,id",
             "price" => "required|numeric",
             "jumlah_tiket" => "required|integer|min:0",

@@ -23,6 +23,11 @@ class SetingTicketResource extends Resource
 
     protected static ?string $modelLabel ='Harga Tiket';
 
+     public static function canViewAny(): bool
+    {
+        return auth()->user()?->role === 'admin';
+    }
+    
     public static function form(Form $form): Form
     {
         return $form

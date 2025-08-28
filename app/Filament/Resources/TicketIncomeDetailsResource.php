@@ -30,6 +30,11 @@ class TicketIncomeDetailsResource extends Resource
 
     protected static ?string $model = Ticket_income_details::class;
 
+     public static function canViewAny(): bool
+    {
+        return auth()->user()?->role === 'admin';
+    }
+    
 
      public static function getNavigationBadge(): ?string
     {

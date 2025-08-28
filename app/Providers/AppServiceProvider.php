@@ -28,7 +28,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use App\Observers\RestoIncomeDetailObserver;
 use App\Observers\TicketIncomeDetailObserver;
 use App\Observers\ToiletIncomeDetailObserver;
-use App\Observers\WahanaincomeDetailObserver;
+use App\Observers\WahanaIncomeDetailObserver;
 use App\Observers\BantuanIncomeDetailObserver;
 use App\Observers\Expanse_OperasionalObserver;
 use App\Observers\ParkingIncomeDetailObserver;
@@ -64,7 +64,7 @@ class AppServiceProvider extends ServiceProvider
     Ticket_income_details::observe(TicketIncomeDetailObserver::class);
     Parking_income_details::observe(ParkingIncomeDetailObserver::class);
     Resto_income_details::observe(RestoIncomeDetailObserver::class);
-    Wahana_income_details::observe(WahanaincomeDetailObserver::class);
+    Wahana_income_details::observe(WahanaIncomeDetailObserver::class);
     Toilet_income_details::observe(ToiletIncomeDetailObserver::class);
     Bantuan_income_details::observe(BantuanIncomeDetailObserver::class);
     Expanse::observe(ExpanseObserver::class);

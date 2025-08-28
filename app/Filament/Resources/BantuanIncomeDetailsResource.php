@@ -27,6 +27,10 @@ class BantuanIncomeDetailsResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->role === 'admin';
+    }
     public static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();

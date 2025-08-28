@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { usePage } from "@inertiajs/react";
 import { Bar, Line } from "react-chartjs-2";
 import {
@@ -267,6 +267,29 @@ function Dashboardguest() {
     const [fasilitasRef, fasilitasVisible] = useFadeInOnScroll();
     const [testimoniRef, testimoniVisible] = useFadeInOnScroll();
 
+    const [showLoginDropdown, setShowLoginDropdown] = useState(false);
+    const loginDropdownRef = useRef(null);
+
+    // Tutup dropdown jika klik di luar
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (
+                loginDropdownRef.current &&
+                !loginDropdownRef.current.contains(event.target)
+            ) {
+                setShowLoginDropdown(false);
+            }
+        }
+        if (showLoginDropdown) {
+            document.addEventListener("mousedown", handleClickOutside);
+        } else {
+            document.removeEventListener("mousedown", handleClickOutside);
+        }
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [showLoginDropdown]);
+
     return (
         <div className="min-h-screen bg-[#f7f8fa] font-sans">
             {/* Header */}
@@ -284,7 +307,7 @@ function Dashboardguest() {
                         Wisata Kalimas
                     </span>
                 </div>
-                <nav className="mt-2 md:mt-0 flex gap-6 text-gray-700 text-base font-medium">
+                <nav className="mt-2 md:mt-0 flex gap-6 text-gray-700 text-base font-medium items-center">
                     <a href="#data" className="hover:text-blue-900 transition">
                         Data
                     </a>
@@ -300,6 +323,47 @@ function Dashboardguest() {
                     >
                         Testimoni
                     </a>
+                    {/* Dropdown Login (on click, not hover) */}
+                    <div className="relative ml-4" ref={loginDropdownRef}>
+                        <button
+                            className="bg-blue-900 text-white px-4 py-1 rounded font-semibold hover:bg-blue-800 transition flex items-center gap-2"
+                            type="button"
+                            onClick={() => setShowLoginDropdown((v) => !v)}
+                        >
+                            Login
+                            <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M19 9l-7 7-7-7"
+                                />
+                            </svg>
+                        </button>
+                        {showLoginDropdown && (
+                            <div className="absolute left-0 mt-2 min-w-[120px] bg-white border border-gray-200 rounded shadow-lg z-50">
+                                <a
+                                    href="/login"
+                                    className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-900"
+                                    onClick={() => setShowLoginDropdown(false)}
+                                >
+                                    User
+                                </a>
+                                <a
+                                    href="/admin/login"
+                                    className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-900"
+                                    onClick={() => setShowLoginDropdown(false)}
+                                >
+                                    Admin
+                                </a>
+                            </div>
+                        )}
+                    </div>
                 </nav>
             </header>
 

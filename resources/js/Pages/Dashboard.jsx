@@ -86,7 +86,6 @@ export default function Dashboard({ auth }) {
         e.preventDefault();
         post("/dashboard/store", {
             onSuccess: (page) => {
-                
                 Swal.fire({
                     icon: "success",
                     title: "Berhasil",
@@ -378,11 +377,7 @@ export default function Dashboard({ auth }) {
         });
     };
 
-   
-
     // For example trigger on button clicked, or any time you need
-
-   
 
     return (
         <AuthenticatedLayout user={auth.user}>
@@ -445,26 +440,6 @@ export default function Dashboard({ auth }) {
                                     <small className="text-gray-500">
                                         Pilih shift kerja Anda.
                                     </small>
-                                </div>
-
-                                {/* Operator */}
-                                <div>
-                                    <label
-                                        htmlFor="operator_name"
-                                        className="block text-sm font-semibold text-gray-700 mb-2"
-                                    >
-                                        Nama Operator Kasir
-                                    </label>
-                                    <input
-                                        disabled={!priceticket}
-                                        type="text"
-                                        id="operator_name"
-                                        name="operator_name"
-                                        value={data.operator_name}
-                                        onChange={handleChange}
-                                        placeholder="Masukkan nama operator"
-                                        className="w-full px-4 py-2 text-gray-800 bg-gray-50 border border-gray-300   shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    />
                                 </div>
 
                                 {/* Jenis Kendaraan */}
@@ -574,7 +549,6 @@ export default function Dashboard({ auth }) {
                                 {/* Submit Button */}
                                 <div className="pt-4">
                                     <button
-                                      
                                         type="submit"
                                         disabled={processing}
                                         className="w-full py-3 text-white text-base font-semibold bg-blue-600 hover:bg-blue-700   shadow-md transition duration-200 ease-in-out focus:ring-4 focus:ring-blue-300"
@@ -609,7 +583,10 @@ export default function Dashboard({ auth }) {
                                         Total Harga Tiket
                                     </p>
                                     <p className="text-xl font-bold text-blue-600">
-                                        Rp {data.harga_tiket}
+                                        Rp{" "}
+                                        {data.harga_tiket.toLocaleString(
+                                            "id-ID"
+                                        )}
                                     </p>
                                 </div>
 
@@ -639,9 +616,14 @@ export default function Dashboard({ auth }) {
                                         Total Pembayaran
                                     </p>
                                     <p className="text-2xl font-extrabold text-green-600">
-                                        Rp{" "}
-                                        {Number(data.price) +
-                                            Number(data.harga_tiket)}
+                                        {(
+                                            Number(data.price) +
+                                            Number(data.harga_tiket)
+                                        ).toLocaleString("id-ID", {
+                                            style: "currency",
+                                            currency: "IDR",
+                                            minimumFractionDigits: 0,
+                                        })}
                                     </p>
                                 </div>
                             </div>

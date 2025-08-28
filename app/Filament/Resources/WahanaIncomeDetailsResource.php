@@ -30,6 +30,11 @@ class WahanaIncomeDetailsResource extends Resource
     protected static ?string $modelLabel = 'Wahana';
 
 
+     public static function canViewAny(): bool
+    {
+        return auth()->user()?->role === 'admin';
+    }
+    
     public static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();

@@ -23,6 +23,10 @@ class JenisKendaraanResource extends Resource
 
     protected static ?string $navigationGroup = 'Pengaturan';
 
+     public static function canViewAny(): bool
+    {
+        return auth()->user()?->role === 'admin';
+    }
 
     public static function form(Form $form): Form
     {
