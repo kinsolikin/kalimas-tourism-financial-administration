@@ -15,6 +15,9 @@ use App\Http\Controllers\DashboardBantuan;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\ControllerShift;
 use App\Http\Controllers\ControllerExpanse;
+use Illuminate\Support\Facades\Mail;
+
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -26,6 +29,14 @@ use App\Http\Controllers\ControllerExpanse;
 |
 */
 
+Route::get('/tes-email', function () {
+    Mail::raw('Tes email Laravel langsung', function ($message) {
+        $message->to('akbarsholikhin2@gmail.com')
+                ->subject('Tes Kirim Email');
+    });
+
+    return 'Email tes sudah dicoba dikirim.';
+});
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 

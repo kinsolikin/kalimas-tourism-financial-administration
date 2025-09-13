@@ -19,7 +19,7 @@ class BlogPostsChart extends ChartWidget
 
     protected static bool $isLazy = false;
 
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 1;
 
     
     

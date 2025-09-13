@@ -10,12 +10,12 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      */
-    protected function schedule(Schedule $schedule): void
-    {
-        // $schedule->command('inspire')->hourly();
-        $schedule->command('app:send-net-income')->everyMinute();
-    }
-
+   protected function schedule(Schedule $schedule)
+{
+    $schedule->command('app:send-income-report')
+             ->hourly()
+             ->between('10:00', '16:00'); // jalan tiap jam dari 10 pagi - 4 sore
+}
     /**
      * Register the commands for the application.
      */

@@ -45,6 +45,8 @@ class User extends Authenticatable
     ];
 
 
+
+
     public function listShift()
     {
         return $this->hasMany(ListShift::class);

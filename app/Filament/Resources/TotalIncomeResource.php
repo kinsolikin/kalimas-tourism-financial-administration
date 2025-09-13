@@ -10,24 +10,19 @@ use App\Models\TotalIncome;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\Action;
-use Filament\Tables\Filters\Filter;
 use Illuminate\Support\Facades\Mail;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\DatePicker;
-use Filament\Tables\Actions\ExportAction;
-use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
-use Spatie\SimpleExcel\SimpleExcelWriter;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TotalIncomeResource\Pages;
-use App\Filament\Resources\TotalIncomeResource\RelationManagers;
-
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\TotalIncomeExport;
 
 class TotalIncomeResource extends Resource
 {
-
     protected static ?string $model = TotalIncome::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
@@ -36,9 +31,7 @@ class TotalIncomeResource extends Resource
 
     protected static ?string $navigationGroup = 'Pendapatan';
 
-
-
- public static function canViewAny(): bool
+    public static function canViewAny(): bool
     {
         return auth()->user()?->role === 'admin';
     }
@@ -47,7 +40,6 @@ class TotalIncomeResource extends Resource
     {
         return static::getModel()::count();
     }
-
 
     public static function form(Form $form): Form
     {
@@ -61,14 +53,12 @@ class TotalIncomeResource extends Resource
     {
         return $table
             ->query(
-                totalIncome::with([
+                TotalIncome::with([
                     'total_expanse',
                     'net_income'
                 ])
             )
-
             ->columns([
-                //
                 TextColumn::make('total_parking_details')
                     ->label('Total Parkir')->sortable()->searchable(),
                 TextColumn::make('total_ticket_details')
@@ -86,39 +76,56 @@ class TotalIncomeResource extends Resource
                 TextColumn::make('total_amount')
                     ->label('Total Pendapatan Kotor')->sortable()->searchable(),
                 TextColumn::make('net_income.net_income')
-                    ->label('Total Pendapatan Bersih')->sortable()->searchable(),
-
-
+                    ->label('Total Pendapatan Bersih')
+                    ->sortable()
+                    ->searchable()
+                    ->summarize([
+                        \Filament\Tables\Columns\Summarizers\Sum::make()
+                            ->label('Laba Total')
+                            ->money('idr', true),
+                    ]),
             ])
-
             ->headerActions([
                 Action::make('Export')
                     ->form([
                         DatePicker::make('start_date')
                             ->label('Tanggal Mulai')
-                            ->required(),
+                            ->required()
+                            ->maxDate(now()),
+
                         DatePicker::make('end_date')
                             ->label('Tanggal Selesai')
-                            ->required(),
+                            ->required()
+                            ->maxDate(now()),
+
                         \Filament\Forms\Components\Select::make('format')
                             ->label('Format')
                             ->options([
                                 'excel' => 'Excel',
-                                'pdf' => 'PDF',
+                                'pdf'   => 'PDF',
                             ])
                             ->default('excel')
                             ->required(),
+
                         TextInput::make('email')
                             ->label('Kirim ke Email (Opsional)')
                             ->email()
                             ->placeholder('contoh@email.com'),
                     ])
-
                     ->action(function (array $data) {
                         $startDate = $data['start_date'];
-                        $endDate = \Carbon\Carbon::parse($data['end_date'])->endOfDay();
-                        $format = $data['format'] ?? 'excel';
-                        $email = $data['email'] ?? null;
+                        $endDate   = \Carbon\Carbon::parse($data['end_date'])->endOfDay();
+                        $format    = $data['format'] ?? 'excel';
+                        $email     = $data['email'] ?? null;
+
+                        if ($endDate->greaterThan(now())) {
+                            Notification::make()
+                                ->title('Error')
+                                ->body('Tanggal selesai tidak boleh melebihi hari ini.')
+                                ->danger()
+                                ->send();
+                            return;
+                        }
 
                         $totakhir = \App\Models\TotalIncome::whereBetween('created_at', [$startDate, $endDate])->get();
 
@@ -126,49 +133,35 @@ class TotalIncomeResource extends Resource
                             $pdf = Pdf::loadView(
                                 'exports.total-income-pdf',
                                 [
-                                    'records' => $totakhir,
+                                    'records'   => $totakhir,
                                     'startDate' => $startDate,
-                                    'endDate' => $endDate->format('Y-m-d'),
+                                    'endDate'   => $endDate->format('Y-m-d'),
                                 ]
                             );
 
                             $filePath = storage_path('app/TotalPemasukanKalimas.pdf');
-                            $pdf->save($filePath); // simpan dulu agar bisa dikirim ke email
+                            $pdf->save($filePath);
 
-                            // Kirim email jika ada
                             if ($email) {
                                 Mail::to($email)->send(new \App\Mail\ExportEmail($filePath, 'TotalPemasukanKalimas.pdf'));
                             }
 
                             return response()->download($filePath)->deleteFileAfterSend();
                         } else {
-                            $filePath = storage_path('app/TotalPemasukanKalimas.xlsx');
-                            $writer = \Spatie\SimpleExcel\SimpleExcelWriter::create($filePath);
+                            $fileName = 'TotalPemasukanKalimas.xlsx';
+                            $filePath = storage_path('app/' . $fileName);
 
-                            foreach ($totakhir as $row) {
-                                $writer->addRow([
-                                    'Total Parking'      => 'Rp ' . number_format($row->total_parking_details ?? 0, 0, ',', '.'),
-                                    'Total Ticket'       => 'Rp ' . number_format($row->total_ticket_details ?? 0, 0, ',', '.'),
-                                    'Total Bantuan'      => 'Rp ' . number_format($row->total_bantuan_details ?? 0, 0, ',', '.'),
-                                    'Total Resto'        => 'Rp ' . number_format($row->total_resto_details ?? 0, 0, ',', '.'),
-                                    'Total Toilet'       => 'Rp ' . number_format($row->total_toilet_details ?? 0, 0, ',', '.'),
-                                    'Total Wahana'       => 'Rp ' . number_format($row->total_wahana_details ?? 0, 0, ',', '.'),
-                                    'Total Expanse'      => 'Rp ' . number_format(optional(optional($row)->total_expanse->first())->total_amount ?? 0, 0, ',', '.'),
-                                    'Total Gross Income' => 'Rp ' . number_format($row->total_amount ?? 0, 0, ',', '.'),
-                                    'Total Net Income'   => 'Rp ' . number_format(optional(optional($row)->net_income)->net_income ?? 0, 0, ',', '.'),
-                                    'Tanggal Data Dibuat' => optional($row->created_at)->format('Y-m-d') ?? '-',
-                                ]);
-                            }
+                            Excel::store(new \App\Exports\TotalIncomeExport($startDate, $endDate), $fileName);
 
                             if ($email) {
-                                Mail::to($email)->send(new \App\Mail\ExportEmail($filePath, 'TotalPemasukanKalimas.xlsx'));
+                                Mail::to($email)->send(new \App\Mail\ExportEmail($filePath, $fileName));
                             }
 
                             Notification::make()
                                 ->title('Sukses!')
-                                ->body('File berhasil dikirim ke email dan disimpan ke perangkat.')
+                                ->body('File Excel berhasil dibuat' . ($email ? ' dan dikirim ke email.' : '.'))
                                 ->success()
-                                ->duration(10000) // dalam milidetik
+                                ->duration(10000)
                                 ->send();
 
                             return response()->download($filePath)->deleteFileAfterSend();
@@ -176,11 +169,25 @@ class TotalIncomeResource extends Resource
                     })
                     ->icon('heroicon-o-arrow-down-tray'),
             ])
-
-
             ->filters([
-                Tables\Filters\TrashedFilter::make(),
+                Tables\Filters\Filter::make('created_at')
+                    ->form([
+                        DatePicker::make('from')->label('Tanggal Mulai'),
+                        DatePicker::make('until')->label('Tanggal Selesai'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['from'],
+                                fn (Builder $q, $date): Builder => $q->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['until'],
+                                fn (Builder $q, $date): Builder => $q->whereDate('created_at', '<=', $date),
+                            );
+                    }),
 
+                Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -193,7 +200,6 @@ class TotalIncomeResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                     Tables\Actions\ForceDeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),
-                    // ...
                 ]),
             ])
             ->emptyStateActions([
@@ -201,38 +207,9 @@ class TotalIncomeResource extends Resource
             ]);
     }
 
-    public function exportToCsv()
-    {
-        // Ambil data dari model TotalIncome
-        $data = \App\Models\TotalIncome::all();
-
-        // Buat file CSV
-        $csvData = [];
-        $csvData[] = ['Parking Details', 'Total Amount']; // Header CSV
-        foreach ($data as $row) {
-            $csvData[] = [
-                $row->total_parking_details,
-                $row->total_amount,
-            ];
-        }
-
-        // Konversi array ke string CSV
-        $csvString = '';
-        foreach ($csvData as $line) {
-            $csvString .= implode(',', $line) . "\n";
-        }
-
-        // Kirim file CSV sebagai response download
-        return response()->streamDownload(function () use ($csvString) {
-            echo $csvString;
-        }, 'total_income.csv');
-    }
-
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array

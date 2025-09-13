@@ -149,25 +149,22 @@ class TransactionController extends Controller
         return response()->json(['message' => 'All transactions deleted successfully.']);
     }
 
-    public function wahanatransactionfilter(Request $request) {
+    public function wahanatransactionfilter(Request $request)
+{
+    $query = Wahana_income_details::with('jenisWahana'); // penting
 
-        $query =Wahana_income_details::query();
+    if ($request->filled('from') && $request->filled('to')) {
+        $from = Carbon::parse($request->from)->startOfDay();
+        $to = Carbon::parse($request->to)->endOfDay();
 
-
-        if($request->filled('from')&&$request->filled('to')){
-
-            $from = Carbon::parse($request->from)->startOfDay();
-            $to = Carbon::parse($request->to)->endOfDay();
-        
-            $query->whereBetween('created_at', [$from, $to]);
-
-
-            
-            return response()->json($query->orderBy('created_at', 'desc')->get());
-
-
-        }
+        $query->whereBetween('created_at', [$from, $to]);
     }
+
+    return response()->json(
+        $query->orderBy('created_at', 'desc')->get()
+    );
+}
+
 
 
   

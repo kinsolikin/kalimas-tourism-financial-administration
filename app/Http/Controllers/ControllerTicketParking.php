@@ -54,11 +54,11 @@ class ControllerTicketParking extends Controller
         // Cek income hari ini
 
 
+     
         $validatedData = $request->validate([
 
-            "shift" => "required|string",
-           
-            "vehicle_type" => "required|integer|exists:jenis_kendaraans,id",
+            "shift" => "",
+            "vehicle_type" => "nullable",
             "price" => "required|numeric",
             "jumlah_tiket" => "required|integer|min:0",
             "harga_tiket" => "required|numeric",
@@ -102,7 +102,7 @@ class ControllerTicketParking extends Controller
 
         // Simpan data tiket ke tabel Ticket_income_details jika field terkait tiket diisi
 
-        $detailticket = Ticket_income_details::create([
+        Ticket_income_details::create([
             'user_id' => 1,
             'income_id' => $incometicket->id,
             'jumlah_orang' => $validatedData['jumlah_tiket'],
@@ -113,11 +113,11 @@ class ControllerTicketParking extends Controller
 
         // Simpan data parkir ke tabel Parking_income_details jika field terkait parkir diisi
 
-        $detailparking = Parking_income_details::create([
+        Parking_income_details::create([
             'user_id' => 1,
             'income_id' => $incomeparking->id,
             'jenis_kendaraan_id' => $validatedData['vehicle_type'],
-            'jumlah_kendaraan' => 1,
+            'jumlah_kendaraan' => $validatedData['vehicle_type'] == 0 ? 0 : 1,
             'harga_satuan' => $validatedData['price'],
             'total' => 1 * $validatedData['price'],
         ]);

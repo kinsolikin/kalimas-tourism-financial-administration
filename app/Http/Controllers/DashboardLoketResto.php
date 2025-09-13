@@ -33,14 +33,16 @@ class DashboardLoketResto extends Controller
      */
     public function store(Request $request)
     {
+
+        
         $validatedata = $request->validate([
             'nama' => 'required|string',
-            'makanan' => 'required|string',
-            'minuman' => 'required|string',
-            'qty_makanan' => 'required|integer|min:0',
-            'qty_minuman' => 'required|integer|min:0',
-            'harga_satuan_makanan' => 'required|numeric',
-            'harga_satuan_minuman' => 'required|numeric',
+            'makanan' => 'string|nullable',
+            'minuman' => 'string|nullable',
+            'qty_makanan' => 'integer|min:0',
+            'qty_minuman' => 'integer|min:0',
+            'harga_satuan_makanan' => 'numeric',
+            'harga_satuan_minuman' => 'numeric',
         ]);
 
 
@@ -60,25 +62,19 @@ class DashboardLoketResto extends Controller
 
         }
 
-        if($validatedata['qty_makanan']>0 && $validatedata['qty_minuman']>0){
-            Resto_income_details::create([
-                'user_id'=>$user->id,
-                'income_id'=>$restoincome->id,
-                'name_customer'=>$validatedata['nama'],
-                'makanan'=>$validatedata['makanan'],
-                'minuman'=>$validatedata['minuman'],
-                'qty_makanan'=>$validatedata['qty_makanan'],
-                'qty_minuman'=>$validatedata['qty_minuman'],
-                'harga_satuan_makanan'=>$validatedata['harga_satuan_makanan'],
-                'harga_satuan_minuman'=>$validatedata['harga_satuan_minuman'],
-                'total'=> ($validatedata['qty_makanan']*$validatedata['harga_satuan_makanan'])+($validatedata['qty_minuman']*$validatedata['harga_satuan_minuman'])
-                
-            ]);
-
-            
-        };
-    
-
+        // Tetap simpan walaupun qty makanan atau minuman 0/kosong
+        Resto_income_details::create([
+            'user_id'=>$user->id,
+            'income_id'=>$restoincome->id,
+            'name_customer'=>$validatedata['nama'],
+            'makanan'=>$validatedata['makanan'] ?? '',
+            'minuman'=>$validatedata['minuman'] ?? '',
+            'qty_makanan'=>$validatedata['qty_makanan'] ?? 0,
+            'qty_minuman'=>$validatedata['qty_minuman'] ?? 0,
+            'harga_satuan_makanan'=>$validatedata['harga_satuan_makanan'] ?? 0,
+            'harga_satuan_minuman'=>$validatedata['harga_satuan_minuman'] ?? 0,
+            'total'=> ($validatedata['qty_makanan'] * $validatedata['harga_satuan_makanan']) + ($validatedata['qty_minuman'] * $validatedata['harga_satuan_minuman'])
+        ]);
 
         
 

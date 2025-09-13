@@ -16,7 +16,7 @@ class NetIncome extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function total_income()
+    public function totalIncome()
     {
         return $this->belongsTo(TotalIncome::class);
     }

@@ -10,7 +10,7 @@ class visitors extends ChartWidget
 {
     protected static ?string $heading = 'Grafik Pengunjung';
 
-    protected static ?int $sort = 3;
+    protected static ?int $sort = 2;
     
     protected static ?string $pollingInterval = '2s';
 

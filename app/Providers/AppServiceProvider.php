@@ -32,6 +32,9 @@ use App\Observers\WahanaIncomeDetailObserver;
 use App\Observers\BantuanIncomeDetailObserver;
 use App\Observers\Expanse_OperasionalObserver;
 use App\Observers\ParkingIncomeDetailObserver;
+use Filament\Http\Responses\Auth\Contracts\LoginResponse;
+use App\Http\Responses\CustomLoginResponse;
+use Illuminate\Support\Facades\Schema;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -40,34 +43,36 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(LoginResponse::class, CustomLoginResponse::class);
     }
 
     /**
      * Bootstrap any application services.
      */
-   public function boot(): void
-{
-    if (
-        request()->header('x-forwarded-proto') === 'https' ||
-        app()->environment('production')
-    ) {
-        URL::forceScheme('https');
+    public function boot(): void
+    {
+
+
+
+        if (
+            request()->header('x-forwarded-proto') === 'https' ||
+            app()->environment('production')
+        ) {
+            URL::forceScheme('https');
+        }
+
+        // Observer registrations tetap seperti sebelumnya
+        TotalExpanse::observe(TotalExpanseObserver::class);
+        TotalIncome::observe(TotalIncomeObserver::class);
+        Expanse_Operasional::observe(Expanse_OperasionalObserver::class);
+        Expanse_Mendadak::observe(Expanse_MendadakObserver::class);
+        Income::observe(IncomeObserver::class);
+        Ticket_income_details::observe(TicketIncomeDetailObserver::class);
+        Parking_income_details::observe(ParkingIncomeDetailObserver::class);
+        Resto_income_details::observe(RestoIncomeDetailObserver::class);
+        Wahana_income_details::observe(WahanaIncomeDetailObserver::class);
+        Toilet_income_details::observe(ToiletIncomeDetailObserver::class);
+        Bantuan_income_details::observe(BantuanIncomeDetailObserver::class);
+        Expanse::observe(ExpanseObserver::class);
     }
-
-    // Observer registrations tetap seperti sebelumnya
-    TotalExpanse::observe(TotalExpanseObserver::class);
-    TotalIncome::observe(TotalIncomeObserver::class);
-    Expanse_Operasional::observe(Expanse_OperasionalObserver::class);
-    Expanse_Mendadak::observe(Expanse_MendadakObserver::class);
-    Income::observe(IncomeObserver::class);
-    Ticket_income_details::observe(TicketIncomeDetailObserver::class);
-    Parking_income_details::observe(ParkingIncomeDetailObserver::class);
-    Resto_income_details::observe(RestoIncomeDetailObserver::class);
-    Wahana_income_details::observe(WahanaIncomeDetailObserver::class);
-    Toilet_income_details::observe(ToiletIncomeDetailObserver::class);
-    Bantuan_income_details::observe(BantuanIncomeDetailObserver::class);
-    Expanse::observe(ExpanseObserver::class);
-}
-
 }

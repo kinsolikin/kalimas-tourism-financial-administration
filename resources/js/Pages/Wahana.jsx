@@ -528,7 +528,7 @@ const Wahana = ({ auth }) => {
                                                 )}
                                             </td>
                                             <td className="px-2 py-1">
-                                                {t.jenis_wahana.jeniswahana}
+                                                {t.jenis_wahana?.jeniswahana ?? "-"}
                                             </td>
                                             <td className="px-2 py-1 text-right">
                                                 {t.jumlah}

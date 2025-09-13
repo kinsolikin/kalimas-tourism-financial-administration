@@ -11,6 +11,10 @@ class Expanse_Operasional extends Model
 
     protected $guarded = ['id'];
 
+    // biar Laravel tahu nama tabelnya
+
+  
+
     public function expanse_category()
     {
         return $this->belongsTo(Expanse_Category::class);
@@ -25,4 +29,6 @@ class Expanse_Operasional extends Model
     {
         return $this->belongsTo(Expanse::class);
     }
+
+  
 }

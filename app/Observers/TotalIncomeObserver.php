@@ -51,18 +51,23 @@ class TotalIncomeObserver
 
     public function saved(TotalIncome $totalIncome)
     {
+        $totalIncomeToday = $totalIncome->user
+            ->totalIncomes()
+            ->whereDate('created_at', now()->toDateString())
+            ->sum('total_amount');
 
-        $totalIncomeToday = $totalIncome->user->totalIncomes()->whereDate('created_at', now()->toDateString())->sum('total_amount');
-        $totalExpenseToday = TotalExpanse::whereDate('created_at', now()->toDateString())->sum('total_amount');
-        $totalincomeid = TotalIncome::whereDate('created_at', now()->toDateString())->first()->value('id');
+        $totalExpenseToday = TotalExpanse::whereDate('created_at', now()->toDateString())
+            ->sum('total_amount');
 
         NetIncome::updateOrCreate(
-            ['created_at' => now()->toDateString()],
             [
-                'user_id' => $totalIncome->user_id,
-                'total_income_id' => $totalincomeid,
-                'total_income' => $totalIncomeToday,
-                'total_expense' => $totalExpenseToday,
+                'created_at' => now()->toDateString(),
+                'user_id'    => $totalIncome->user_id,
+            ],
+            [
+                'total_income_id' => $totalIncome->id,   // langsung dari instance
+                'total_income'    => $totalIncomeToday,
+                'total_expense'   => $totalExpenseToday,
             ]
         );
     }

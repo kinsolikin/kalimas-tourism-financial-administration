@@ -57,15 +57,24 @@ export default function Dashboard({ auth }) {
     const handleChange = (e) => {
         const { name, value } = e.target;
         if (name === "vehicle_type") {
-            // Cari kendaraan berdasarkan id
-            const selectedVehicle = jenisKendaraan.find(
-                (item) => item.id == value
-            );
-            setData({
-                ...data,
-                vehicle_type: value, // id kendaraan
-                price: selectedVehicle ? selectedVehicle.price : 0,
-            });
+            // Jika tidak dipilih atau value 0, reset price dan jumlah kendaraan
+            if (value === "0") {
+                setData({
+                    ...data,
+                    vehicle_type: value,
+                    price: 0,
+                });
+            } else {
+                // Cari kendaraan berdasarkan id
+                const selectedVehicle = jenisKendaraan.find(
+                    (item) => item.id == value
+                );
+                setData({
+                    ...data,
+                    vehicle_type: value, // id kendaraan
+                    price: selectedVehicle ? selectedVehicle.price : 0,
+                });
+            }
         } else if (name === "jumlah_tiket") {
             // Gunakan harga tiket dari props priceticket
             const hargaTiket = Number(priceticket);
@@ -419,7 +428,7 @@ export default function Dashboard({ auth }) {
                                 </div>
 
                                 {/* Shift Kerja */}
-                                <div>
+                                {/* <div>
                                     <label
                                         htmlFor="shift"
                                         className="block text-sm font-semibold text-gray-700 mb-2"
@@ -440,7 +449,7 @@ export default function Dashboard({ auth }) {
                                     <small className="text-gray-500">
                                         Pilih shift kerja Anda.
                                     </small>
-                                </div>
+                                </div> */}
 
                                 {/* Jenis Kendaraan */}
                                 <div>
@@ -458,7 +467,7 @@ export default function Dashboard({ auth }) {
                                         onChange={handleChange}
                                         className="w-full px-4 py-2 text-gray-800 bg-gray-50 border border-gray-300   shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     >
-                                        <option value="">
+                                        <option value= "0">
                                             Pilih Kendaraan
                                         </option>
                                         {jenisKendaraan.map((item) => (
@@ -596,7 +605,7 @@ export default function Dashboard({ auth }) {
                                         Jumlah Kendaraan
                                     </p>
                                     <p className="text-xl font-bold text-blue-600">
-                                        {data.vehicle_type ? 1 : 0}
+                                        {data.vehicle_type && data.vehicle_type !== "0" ? 1 : 0}
                                     </p>
                                 </div>
 
@@ -940,8 +949,8 @@ export default function Dashboard({ auth }) {
                                     {todaySummary.parking.length > 0 ? (
                                         todaySummary.parking.map((t, i) => (
                                             <li key={i}>
-                                                {t.jenis_kendaraan
-                                                    .namakendaraan || "-"}{" "}
+                                                {/* Pastikan t.jenis_kendaraan ada sebelum akses namakendaraan */}
+                                                {(t.jenis_kendaraan && t.jenis_kendaraan.namakendaraan) ? t.jenis_kendaraan.namakendaraan : "-"}{" "}
                                                 | Rp{" "}
                                                 {t.harga_satuan
                                                     ? Number(
