@@ -111,11 +111,33 @@ class WahanaIncomeDetailsResource extends Resource
                     ->sortable(),
                 TextColumn::make('total')
                     ->label('total')->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->summarize([
+                        \Filament\Tables\Columns\Summarizers\Sum::make()
+                            ->label('Laba Total')
+                            ->money('idr', true),
+                    ]),
             ])
             ->filters([
-                //
-            ])
+            \Filament\Tables\Filters\Filter::make('created_at')
+                ->form([
+                    \Filament\Forms\Components\DatePicker::make('from')
+                        ->label('Tanggal Mulai'),
+                    \Filament\Forms\Components\DatePicker::make('until')
+                        ->label('Tanggal Selesai'),
+                ])
+                ->query(function (Builder $query, array $data): Builder {
+                    return $query
+                        ->when(
+                            $data['from'],
+                            fn (Builder $q, $date): Builder => $q->whereDate('created_at', '>=', $date),
+                        )
+                        ->when(
+                            $data['until'],
+                            fn (Builder $q, $date): Builder => $q->whereDate('created_at', '<=', $date),
+                        );
+                }),
+        ])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])

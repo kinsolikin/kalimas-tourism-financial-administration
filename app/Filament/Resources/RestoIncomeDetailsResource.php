@@ -122,14 +122,36 @@ class RestoIncomeDetailsResource extends Resource
                 TextColumn::make('harga_satuan_minuman')
                     ->label('Harga Satuan Minuman')->sortable()->searchable(),
                 TextColumn::make('total')
-                    ->label('Total')->sortable()->searchable(),
+                    ->label('Total')->sortable()->searchable()
+                    ->summarize([
+                        \Filament\Tables\Columns\Summarizers\Sum::make()
+                            ->label('Laba Total')
+                            ->money('idr', true),
+                    ]),
                 TextColumn::make('created_at')
                     ->label('Tanggal Dibuat')->sortable()->searchable(),
 
             ])
-            ->filters([
-                //
-            ])
+           ->filters([
+            \Filament\Tables\Filters\Filter::make('created_at')
+                ->form([
+                    \Filament\Forms\Components\DatePicker::make('from')
+                        ->label('Tanggal Mulai'),
+                    \Filament\Forms\Components\DatePicker::make('until')
+                        ->label('Tanggal Selesai'),
+                ])
+                ->query(function (Builder $query, array $data): Builder {
+                    return $query
+                        ->when(
+                            $data['from'],
+                            fn (Builder $q, $date): Builder => $q->whereDate('created_at', '>=', $date),
+                        )
+                        ->when(
+                            $data['until'],
+                            fn (Builder $q, $date): Builder => $q->whereDate('created_at', '<=', $date),
+                        );
+                }),
+        ])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])

@@ -18,6 +18,7 @@ use Filament\Forms\Components\Select;
 use App\Models\JenisKendaraan;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Filters\TrashedFilter;
 
 class ParkingIncomeDetailsResource extends Resource
 {
@@ -104,39 +105,71 @@ class ParkingIncomeDetailsResource extends Resource
             ]);
     }
 
-    public static function table(Table $table): Table
-    {
+   public static function table(Table $table): Table
+{
+    return $table
+        ->columns([
+            TextColumn::make('jenisKendaraan.namakendaraan')
+                ->label('Jenis Kendaraan')
+                ->searchable()
+                ->sortable(),
 
-        return $table
-            ->columns([
-                TextColumn::make('jenisKendaraan.namakendaraan')
-                    ->label('Jenis Kendaraan')->searchable()
-                    ->sortable(),
-                TextColumn::make('jumlah_kendaraan')
-                    ->label('Jumlah Kendaraan')->searchable()
-                    ->sortable(),
-                TextColumn::make('harga_satuan')
-                    ->label('Harga Satuan')->searchable()
-                    ->sortable(),
-                TextColumn::make('total')
-                    ->label('Total')->searchable()
-                    ->sortable(),
-            ])
-            ->filters([
-                //
-            ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
-            ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
-            ]);
-    }
+            TextColumn::make('jumlah_kendaraan')
+                ->label('Jumlah Kendaraan')
+                ->searchable()
+                ->sortable(),
+
+            TextColumn::make('harga_satuan')
+                ->label('Harga Satuan')
+                ->money('idr', true) // format IDR otomatis
+                ->sortable(),
+
+            TextColumn::make('total')
+                ->label('Total')
+                ->money('idr', true) // format IDR otomatis
+                ->sortable()
+                ->summarize([
+                        \Filament\Tables\Columns\Summarizers\Sum::make()
+                            ->label('Laba Total')
+                            ->money('idr', true),
+                    ])
+        ])
+        
+        ->filters([
+            \Filament\Tables\Filters\Filter::make('created_at')
+                ->form([
+                    \Filament\Forms\Components\DatePicker::make('from')
+                        ->label('Tanggal Mulai'),
+                    \Filament\Forms\Components\DatePicker::make('until')
+                        ->label('Tanggal Selesai'),
+                ])
+                ->query(function (Builder $query, array $data): Builder {
+                    return $query
+                        ->when(
+                            $data['from'],
+                            fn (Builder $q, $date): Builder => $q->whereDate('created_at', '>=', $date),
+                        )
+                        ->when(
+                            $data['until'],
+                            fn (Builder $q, $date): Builder => $q->whereDate('created_at', '<=', $date),
+                        );
+                }),
+
+        ])
+        ->actions([
+            Tables\Actions\EditAction::make(),
+            Tables\Actions\DeleteAction::make(),
+        ])
+        ->bulkActions([
+            Tables\Actions\BulkActionGroup::make([
+                Tables\Actions\DeleteBulkAction::make(),
+            ]),
+        ])
+        ->emptyStateActions([
+            Tables\Actions\CreateAction::make(),
+        ]);
+}
+
 
     public static function getRelations(): array
     {

@@ -30,17 +30,17 @@ class ExpanseTransaction extends Page implements HasForms
     public $description;
     public $user_id;
 
-     public function mount(): void
+    public function mount(): void
     {
         $user = Auth::guard('admin')->user();
 
         if ($user?->role !== 'admin') {
-           abort(403);
+            abort(403);
             // redirect()->to(TotalIncomeResource::getUrl());
         }
     }
 
-      public static function shouldRegisterNavigation(): bool
+    public static function shouldRegisterNavigation(): bool
     {
         return Auth::guard('admin')->check()
             && Auth::guard('admin')->user()->role === 'admin';
@@ -65,8 +65,16 @@ class ExpanseTransaction extends Page implements HasForms
 
             Forms\Components\TextInput::make('amount')
                 ->label('Jumlah')
+                ->required()
                 ->numeric()
-                ->required(),
+                ->prefix('Rp')
+                ->reactive()
+                ->afterStateUpdated(function ($state, callable $set) {
+                    // Format angka jadi rupiah dengan titik
+                    $set('amount', number_format((int) preg_replace('/\D/', '', $state), 0, ',', '.'));
+                })
+                ->dehydrateStateUsing(fn($state) => (int) str_replace('.', '', $state)),
+
 
             Forms\Components\Textarea::make('description')
                 ->label('Deskripsi')
