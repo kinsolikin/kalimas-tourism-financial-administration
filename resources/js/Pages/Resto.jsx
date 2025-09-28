@@ -3,6 +3,7 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, router } from "@inertiajs/react";
 import Swal from "sweetalert2";
 import dayjs from "dayjs";
+import axios from "axios";
 
 export default function Resto({ auth }) {
     const [showHistory, setShowHistory] = useState(false);
@@ -30,41 +31,82 @@ export default function Resto({ auth }) {
     const shiftSummaryRef = useRef(null);
     const historyRef = useRef(null);
 
-    useEffect(() => {
-        // Harga satuan diambil dari menu, tidak bisa diisi manual
-        const hargaMakanan = menuMakanan[form.makanan] || 0;
-        const hargaMinuman = menuMinuman[form.minuman] || 0;
-        const totalMakanan = hargaMakanan * form.qty_makanan;
-        const totalMinuman = hargaMinuman * form.qty_minuman;
-        const total = totalMakanan + totalMinuman;
+    // === CETAK STRUK ===
+    const printReceipt = (transaction) => {
+        if (!transaction) return;
 
-        setForm((prev) => ({
-            ...prev,
-            harga_satuan_makanan: hargaMakanan,
-            harga_satuan_minuman: hargaMinuman,
-            total_makanan: totalMakanan,
-            total_minuman: totalMinuman,
-            total,
-        }));
-    }, [
-        form.makanan,
-        form.minuman,
-        form.qty_makanan,
-        form.qty_minuman,
-    ]);
+        const struk = `
+*** Loket Resto Kalimas ***
+Kemuning ngargoyoso / 082316237536
+------------------------------
+Tanggal : ${new Date(transaction.created_at).toLocaleString("id-ID")}
+Kasir   : ${auth.user.name}
+------------------------------
+${transaction.name_customer ? "Pembeli: " + transaction.name_customer : ""}
+${transaction.makanan ? transaction.makanan + " x" + transaction.qty_makanan + " = Rp " + (transaction.harga_satuan_makanan * transaction.qty_makanan).toLocaleString() : ""}
+${transaction.minuman ? transaction.minuman + " x" + transaction.qty_minuman + " = Rp " + (transaction.harga_satuan_minuman * transaction.qty_minuman).toLocaleString() : ""}
+------------------------------
+TOTAL   : Rp ${transaction.total.toLocaleString()}
+------------------------------
+Terima kasih
+Selamat menikmati!
+`;
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setForm((prev) => ({
-            ...prev,
-            [name]:
-                name.includes("qty")
-                    ? Math.max(0, parseInt(value) || 0)
-                    : value,
-        }));
+        const isAndroid = /Android/i.test(navigator.userAgent);
+
+        if (isAndroid) {
+            const encoded = encodeURIComponent(struk);
+            const rawbtUrl = `rawbt:print?text=${encoded}`;
+            window.location.href = rawbtUrl;
+        } else {
+            const receiptHtml = `
+            <html>
+            <head>
+              <title>Struk</title>
+              <style>
+                @media print {
+                  @page { size: 57mm auto; margin: 0; }
+                  body { width: 57mm; font-size: 11px; text-align: center; }
+                }
+                body {
+                  font-family: monospace;
+                  font-size: 11px;
+                  width: 57mm;
+                  text-align: center;
+                  margin: 0;
+                  padding: 4px;
+                }
+              </style>
+            </head>
+            <body>
+              <div><strong>Loket Resto Kalimas</strong></div>
+              <div>Kemuning ngargoyoso / 082316237536</div>
+              <hr/>
+              <div>Tanggal: ${new Date(transaction.created_at).toLocaleString("id-ID")}</div>
+              <div>Kasir: ${auth.user.name}</div>
+              <hr/>
+              ${transaction.name_customer ? `<div>Pembeli: ${transaction.name_customer}</div>` : ""}
+              ${transaction.makanan ? `<div>${transaction.makanan} x${transaction.qty_makanan} @ Rp ${transaction.harga_satuan_makanan.toLocaleString()}</div>` : ""}
+              ${transaction.minuman ? `<div>${transaction.minuman} x${transaction.qty_minuman} @ Rp ${transaction.harga_satuan_minuman.toLocaleString()}</div>` : ""}
+              <div><strong>TOTAL: Rp ${transaction.total.toLocaleString()}</strong></div>
+              <hr/>
+              <div>Terima kasih<br/>Selamat Menikmati!</div>
+            </body>
+            </html>
+            `;
+
+            const w = window.open("", "Print", "width=300,height=600");
+            w.document.open();
+            w.document.write(receiptHtml);
+            w.document.close();
+            w.focus();
+            setTimeout(() => {
+                w.print();
+            }, 300);
+        }
     };
 
-    // Update menuMakanan and menuMinuman with provided items/prices
+    // MENU
     const menuMakanan = {
         "Mie Rebus": 5000,
         "Mie Rebus Telur": 7000,
@@ -83,7 +125,33 @@ export default function Resto({ auth }) {
         "Minuman Sachet": 4000,
     };
 
-    // Ubah showHistorySection agar bisa menerima filter tanggal
+    useEffect(() => {
+        const hargaMakanan = menuMakanan[form.makanan] || 0;
+        const hargaMinuman = menuMinuman[form.minuman] || 0;
+        const totalMakanan = hargaMakanan * form.qty_makanan;
+        const totalMinuman = hargaMinuman * form.qty_minuman;
+        const total = totalMakanan + totalMinuman;
+
+        setForm((prev) => ({
+            ...prev,
+            harga_satuan_makanan: hargaMakanan,
+            harga_satuan_minuman: hargaMinuman,
+            total_makanan: totalMakanan,
+            total_minuman: totalMinuman,
+            total,
+        }));
+    }, [form.makanan, form.minuman, form.qty_makanan, form.qty_minuman]);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setForm((prev) => ({
+            ...prev,
+            [name]: name.includes("qty")
+                ? Math.max(0, parseInt(value) || 0)
+                : value,
+        }));
+    };
+
     const showHistorySection = async (from = fromDate, to = toDate) => {
         try {
             let url = "/dashboard/resto/transactions";
@@ -100,18 +168,15 @@ export default function Resto({ auth }) {
         }
     };
 
-    // Otomatis refresh riwayat saat filter tanggal berubah & saat showHistory true
     useEffect(() => {
         if (showHistory) {
             showHistorySection();
         }
-        // eslint-disable-next-line
     }, [fromDate, toDate, showHistory]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // Validasi: minimal salah satu makanan/minuman dan qty > 0
         const makananValid = form.makanan && form.qty_makanan > 0;
         const minumanValid = form.minuman && form.qty_minuman > 0;
         if (!makananValid && !minumanValid) {
@@ -125,7 +190,16 @@ export default function Resto({ auth }) {
         }
 
         router.post("/resto/store", form, {
-            onSuccess: () => {
+            onSuccess: (page) => {
+                const newTransaction = page.props?.transaction;
+
+                // fallback jika backend tidak mengirim transaction
+                const transactionData = newTransaction || {
+                    ...form,
+                    created_at: new Date(),
+                    name_customer: form.nama,
+                };
+
                 setForm({
                     nama: "",
                     makanan: "",
@@ -137,14 +211,19 @@ export default function Resto({ auth }) {
                     total_makanan: 0,
                     total_minuman: 0,
                     total: 0,
-                }),
-                    Swal.fire({
-                        icon: "success",
-                        title: "Transaksi Berhasil",
-                        text: "Transaksi berhasil disimpan",
-                        confirmButtonColor: "#3085d6",
-                    });
+                });
+
+                Swal.fire({
+                    icon: "success",
+                    title: "Transaksi Berhasil",
+                    text: "Transaksi berhasil disimpan",
+                    confirmButtonColor: "#3085d6",
+                });
+
                 if (showHistory) showHistorySection();
+
+                // CETAK STRUK
+                printReceipt(transactionData);
             },
             onError: () => {
                 Swal.fire({
@@ -169,25 +248,17 @@ export default function Resto({ auth }) {
             cancelButtonText: "Batal",
         });
         if (result.isConfirmed) {
-            Swal.fire({
-                title: "Menghapus...",
-                text: "Silakan tunggu...",
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                },
-            });
-        }
-
-        try {
-            await axios.delete("/dashboard/resto/transactions/delete-all");
-            setTransactions([]); // Clear data setelah hapus
-            Swal.fire("Berhasil!", "Transaksi telah dihapus.", "success");
-            if (showHistory) showHistorySection();
-        } catch (error) {
-            console.error("Gagal menghapus transaksi", error);
+            try {
+                await axios.delete("/dashboard/resto/transactions/delete-all");
+                setTransactions([]);
+                Swal.fire("Berhasil!", "Transaksi telah dihapus.", "success");
+                if (showHistory) showHistorySection();
+            } catch (error) {
+                console.error("Gagal menghapus transaksi", error);
+            }
         }
     };
+
     const deleteTransaction = async (id) => {
         const result = await Swal.fire({
             title: "Yakin ingin menghapus transaksi ini?",
@@ -201,13 +272,10 @@ export default function Resto({ auth }) {
         });
         if (result.isConfirmed) {
             try {
-                await axios.delete(
-                    `/dashboarad/resto/transactions/delete/${id}`
-                );
+                await axios.delete(`/dashboard/resto/transactions/delete/${id}`);
                 setTransactions((prev) =>
                     prev.filter((item) => item.id !== id)
-                ); // update state
-
+                );
                 Swal.fire("Berhasil!", "Transaksi telah dihapus.", "success");
                 if (showHistory) showHistorySection();
             } catch (error) {
@@ -272,43 +340,41 @@ export default function Resto({ auth }) {
     };
 
     // Handler: Simpan Shift & Logout
-   const handleSaveShiftAndLogout = async () => {
-          setClosingShift(true);
-          try {
-              const result = await Swal.fire({
-                  title: "Yakin ingin akhiri shift ?",
-                  text: "Tindakan ini tidak bisa dibatalkan!",
-                  icon: "warning",
-                  showCancelButton: true,
-                  confirmButtonColor: "#d33",
-                  cancelButtonColor: "#3085d6",
-                  confirmButtonText: "Ya, akhiri!",
-                  cancelButtonText: "Batal",
-              });
-              if (result.isConfirmed) {
-                  // Jika perlu, simpan data shift di sini sebelum logout
-                  Swal.fire({
-                      title: "Berhasil",
-                      text: "Shift berhasil disimpan. Anda akan logout.",
-                      icon: "success",
-                      timer: 1500,
-                      showConfirmButton: false,
-                  });
-                  setTimeout(() => {
-                      router.post('/logout');
-                  }, 1500);
-              }
-          } catch (error) {
-              Swal.fire({
-                  icon: "error",
-                  title: "Gagal",
-                  text: "Gagal menyimpan shift atau logout.",
-              });
-          } finally {
-              setClosingShift(false);
-          }
-      };
-  
+    const handleSaveShiftAndLogout = async () => {
+        setClosingShift(true);
+        try {
+            const result = await Swal.fire({
+                title: "Yakin ingin akhiri shift ?",
+                text: "Tindakan ini tidak bisa dibatalkan!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Ya, akhiri!",
+                cancelButtonText: "Batal",
+            });
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: "Berhasil",
+                    text: "Shift berhasil disimpan. Anda akan logout.",
+                    icon: "success",
+                    timer: 1500,
+                    showConfirmButton: false,
+                });
+                setTimeout(() => {
+                    router.post("/logout");
+                }, 1500);
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Gagal",
+                text: "Gagal menyimpan shift atau logout.",
+            });
+        } finally {
+            setClosingShift(false);
+        }
+    };
 
     return (
         <AuthenticatedLayout user={auth.user}>

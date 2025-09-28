@@ -3,19 +3,16 @@ import { Head, useForm, usePage } from "@inertiajs/react";
 import { useEffect, useState, useRef } from "react";
 import Swal from "sweetalert2";
 import axios from "axios";
-
 import { router } from "@inertiajs/react";
 
 export default function Dashboard({ auth }) {
-    const { props } = usePage();
-    const { jenisKendaraan, priceticket, snapToken } = usePage().props;
+    const { jenisKendaraan, priceticket } = usePage().props;
 
-    console.log("snapToken:", snapToken);
     const [transactionHistory, setTransactionHistory] = useState({
         parkingTransactions: [],
         ticketTransactions: [],
     });
-    const [filterCategory, setFilterCategory] = useState("all"); // State for filtering category
+    const [filterCategory, setFilterCategory] = useState("all");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [showShiftSummary, setShowShiftSummary] = useState(false);
@@ -29,13 +26,12 @@ export default function Dashboard({ auth }) {
     });
     const [showTransactionHistory, setShowTransactionHistory] = useState(false);
     const [lastTransaction, setLastTransaction] = useState(null);
-    // Tambahkan ref untuk scroll
     const transactionHistoryRef = useRef(null);
     const shiftSummaryRef = useRef(null);
 
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing } = useForm({
         shift: "1",
-        operator_name: "",
+        operator_name: auth.user.name || "",
         vehicle_type: "",
         price: 0,
         jumlah_tiket: 0,
@@ -43,7 +39,7 @@ export default function Dashboard({ auth }) {
         jam_masuk: new Date().toLocaleTimeString("en-GB", {
             hour: "2-digit",
             minute: "2-digit",
-        }), // Default to current time
+        }),
         jam_keluar: "16:00",
     });
 
@@ -54,14 +50,108 @@ export default function Dashboard({ auth }) {
         setData("jam_masuk", `${hours}:${minutes}`);
     }, []);
 
-    // Batas maksimal jumlah tiket
     const MAX_TIKET = 1000;
 
-    // Hapus pembatas maksimal jumlah tiket
+    // === CETAK STRUK ===
+    const printReceipt = (transaction) => {
+        if (!transaction) return;
+
+        const totalBayar =
+            Number(transaction.price || 0) + Number(transaction.harga_tiket || 0);
+
+        const struk = `
+*** Tiket Parkir ***
+Wisata Kalimas
+------------------------
+Tanggal : ${new Date(transaction.created_at || new Date()).toLocaleString(
+            "id-ID"
+        )}
+Kasir   : ${auth.user.name}
+------------------------
+Jenis Kendaraan : ${
+            transaction.jenis_kendaraan?.namakendaraan || "Jalan Kaki"
+        }
+Biaya Parkir    : Rp ${Number(transaction.price || 0).toLocaleString("id-ID")}
+Jumlah Tiket    : ${transaction.jumlah_tiket}
+Harga Tiket     : Rp ${Number(transaction.harga_tiket || 0).toLocaleString(
+            "id-ID"
+        )}
+------------------------
+TOTAL BAYAR     : Rp ${totalBayar.toLocaleString("id-ID")}
+------------------------
+Terima kasih
+Selamat Berkunjung!
+`;
+
+        const isAndroid = /Android/i.test(navigator.userAgent);
+
+        if (isAndroid) {
+            const encoded = encodeURIComponent(struk);
+            const rawbtUrl = `rawbt:print?text=${encoded}`;
+            window.location.href = rawbtUrl;
+        } else {
+            const receiptHtml = `
+            <html>
+            <head>
+              <title>Struk Parkir || Tiket</title>
+              <style>
+                @media print {
+                  @page { size: 57mm auto; margin: 0; }
+                  body { width: 57mm; font-size: 11px; text-align: center; }
+                }
+                body {
+                  font-family: monospace;
+                  font-size: 11px;
+                  width: 57mm;
+                  text-align: center;
+                  margin: 0;
+                  padding: 4px;
+                }
+              </style>
+            </head>
+            <body>
+              <div><strong>Tiket Parkir</strong></div>
+              <div>Wisata Kalimas</div>
+              <hr/>
+              <div>Tanggal: ${new Date(
+                  transaction.created_at || new Date()
+              ).toLocaleString("id-ID")}</div>
+              <div>Kasir: ${auth.user.name}</div>
+              <hr/>
+              <div>Kendaraan: ${
+                  transaction.jenis_kendaraan?.namakendaraan || "Jalan Kaki"
+              }</div>
+              <div>Biaya Parkir: Rp ${Number(
+                  transaction.price || 0
+              ).toLocaleString("id-ID")}</div>
+              <div>Jumlah Tiket: ${transaction.jumlah_tiket}</div>
+              <div>Harga Tiket: Rp ${Number(
+                  transaction.harga_tiket || 0
+              ).toLocaleString("id-ID")}</div>
+              <div><strong>TOTAL: Rp ${totalBayar.toLocaleString(
+                  "id-ID"
+              )}</strong></div>
+              <hr/>
+              <div>Terima kasih<br/>Selamat Berkunjung!</div>
+            </body>
+            </html>
+            `;
+
+            const w = window.open("", "Print", "width=300,height=600");
+            w.document.open();
+            w.document.write(receiptHtml);
+            w.document.close();
+            w.focus();
+            setTimeout(() => {
+                w.print();
+            }, 300);
+        }
+    };
+
+    // === HANDLE INPUT ===
     const handleChange = (e) => {
         const { name, value } = e.target;
         if (name === "vehicle_type") {
-            // Jika tidak dipilih atau value 0, reset price dan jumlah kendaraan
             if (value === "0") {
                 setData({
                     ...data,
@@ -69,13 +159,12 @@ export default function Dashboard({ auth }) {
                     price: 0,
                 });
             } else {
-                // Cari kendaraan berdasarkan id
                 const selectedVehicle = jenisKendaraan.find(
                     (item) => item.id == value
                 );
                 setData({
                     ...data,
-                    vehicle_type: value, // id kendaraan
+                    vehicle_type: value,
                     price: selectedVehicle ? selectedVehicle.price : 0,
                 });
             }
@@ -97,6 +186,7 @@ export default function Dashboard({ auth }) {
         }
     };
 
+    // === HANDLE SUBMIT ===
     const handleSubmit = (e) => {
         e.preventDefault();
         post("/dashboard/store", {
@@ -105,179 +195,66 @@ export default function Dashboard({ auth }) {
                     icon: "success",
                     title: "Berhasil",
                     text: "Data berhasil disimpan.",
-                    confirmButtonColor: "#3085d6",
-                }),
-                    // Reset form fields
-                    setData({
-                        shift: data.shift,
-                        operator_name: "",
-                        vehicle_type: "",
-                        price: 0,
-                        jumlah_tiket: 0,
-                        harga_tiket: 0,
-                        jam_masuk: new Date().toLocaleTimeString("en-GB", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                        }),
-                        jam_keluar: "16:00",
-                    });
-                // Ambil transaksi terakhir dari response jika ada
-                if (page && page.props && page.props.lastTransaction) {
-                    setLastTransaction(page.props.lastTransaction);
-                } else {
-                    // fallback: fetch ulang transaksi dan ambil paling akhir
-                    fetchTransactionHistory().then(() => {
-                        const all = [
-                            ...(transactionHistory.parkingTransactions || []),
-                            ...(transactionHistory.ticketTransactions || []),
-                        ];
-                        if (all.length > 0) {
-                            setLastTransaction(all[all.length - 1]);
-                        }
-                    });
-                }
+                });
+
+                const newTransaction = page?.props?.lastTransaction;
+                const transactionData = newTransaction || {
+                    ...data,
+                    created_at: new Date(),
+                };
+
+                // reset form
+                setData({
+                    shift: data.shift,
+                    operator_name: auth.user.name,
+                    vehicle_type: "",
+                    price: 0,
+                    jumlah_tiket: 0,
+                    harga_tiket: 0,
+                    jam_masuk: new Date().toLocaleTimeString("en-GB", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                    }),
+                    jam_keluar: "16:00",
+                });
+
+                // cetak struk
+                printReceipt(transactionData);
+
+                // refresh transaksi
+                fetchTransactionHistory();
             },
             onError: () => {
                 Swal.fire({
                     icon: "error",
                     title: "Gagal",
                     text: "Terjadi kesalahan saat menyimpan data.",
-                    confirmButtonColor: "#3085d6",
                 });
             },
         });
     };
 
+    // === FETCH TRANSAKSI (fungsi lain tetap sama) ===
     const fetchTransactionHistory = async () => {
         try {
             const response = await axios.get("/dashboard/transaction-history");
             const parkingTransactions = response.data.parkingTransactions || [];
             const ticketTransactions = response.data.ticketTransactions || [];
             setTransactionHistory({ parkingTransactions, ticketTransactions });
-
-            console.log(response.data);
         } catch (error) {
             console.error("Error fetching transaction history:", error);
         }
     };
 
-    const filteredTransactions = () => {
-        const transactionsByDate = filterTransactionsByDate();
-
-        return {
-            parkingTransactions:
-                filterCategory === "all" || filterCategory === "parking"
-                    ? transactionsByDate.parkingTransactions || []
-                    : [],
-            ticketTransactions:
-                filterCategory === "all" || filterCategory === "ticket"
-                    ? transactionsByDate.ticketTransactions || []
-                    : [],
-        };
-    };
-
-    const filterTransactionsByDate = () => {
-        if (!startDate || !endDate) return transactionHistory;
-
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-        end.setHours(23, 59, 59, 999); // Include the entire end date
-
-        const filteredParking = transactionHistory.parkingTransactions.filter(
-            (transaction) => {
-                const transactionDate = new Date(transaction.created_at);
-                return transactionDate >= start && transactionDate <= end;
-            }
-        );
-
-        const filteredTickets = transactionHistory.ticketTransactions.filter(
-            (transaction) => {
-                const transactionDate = new Date(transaction.created_at);
-                return transactionDate >= start && transactionDate <= end;
-            }
-        );
-
-        return {
-            parkingTransactions: filteredParking,
-            ticketTransactions: filteredTickets,
-        };
-    };
-
-    const deleteTransaction = async (type, id) => {
-        try {
-            const url =
-                type === "Parking"
-                    ? `/dashboard/parking/${id}`
-                    : `/dashboard/ticket/${id}`;
-            await axios.delete(url);
-            Swal.fire({
-                icon: "success",
-                title: "Berhasil",
-                text: "Data berhasil dihapus.",
-            });
-            fetchTransactionHistory(); // Refresh the transaction history
-        } catch (error) {
-            console.error("Error deleting transaction:", error);
-            Swal.fire({
-                icon: "error",
-                title: "Gagal",
-                text: "Terjadi kesalahan saat menghapus data.",
-            });
-        }
-    };
-
-    const deleteAllTransactions = async () => {
-        const result = await Swal.fire({
-            title: "Yakin ingin menghapus Semua transaksi ini?",
-            text: "Tindakan ini tidak bisa dibatalkan!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-            confirmButtonText: "Ya, hapus!",
-            cancelButtonText: "Batal",
-        });
-        if (result.isConfirmed) {
-            Swal.fire({
-                title: "Menghapus...",
-                text: "Silakan tunggu...",
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                },
-            });
-            try {
-                await axios.delete("/dashboard/transactions/delete-all");
-                Swal.fire({
-                    icon: "success",
-                    title: "Berhasil",
-                    text: "Semua transaksi berhasil dihapus.",
-                });
-                fetchTransactionHistory(); // Refresh the transaction history
-            } catch (error) {
-                console.error("Error deleting all transactions:", error);
-                Swal.fire({
-                    icon: "error",
-                    title: "Gagal",
-                    text: "Terjadi kesalahan saat menghapus semua transaksi.",
-                });
-            }
-        }
-    };
-
-    // Fetch transaction history on mount and after changes
     useEffect(() => {
         fetchTransactionHistory();
     }, []);
 
-    // Tambahkan effect agar data diperbarui setelah submit
     useEffect(() => {
         if (!processing) {
             fetchTransactionHistory();
         }
-        // eslint-disable-next-line
     }, [processing]);
-
     // Helper: Filter transaksi hari ini
     const getTodayTransactions = () => {
         const today = new Date();
@@ -492,7 +469,7 @@ export default function Dashboard({ auth }) {
                                         className="w-full px-4 py-2 text-gray-800 bg-gray-50 border border-gray-300   shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     >
                                         <option value= "0">
-                                            Pilih Kendaraan
+                                            Jalan Kaki
                                         </option>
                                         {jenisKendaraan.map((item) => (
                                             <option

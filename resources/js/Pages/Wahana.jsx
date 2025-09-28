@@ -62,7 +62,7 @@ const Wahana = ({ auth }) => {
 
   // isi struk dalam bentuk teks biasa
   const struk = `
-Wisata Kalima Loket Resto
+Wisata Kalima Loket Wahana
 kalimas kemuning ngargoyoso / 082316237536
 ------------------------------
 Tanggal : ${new Date(transaction.created_at).toLocaleString("id-ID")}
@@ -111,8 +111,8 @@ Selamat berkunjung!
       </style>
     </head>
     <body>
-      <div><strong>Nama Tempat Anda</strong></div>
-      <div>Alamat / Telp</div>
+      <div><strong>Loket Wahana kalimas </strong></div>
+      <div>Kemuning ngargoyoso / 082316237536</div>
       <hr/>
       <div>Tanggal: ${new Date(transaction.created_at).toLocaleString("id-ID")}</div>
       <div>Kasir: ${auth.user.name}</div>
