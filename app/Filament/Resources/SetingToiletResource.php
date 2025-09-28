@@ -18,17 +18,17 @@ class SetingToiletResource extends Resource
     protected static ?string $model = SetingToilet::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-cog';
-
+    protected static bool $shouldRegisterNavigation = false;
 
     protected static ?string $navigationGroup = 'Pengaturan';
 
     protected static ?string $modelLabel = "Harga Toilet";
 
-     public static function canViewAny(): bool
+    public static function canViewAny(): bool
     {
         return auth()->user()?->role === 'admin';
     }
-    
+
     public static function form(Form $form): Form
     {
         return $form
@@ -41,7 +41,7 @@ class SetingToiletResource extends Resource
             ]);
     }
 
-     public static function canCreate(): bool
+    public static function canCreate(): bool
     {
         // Hanya tampilkan tombol create jika belum ada data
         return \App\Models\SetingToilet::count() < 1;
@@ -51,7 +51,7 @@ class SetingToiletResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('price')
-                   ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state, 0, ',', '.'))
+                    ->formatStateUsing(fn($state) => 'Rp ' . number_format($state, 0, ',', '.'))
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -77,14 +77,14 @@ class SetingToiletResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -92,5 +92,5 @@ class SetingToiletResource extends Resource
             'create' => Pages\CreateSetingToilet::route('/create'),
             'edit' => Pages\EditSetingToilet::route('/{record}/edit'),
         ];
-    }    
+    }
 }

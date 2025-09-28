@@ -31,15 +31,9 @@ export default function Resto({ auth }) {
     const historyRef = useRef(null);
 
     useEffect(() => {
-        // Jika harga satuan diisi manual, gunakan itu, jika tidak, fallback ke menu
-        const hargaMakanan =
-            form.harga_satuan_makanan !== 0
-                ? Number(form.harga_satuan_makanan)
-                : menuMakanan[form.makanan] || 0;
-        const hargaMinuman =
-            form.harga_satuan_minuman !== 0
-                ? Number(form.harga_satuan_minuman)
-                : menuMinuman[form.minuman] || 0;
+        // Harga satuan diambil dari menu, tidak bisa diisi manual
+        const hargaMakanan = menuMakanan[form.makanan] || 0;
+        const hargaMinuman = menuMinuman[form.minuman] || 0;
         const totalMakanan = hargaMakanan * form.qty_makanan;
         const totalMinuman = hargaMinuman * form.qty_minuman;
         const total = totalMakanan + totalMinuman;
@@ -57,8 +51,6 @@ export default function Resto({ auth }) {
         form.minuman,
         form.qty_makanan,
         form.qty_minuman,
-        form.harga_satuan_makanan,
-        form.harga_satuan_minuman,
     ]);
 
     const handleChange = (e) => {
@@ -66,23 +58,29 @@ export default function Resto({ auth }) {
         setForm((prev) => ({
             ...prev,
             [name]:
-                name.includes("qty") || name.includes("harga_satuan")
+                name.includes("qty")
                     ? Math.max(0, parseInt(value) || 0)
                     : value,
         }));
     };
 
+    // Update menuMakanan and menuMinuman with provided items/prices
     const menuMakanan = {
-        "Ayam Geprek Nasi": 10000,
-        "Lele Bakar Nasi": 13000,
-        "Mie Rebus Telor": 7000,
-        "Mie Goreng Telor": 7000,
+        "Mie Rebus": 5000,
+        "Mie Rebus Telur": 7000,
+        "Mie Goreng": 5000,
+        "Mie Goreng Telur": 7000,
+        "Soto Ayam": 6000,
+        "Camilan Ringan": 1000,
     };
 
     const menuMinuman = {
-        "Es Teh": 3000,
-        "Es Jeruk": 4000,
-        "Es Kopi": 6000,
+        "Teh Tawar": 2000,
+        "Teh Manis": 3000,
+        "Lemon Tea": 5000,
+        "Susu": 4000,
+        "Kopi": 3000,
+        "Minuman Sachet": 4000,
     };
 
     // Ubah showHistorySection agar bisa menerima filter tanggal
@@ -112,6 +110,19 @@ export default function Resto({ auth }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        // Validasi: minimal salah satu makanan/minuman dan qty > 0
+        const makananValid = form.makanan && form.qty_makanan > 0;
+        const minumanValid = form.minuman && form.qty_minuman > 0;
+        if (!makananValid && !minumanValid) {
+            Swal.fire({
+                icon: "warning",
+                title: "Input tidak valid",
+                text: "Isi minimal salah satu makanan atau minuman beserta jumlahnya.",
+                confirmButtonColor: "#d33",
+            });
+            return;
+        }
 
         router.post("/resto/store", form, {
             onSuccess: () => {
@@ -329,22 +340,28 @@ export default function Resto({ auth }) {
                             />
                         </div>
 
-                        {/* Pilih Makanan (ubah jadi input) */}
+                        {/* Pilih Makanan (select) */}
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                Makanan
+                                Nama Makanan
                             </label>
-                            <input
-                                type="text"
+                            <select
                                 name="makanan"
                                 value={form.makanan}
                                 onChange={handleChange}
-                                placeholder="Masukkan nama makanan"
-                                className="w-full px-4 py-3 border border-gray-300   shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                            />
+                                
+                                className="w-full px-4 py-3 border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            >
+                                <option value="">Pilih Makanan</option>
+                                {Object.entries(menuMakanan).map(([nama, harga]) => (
+                                    <option key={nama} value={nama}>
+                                        {nama} - Rp {harga.toLocaleString()}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
 
-                        {/* Harga Satuan Makanan */}
+                        {/* Harga Satuan Makanan (read-only) */}
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1">
                                 Harga Satuan Makanan
@@ -353,10 +370,8 @@ export default function Resto({ auth }) {
                                 type="number"
                                 name="harga_satuan_makanan"
                                 value={form.harga_satuan_makanan}
-                                onChange={handleChange}
-                                min={0}
-                                placeholder="0"
-                                className="w-full px-4 py-3 border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                readOnly
+                                className="w-full px-4 py-3 border border-gray-300 shadow-sm bg-gray-100"
                             />
                         </div>
 
@@ -376,22 +391,28 @@ export default function Resto({ auth }) {
                             />
                         </div>
 
-                        {/* Pilih Minuman (ubah jadi input) */}
+                        {/* Pilih Minuman (select) */}
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                Minuman
+                                Nama Minuman
                             </label>
-                            <input
-                                type="text"
+                            <select
                                 name="minuman"
                                 value={form.minuman}
                                 onChange={handleChange}
-                                placeholder="Masukkan nama minuman"
-                                className="w-full px-4 py-3 border border-gray-300   shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                            />
+                                
+                                className="w-full px-4 py-3 border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            >
+                                <option value="">Pilih Minuman</option>
+                                {Object.entries(menuMinuman).map(([nama, harga]) => (
+                                    <option key={nama} value={nama}>
+                                        {nama} - Rp {harga.toLocaleString()}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
 
-                        {/* Harga Satuan Minuman */}
+                        {/* Harga Satuan Minuman (read-only) */}
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1">
                                 Harga Satuan Minuman
@@ -400,10 +421,8 @@ export default function Resto({ auth }) {
                                 type="number"
                                 name="harga_satuan_minuman"
                                 value={form.harga_satuan_minuman}
-                                onChange={handleChange}
-                                min={0}
-                                placeholder="0"
-                                className="w-full px-4 py-3 border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                readOnly
+                                className="w-full px-4 py-3 border border-gray-300 shadow-sm bg-gray-100"
                             />
                         </div>
 
@@ -581,6 +600,13 @@ export default function Resto({ auth }) {
                                         className="border p-2  "
                                     />
                                 </div>
+                            </div>
+                            {/* Total Pendapatan berdasarkan filter tanggal */}
+                            <div className="mb-4 bg-blue-50 border-l-4 border-blue-400 p-3 font-bold text-blue-700">
+                                Total Pendapatan: Rp{" "}
+                                {transactions
+                                    .reduce((sum, t) => sum + Number(t.total || 0), 0)
+                                    .toLocaleString("id-ID")}
                             </div>
                             {/* Daftar Transaksi */}
                             <ul className="space-y-2 max-h-64 overflow-y-auto">

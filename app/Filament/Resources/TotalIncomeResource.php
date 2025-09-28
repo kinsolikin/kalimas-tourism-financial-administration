@@ -47,15 +47,15 @@ class TotalIncomeResource extends Resource
         return $table
             ->query(TotalIncome::with(['total_expanse', 'net_income']))
             ->columns([
-                TextColumn::make('total_parking_details')->label('Total Parkir')->sortable()->searchable(),
-                TextColumn::make('total_ticket_details')->label('Total Tiket')->sortable()->searchable(),
-                TextColumn::make('total_bantuan_details')->label('Total Bantuan')->sortable()->searchable(),
-                TextColumn::make('total_resto_details')->label('Total Resto')->sortable()->searchable(),
-                TextColumn::make('total_toilet_details')->label('Total Toilet')->sortable()->searchable(),
-                TextColumn::make('total_wahana_details')->label('Total Wahana')->sortable()->searchable(),
-                TextColumn::make('total_expanse.total_amount')->label('Total Pengeluaran')->sortable()->searchable(),
-                TextColumn::make('total_amount')->label('Total Pendapatan Kotor')->sortable()->searchable(),
-                TextColumn::make('net_income.net_income')
+                TextColumn::make('total_parking_details')->label('Total Parkir')->sortable()->searchable()->money('IDR', true),
+                TextColumn::make('total_ticket_details')->label('Total Tiket')->sortable()->searchable()->money('IDR', true),
+                TextColumn::make('total_bantuan_details')->label('Total Bantuan')->sortable()->searchable()->money('IDR', true),
+                TextColumn::make('total_resto_details')->label('Total Resto')->sortable()->searchable()->money('IDR', true),
+                TextColumn::make('total_toilet_details')->label('Total Toilet')->sortable()->searchable()->money('IDR', true),
+                TextColumn::make('total_wahana_details')->label('Total Wahana')->sortable()->searchable()->money('IDR', true),
+                TextColumn::make('total_expanse.total_amount')->label('Total Pengeluaran')->sortable()->searchable()->money('IDR', true),
+                TextColumn::make('total_amount')->label('Total Pendapatan Kotor')->sortable()->searchable()->money('IDR', true),
+                TextColumn::make('net_income.net_income')->money('IDR', true)
                     ->label('Total Pendapatan Bersih')
                     ->sortable()
                     ->searchable()
@@ -64,6 +64,10 @@ class TotalIncomeResource extends Resource
                             ->label('Laba Total')
                             ->money('idr', true),
                     ]),
+
+
+                TextColumn::make('created_at')->date('d M Y')->label('Tanggal')->sortable()->searchable(),
+
             ])
             ->headerActions([
                 Action::make('Export')
@@ -110,11 +114,23 @@ class TotalIncomeResource extends Resource
                             ->get();
 
                         if ($format === 'pdf') {
+                            // Hitung total laba bersih
+                            $totalLabaBersih = 0;
+                            foreach ($records as $row) {
+                                $netIncome  = optional($row->net_income)->net_income ?? 0;
+                                $expanse    = $row->total_expanse->sum('total_amount') ?? 0;
+                                $labaBersih = $netIncome - $expanse;
+                                $totalLabaBersih += $labaBersih;
+                            }
+
+                            // Buat PDF
                             $pdf = Pdf::loadView('exports.total-income-pdf', [
                                 'records' => $records,
                                 'startDate' => $startDate->format('Y-m-d'),
                                 'endDate' => $endDate->format('Y-m-d'),
+                                'totalLabaBersih' => $totalLabaBersih, // lempar ke view
                             ]);
+
                             $filePath = storage_path('app/TotalPemasukanKalimas.pdf');
                             $pdf->save($filePath);
 

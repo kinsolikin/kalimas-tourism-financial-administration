@@ -62,10 +62,10 @@ class TotalIncomeObserver
         NetIncome::updateOrCreate(
             [
                 'created_at' => now()->toDateString(),
-                'user_id'    => $totalIncome->user_id,
+                'total_income_id' => $totalIncome->id,   // langsung dari instance
             ],
             [
-                'total_income_id' => $totalIncome->id,   // langsung dari instance
+                'user_id'    => $totalIncome->user_id,
                 'total_income'    => $totalIncomeToday,
                 'total_expense'   => $totalExpenseToday,
             ]

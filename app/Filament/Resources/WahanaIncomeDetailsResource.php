@@ -15,6 +15,10 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Hidden;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Mail;
+use Filament\Tables\Actions\Action;
+use Maatwebsite\Excel\Facades\Excel;
 
 use App\Models\Wahana_income_details;
 
@@ -96,9 +100,83 @@ class WahanaIncomeDetailsResource extends Resource
     }
     public static function table(Table $table): Table
     {
-
         return $table
+            ->headerActions([
+                Action::make('Export')
+                    ->form([
+                        \Filament\Forms\Components\DatePicker::make('start_date')
+                            ->label('Tanggal Mulai')
+                            ->required()
+                            ->maxDate(now()),
+                        \Filament\Forms\Components\DatePicker::make('end_date')
+                            ->label('Tanggal Selesai')
+                            ->required()
+                            ->maxDate(now()),
+                        \Filament\Forms\Components\Select::make('format')
+                            ->label('Format')
+                            ->options(['excel' => 'Excel', 'pdf' => 'PDF'])
+                            ->default('excel')
+                            ->required(),
+                        \Filament\Forms\Components\TextInput::make('email')
+                            ->label('Kirim ke Email (Opsional)')
+                            ->email()
+                            ->placeholder('contoh@email.com'),
+                    ])
+                    ->action(function (array $data) {
+                        $startDate = \Carbon\Carbon::parse($data['start_date'])->startOfDay();
+                        $endDate   = \Carbon\Carbon::parse($data['end_date'])->endOfDay();
+                        $format    = $data['format'] ?? 'excel';
+                        $email     = $data['email'] ?? null;
 
+                        if ($endDate->toDateString() > now()->toDateString()) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Error')
+                                ->body('Tanggal selesai tidak boleh melebihi hari ini.')
+                                ->danger()
+                                ->send();
+                            return;
+                        }
+
+                        $records = \App\Models\Wahana_income_details::with('jenisWahana')
+                            ->whereBetween('created_at', [$startDate, $endDate])
+                            ->get();
+
+                        if ($format === 'pdf') {
+                            $totalLabaWahana = $records->sum('total');
+                            $pdf = Pdf::loadView('exports.wahana-income-details-pdf', [
+                                'records' => $records,
+                                'startDate' => $startDate->format('Y-m-d'),
+                                'endDate' => $endDate->format('Y-m-d'),
+                                'totalLabaWahana' => $totalLabaWahana,
+                            ]);
+                            $filePath = storage_path('app/WahanaPendapatanKalimas.pdf');
+                            $pdf->save($filePath);
+
+                            if ($email) {
+                                Mail::to($email)->send(new \App\Mail\ExportEmail($filePath, 'WahanaPendapatanKalimas.pdf'));
+                            }
+
+                            return response()->download($filePath)->deleteFileAfterSend();
+                        } else {
+                            $fileName = 'WahanaPendapatanKalimas.xlsx';
+                            Excel::store(new \App\Exports\WahanaIncomeDetailsExport($startDate, $endDate), $fileName);
+                            $filePath = storage_path('app/' . $fileName);
+
+                            if ($email) {
+                                Mail::to($email)->send(new \App\Mail\ExportEmail($filePath, $fileName));
+                            }
+
+                            \Filament\Notifications\Notification::make()
+                                ->title('Sukses!')
+                                ->body('File Excel berhasil dibuat' . ($email ? ' dan dikirim ke email.' : '.'))
+                                ->success()
+                                ->send();
+
+                            return response()->download($filePath)->deleteFileAfterSend();
+                        }
+                    })
+                    ->icon('heroicon-o-arrow-down-tray'),
+            ])
             ->columns([
                 TextColumn::make('jenisWahana.jeniswahana')
                     ->label('Nama Wahana')->searchable()
@@ -114,9 +192,11 @@ class WahanaIncomeDetailsResource extends Resource
                     ->sortable()
                     ->summarize([
                         \Filament\Tables\Columns\Summarizers\Sum::make()
-                            ->label('Laba Total')
+                            ->label('Total Laba Wahana')
                             ->money('idr', true),
                     ]),
+                TextColumn::make('created_at')->date('d M Y')->label('Tanggal')->sortable()->searchable(),
+
             ])
             ->filters([
             \Filament\Tables\Filters\Filter::make('created_at')

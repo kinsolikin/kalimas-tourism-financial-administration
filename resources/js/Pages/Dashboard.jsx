@@ -54,6 +54,10 @@ export default function Dashboard({ auth }) {
         setData("jam_masuk", `${hours}:${minutes}`);
     }, []);
 
+    // Batas maksimal jumlah tiket
+    const MAX_TIKET = 1000;
+
+    // Hapus pembatas maksimal jumlah tiket
     const handleChange = (e) => {
         const { name, value } = e.target;
         if (name === "vehicle_type") {
@@ -76,12 +80,14 @@ export default function Dashboard({ auth }) {
                 });
             }
         } else if (name === "jumlah_tiket") {
-            // Gunakan harga tiket dari props priceticket
+            let jumlah = Number(value);
+            if (jumlah < 0) jumlah = 0;
+            if (jumlah > MAX_TIKET) jumlah = MAX_TIKET;
             const hargaTiket = Number(priceticket);
             setData({
                 ...data,
-                jumlah_tiket: value,
-                harga_tiket: value * hargaTiket,
+                jumlah_tiket: jumlah,
+                harga_tiket: jumlah * hargaTiket,
             });
         } else {
             setData({
@@ -386,6 +392,24 @@ export default function Dashboard({ auth }) {
         });
     };
 
+    // Hitung total pemasukan dari hasil filter
+    const getFilteredTotals = () => {
+        const filtered = filteredTransactions();
+        const totalParking = filtered.parkingTransactions.reduce(
+            (sum, t) => sum + Number(t.total || 0),
+            0
+        );
+        const totalTicket = filtered.ticketTransactions.reduce(
+            (sum, t) => sum + Number(t.total || 0),
+            0
+        );
+        return {
+            totalParking,
+            totalTicket,
+            totalAll: totalParking + totalTicket,
+        };
+    };
+
     // For example trigger on button clicked, or any time you need
 
     return (
@@ -503,9 +527,15 @@ export default function Dashboard({ auth }) {
                                         value={data.jumlah_tiket}
                                         onChange={handleChange}
                                         min="0"
+                                        max={MAX_TIKET}
                                         placeholder="Masukkan jumlah tiket"
                                         className="w-full px-4 py-2 text-gray-800 bg-gray-50 border border-gray-300   shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
+                                    {data.jumlah_tiket >= MAX_TIKET && (
+                                        <span className="text-red-600 text-xs">
+                                            Maksimal {MAX_TIKET} tiket per transaksi.
+                                        </span>
+                                    )}
                                 </div>
 
                                 {/* Jam Masuk */}
@@ -614,8 +644,8 @@ export default function Dashboard({ auth }) {
                                     <p className="text-base font-semibold text-gray-700">
                                         Jumlah Tiket
                                     </p>
-                                    <p className="text-xl font-bold text-blue-600">
-                                        {data.jumlah_tiket}
+                                    <p className="text-xl font-bold text-blue-600 break-words">
+                                        {Number(data.jumlah_tiket).toLocaleString("id-ID")}
                                     </p>
                                 </div>
 
@@ -624,7 +654,7 @@ export default function Dashboard({ auth }) {
                                     <p className="text-lg font-bold text-gray-900 uppercase">
                                         Total Pembayaran
                                     </p>
-                                    <p className="text-2xl font-extrabold text-green-600">
+                                    <p className="text-2xl font-extrabold text-green-600 break-words">
                                         {(
                                             Number(data.price) +
                                             Number(data.harga_tiket)
@@ -632,6 +662,7 @@ export default function Dashboard({ auth }) {
                                             style: "currency",
                                             currency: "IDR",
                                             minimumFractionDigits: 0,
+                                            maximumFractionDigits: 0,
                                         })}
                                     </p>
                                 </div>
@@ -669,6 +700,48 @@ export default function Dashboard({ auth }) {
                                 <h3 className="text-lg font-bold mb-4 text-center md:text-left">
                                     Riwayat Transaksi
                                 </h3>
+                                {/* Total pemasukan pada rentang tanggal */}
+                                <div className="mb-6 bg-blue-50 border-l-4 border-blue-400 p-4">
+                                    <p className="font-semibold text-blue-700">
+                                        Total Pemasukan Parkir: Rp{" "}
+                                        {getFilteredTotals().totalParking.toLocaleString("id-ID")}
+                                    </p>
+                                    <p className="font-semibold text-green-700">
+                                        Total Pemasukan Tiket: Rp{" "}
+                                        {getFilteredTotals().totalTicket.toLocaleString("id-ID")}
+                                    </p>
+                                    <p className="font-bold text-gray-900">
+                                        Total Semua: Rp{" "}
+                                        {getFilteredTotals().totalAll.toLocaleString("id-ID")}
+                                    </p>
+                                    {/* Tambahan: Total pendapatan berdasarkan filter tanggal */}
+                                    <p className="font-bold text-indigo-700 mt-2">
+                                        Total Pendapatan Hari Ini / Filter: Rp{" "}
+                                        {getFilteredTotals().totalAll.toLocaleString("id-ID")}
+                                    </p>
+                                    {/* opsional: info jumlah transaksi hari ini */}
+                                    {/* <p className="text-gray-700">
+                                        Jumlah Transaksi Parkir:{" "}
+                                        {
+                                            transactionHistory.parkingTransactions.filter(t => {
+                                                const d = new Date(t.created_at);
+                                                const start = new Date(startDate);
+                                                const end = new Date(endDate);
+                                                end.setHours(23, 59, 59, 999);
+                                                return d >= start && d <= end;
+                                            }).length
+                                        } | Jumlah Transaksi Tiket:{" "}
+                                        {
+                                            transactionHistory.ticketTransactions.filter(t => {
+                                                const d = new Date(t.created_at);
+                                                const start = new Date(startDate);
+                                                const end = new Date(endDate);
+                                                end.setHours(23, 59, 59, 999);
+                                                return d >= start && d <= end;
+                                            }).length
+                                        }
+                                    </p> */}
+                                </div>
                                 {/* Date Filter Inputs */}
                                 <div className="flex flex-col md:flex-row justify-between items-center mb-6 space-y-4 md:space-y-0">
                                     <div className="w-full md:w-1/2 pr-2">

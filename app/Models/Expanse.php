@@ -31,4 +31,9 @@ class Expanse extends Model
         return $this->hasOne(Expanse_Mendadak::class);
     }
 
+    public function kategori()
+    {
+        return $this->belongsTo(\App\Models\Expanse_category::class, 'expanse_category_id');
+    }
+
 }

@@ -17,6 +17,10 @@ use Filament\Tables\Columns\TextColumn;
 use Illuminate\Contracts\Support\Htmlable;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Mail;
+use Filament\Tables\Actions\Action;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TicketIncomeDetailsResource extends Resource
 {
@@ -98,6 +102,80 @@ class TicketIncomeDetailsResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->headerActions([
+                Action::make('Export')
+                    ->form([
+                        \Filament\Forms\Components\DatePicker::make('start_date')
+                            ->label('Tanggal Mulai')
+                            ->required()
+                            ->maxDate(now()),
+                        \Filament\Forms\Components\DatePicker::make('end_date')
+                            ->label('Tanggal Selesai')
+                            ->required()
+                            ->maxDate(now()),
+                        \Filament\Forms\Components\Select::make('format')
+                            ->label('Format')
+                            ->options(['excel' => 'Excel', 'pdf' => 'PDF'])
+                            ->default('excel')
+                            ->required(),
+                        \Filament\Forms\Components\TextInput::make('email')
+                            ->label('Kirim ke Email (Opsional)')
+                            ->email()
+                            ->placeholder('contoh@email.com'),
+                    ])
+                    ->action(function (array $data) {
+                        $startDate = \Carbon\Carbon::parse($data['start_date'])->startOfDay();
+                        $endDate   = \Carbon\Carbon::parse($data['end_date'])->endOfDay();
+                        $format    = $data['format'] ?? 'excel';
+                        $email     = $data['email'] ?? null;
+
+                        if ($endDate->toDateString() > now()->toDateString()) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Error')
+                                ->body('Tanggal selesai tidak boleh melebihi hari ini.')
+                                ->danger()
+                                ->send();
+                            return;
+                        }
+
+                        $records = \App\Models\Ticket_income_details::whereBetween('created_at', [$startDate, $endDate])->get();
+
+                        if ($format === 'pdf') {
+                            $totalLabaTiket = $records->sum('total');
+                            $pdf = Pdf::loadView('exports.ticket-income-details-pdf', [
+                                'records' => $records,
+                                'startDate' => $startDate->format('Y-m-d'),
+                                'endDate' => $endDate->format('Y-m-d'),
+                                'totalLabaTiket' => $totalLabaTiket,
+                            ]);
+                            $filePath = storage_path('app/TiketPendapatanKalimas.pdf');
+                            $pdf->save($filePath);
+
+                            if ($email) {
+                                Mail::to($email)->send(new \App\Mail\ExportEmail($filePath, 'TiketPendapatanKalimas.pdf'));
+                            }
+
+                            return response()->download($filePath)->deleteFileAfterSend();
+                        } else {
+                            $fileName = 'TiketPendapatanKalimas.xlsx';
+                            Excel::store(new \App\Exports\TicketIncomeDetailsExport($startDate, $endDate), $fileName);
+                            $filePath = storage_path('app/' . $fileName);
+
+                            if ($email) {
+                                Mail::to($email)->send(new \App\Mail\ExportEmail($filePath, $fileName));
+                            }
+
+                            \Filament\Notifications\Notification::make()
+                                ->title('Sukses!')
+                                ->body('File Excel berhasil dibuat' . ($email ? ' dan dikirim ke email.' : '.'))
+                                ->success()
+                                ->send();
+
+                            return response()->download($filePath)->deleteFileAfterSend();
+                        }
+                    })
+                    ->icon('heroicon-o-arrow-down-tray'),
+            ])
             ->columns([
                 TextColumn::make('jumlah_orang')
                     ->label('Jumlah Orang')->searchable()
@@ -110,9 +188,10 @@ class TicketIncomeDetailsResource extends Resource
                     ->sortable()
                     ->summarize([
                         \Filament\Tables\Columns\Summarizers\Sum::make()
-                            ->label('Laba Total')
+                            ->label('Total Laba Tiket')
                             ->money('idr', true),
                     ]),
+                TextColumn::make('created_at')->date('d M Y')->label('Tanggal')->sortable()->searchable(),
             ])
            ->filters([
             \Filament\Tables\Filters\Filter::make('created_at')
@@ -144,7 +223,8 @@ class TicketIncomeDetailsResource extends Resource
             ])
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
-            ]);
+            ])
+            ;
     }
 
     public static function getRelations(): array

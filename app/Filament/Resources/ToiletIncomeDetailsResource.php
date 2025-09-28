@@ -29,6 +29,8 @@ class ToiletIncomeDetailsResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
+      protected static bool $shouldRegisterNavigation = false;
+      
      public static function canViewAny(): bool
     {
         return auth()->user()?->role === 'admin';
@@ -111,9 +113,11 @@ class ToiletIncomeDetailsResource extends Resource
                     ->sortable()
                     ->summarize([
                         \Filament\Tables\Columns\Summarizers\Sum::make()
-                            ->label('Laba Total')
+                            ->label('Total Laba Toilet')
                             ->money('idr', true),
                     ]),
+                TextColumn::make('created_at')->date('d M Y')->label('Tanggal')->sortable()->searchable(),
+
 
             ])
            ->filters([

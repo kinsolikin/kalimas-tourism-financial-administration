@@ -9,7 +9,6 @@ import { router } from "@inertiajs/react";
 const Wahana = ({ auth }) => {
     const { wahanaoption } = usePage().props;
 
-    console.log("Wahana Options:", wahanaoption);
     const [transactions, setTransactions] = useState([]);
     const [fromDate, setFromDate] = useState("");
     const [toDate, setToDate] = useState("");
@@ -29,7 +28,7 @@ const Wahana = ({ auth }) => {
         nama_wahana: "",
     });
 
-    // Ambil data transaksi saat mount & setelah submit/hapus
+    // Ambil data transaksi
     const fetchTransactions = async () => {
         try {
             const res = await axios.get("/dashboard/wahana/transactions");
@@ -44,7 +43,6 @@ const Wahana = ({ auth }) => {
     }, []);
 
     useEffect(() => {
-        // Update harga, total, dan nama_wahana jika wahana_id atau jumlah berubah
         const selected = Object.values(wahanaoption || {}).find(
             (w) => String(w.id) === String(data.wahana_id)
         );
@@ -58,17 +56,105 @@ const Wahana = ({ auth }) => {
         }));
     }, [data.wahana_id, data.jumlah, wahanaoption]);
 
+    // === Fungsi print struk ===
+ const printReceipt = (transaction) => {
+  if (!transaction) return;
+
+  // isi struk dalam bentuk teks biasa
+  const struk = `
+Wisata Kalima Loket Resto
+kalimas kemuning ngargoyoso / 082316237536
+------------------------------
+Tanggal : ${new Date(transaction.created_at).toLocaleString("id-ID")}
+Kasir   : ${auth.user.name}
+------------------------------
+${transaction.jenis_wahana?.jeniswahana ?? transaction.nama_wahana}
+Jumlah  : ${transaction.jumlah}x
+Harga   : Rp ${Number(transaction.harga).toLocaleString()}
+------------------------------
+TOTAL   : Rp ${(transaction.harga * transaction.jumlah).toLocaleString()}
+------------------------------
+Terima kasih
+Selamat berkunjung!
+`;
+
+  // deteksi apakah user pakai Android
+  const isAndroid = /Android/i.test(navigator.userAgent);
+
+  if (isAndroid) {
+    // kirim ke RawBT lewat intent URL
+    const encoded = encodeURIComponent(struk);
+    const rawbtUrl = `intent://print/?data=${encoded}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end`;
+    window.location.href = rawbtUrl;
+  } else {
+    // fallback ke print popup di browser (PC/Laptop)
+    const receiptHtml = `
+    <html>
+    <head>
+      <title>Struk</title>
+      <style>
+        @media print {
+          @page { size: 57mm auto; margin: 0; }
+          body { width: 57mm; font-size: 11px; text-align: center; }
+        }
+        body { 
+          font-family: monospace; 
+          font-size: 11px; 
+          width: 57mm; 
+          text-align: center;
+          margin: 0;
+          padding: 4px;
+        }
+        .items { width: 100%; border-collapse: collapse; margin-top: 6px; }
+        .items td { padding: 2px 0; text-align: center; }
+        .total { font-weight: bold; margin-top: 8px; text-align: center; }
+      </style>
+    </head>
+    <body>
+      <div><strong>Nama Tempat Anda</strong></div>
+      <div>Alamat / Telp</div>
+      <hr/>
+      <div>Tanggal: ${new Date(transaction.created_at).toLocaleString("id-ID")}</div>
+      <div>Kasir: ${auth.user.name}</div>
+      <hr/>
+      <div>${transaction.jenis_wahana?.jeniswahana ?? transaction.nama_wahana}</div>
+      <div>${transaction.jumlah}x @ Rp ${Number(transaction.harga).toLocaleString()}</div>
+      <div class="total">TOTAL: Rp ${(transaction.harga * transaction.jumlah).toLocaleString()}</div>
+      <hr/>
+      <div>Terima kasih<br/>Selamat Berkunjung!</div>
+    </body>
+    </html>
+    `;
+
+    const w = window.open("", "Print", "width=300,height=600");
+    w.document.open();
+    w.document.write(receiptHtml);
+    w.document.close();
+    w.focus();
+    setTimeout(() => {
+      w.print();
+    }, 300);
+  }
+};
+
+
     const handleSubmit = (e) => {
         e.preventDefault();
         post("/dashboard/wahana/store", {
-            onSuccess: () => {
+            onSuccess: async () => {
                 reset();
                 Swal.fire(
                     "Berhasil",
                     "Data Wahana berhasil disimpan",
                     "success"
                 );
-                fetchTransactions();
+                await fetchTransactions();
+
+                // Cetak transaksi terakhir
+                if (transactions.length > 0) {
+                    const latest = transactions[transactions.length - 1];
+                    printReceipt(latest);
+                }
             },
             onError: () => {
                 Swal.fire({
@@ -81,15 +167,13 @@ const Wahana = ({ auth }) => {
         });
     };
 
+    // === Filter transaksi ===
     const fetchFilteredTransactions = async () => {
         try {
             const res = await axios.get(
                 "/dashboard/wahana/transactions/filter",
                 {
-                    params: {
-                        from: fromDate,
-                        to: toDate,
-                    },
+                    params: { from: fromDate, to: toDate },
                 }
             );
             setTransactions(res.data);
@@ -98,6 +182,7 @@ const Wahana = ({ auth }) => {
         }
     };
 
+    // === Hapus semua transaksi ===
     const deleteAllTransactions = async () => {
         const result = await Swal.fire({
             title: "Yakin ingin menghapus Semua transaksi ini?",
@@ -110,14 +195,6 @@ const Wahana = ({ auth }) => {
             cancelButtonText: "Batal",
         });
         if (result.isConfirmed) {
-            Swal.fire({
-                title: "Menghapus...",
-                text: "Silakan tunggu...",
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                },
-            });
             try {
                 await axios.delete("/dashboard/wahana/transactions/delete-all");
                 setTransactions([]);
@@ -128,6 +205,7 @@ const Wahana = ({ auth }) => {
         }
     };
 
+    // === Hapus transaksi tunggal ===
     const deleteTransaction = async (id) => {
         const result = await Swal.fire({
             title: "Yakin ingin menghapus transaksi ini?",
@@ -154,7 +232,7 @@ const Wahana = ({ auth }) => {
         }
     };
 
-    // Helper: Get today's wahana transactions and total
+    // === Hitung transaksi hari ini ===
     const getTodayTransactions = () => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -169,20 +247,15 @@ const Wahana = ({ auth }) => {
             (sum, t) => sum + Number(t.harga || 0) * Number(t.jumlah || 0),
             0
         );
-        return {
-            wahana,
-            totalWahana,
-        };
+        return { wahana, totalWahana };
     };
 
-    // Handler: Akhiri Shift
     const handleEndShift = () => {
         const summary = getTodayTransactions();
         setTodaySummary(summary);
         setShowShiftSummary(true);
     };
 
-    // Handler: Simpan Shift & Logout
     const handleSaveShiftAndLogout = async () => {
         setClosingShift(true);
         try {
@@ -197,14 +270,12 @@ const Wahana = ({ auth }) => {
                 cancelButtonText: "Batal",
             });
             if (result.isConfirmed) {
-                const rresult = await Swal.fire({
+                Swal.fire({
                     title: "Menyimpan shift...",
                     text: "Silakan tunggu...",
                     allowOutsideClick: false,
                     didOpen: () => {
                         Swal.showLoading();
-
-                        // Tutup swal otomatis setelah 5 detik (5000 ms)
                         setTimeout(() => {
                             Swal.close();
                             Swal.fire({
@@ -217,8 +288,6 @@ const Wahana = ({ auth }) => {
                         }, 3000);
                     },
                 });
-
-                // Logout user
                 router.post("/logout");
             }
         } catch (error) {
@@ -232,7 +301,6 @@ const Wahana = ({ auth }) => {
         }
     };
 
-    // Scroll ke shift summary saat dibuka
     const handleShowShiftSummary = () => {
         setShowShiftSummary((prev) => {
             const next = !prev;
@@ -260,7 +328,7 @@ const Wahana = ({ auth }) => {
                     {/* Form Input */}
                     <form
                         onSubmit={handleSubmit}
-                        className="space-y-6 bg-white p-4 md:p-6   shadow-md border"
+                        className="space-y-6 bg-white p-4 md:p-6 shadow-md border"
                     >
                         <div>
                             <label
@@ -276,7 +344,7 @@ const Wahana = ({ auth }) => {
                                     Number(data.harga) || 0
                                 ).toLocaleString()}
                                 disabled
-                                className="w-full bg-gray-100 border border-gray-300   px-4 py-2 text-gray-600"
+                                className="w-full bg-gray-100 border border-gray-300 px-4 py-2 text-gray-600"
                             />
                         </div>
 
@@ -299,7 +367,7 @@ const Wahana = ({ auth }) => {
                                         val === "" ? "" : parseInt(val)
                                     );
                                 }}
-                                className="w-full border border-gray-300   px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 required
                             />
                             {errors.jumlah && (
@@ -325,7 +393,7 @@ const Wahana = ({ auth }) => {
                                         wahana_id: e.target.value,
                                     })
                                 }
-                                className="w-full border border-gray-300   px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 required
                             >
                                 <option value="">
@@ -348,7 +416,7 @@ const Wahana = ({ auth }) => {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2   transition"
+                                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 transition"
                             >
                                 {processing ? "Menyimpan..." : "Simpan"}
                             </button>
@@ -356,7 +424,7 @@ const Wahana = ({ auth }) => {
                     </form>
 
                     {/* Detail Perhitungan */}
-                    <div className="bg-gray-50 p-4 md:p-6   shadow-md border">
+                    <div className="bg-gray-50 p-4 md:p-6 shadow-md border">
                         <h2 className="text-xl font-bold mb-4 text-blue-700">
                             Detail Perhitungan
                         </h2>
@@ -383,7 +451,6 @@ const Wahana = ({ auth }) => {
                                 {(Number(data.total) || 0).toLocaleString()}
                             </p>
                         </div>
-                        {/* Tombol Akhiri Shift */}
                         <div className="mt-8 flex flex-col items-center">
                             <button
                                 onClick={handleShowShiftSummary}
@@ -396,60 +463,9 @@ const Wahana = ({ auth }) => {
                         </div>
                     </div>
                 </div>
-                {/* Rincian Shift Hari Ini */}
-                {showShiftSummary && (
-                    <div
-                        ref={shiftSummaryRef}
-                        className="mt-8 bg-gray-50 border border-gray-200   p-6 shadow-lg w-full  mx-auto"
-                    >
-                        <h4 className="text-lg font-bold mb-4 text-center text-green-700">
-                            Rincian Transaksi Shift Hari Ini
-                        </h4>
-                        <div className="mb-4">
-                            <strong>Transaksi Wahana:</strong>
-                            <ul className="list-disc ml-6">
-                                {todaySummary.wahana.length > 0 ? (
-                                    todaySummary.wahana.map((t, i) => (
-                                        <li key={i}>
-                                            {t.jenis_wahana.jeniswahana || "-"} | Jumlah:{" "}
-                                            {t.jumlah} | Rp {t.harga} | Total:
-                                            Rp{" "}
-                                            {(
-                                                Number(t.harga) *
-                                                Number(t.jumlah)
-                                            ).toLocaleString()}{" "}
-                                            |{" "}
-                                            {new Date(
-                                                t.created_at
-                                            ).toLocaleTimeString("id-ID")}
-                                        </li>
-                                    ))
-                                ) : (
-                                    <li>
-                                        Tidak ada transaksi wahana hari ini.
-                                    </li>
-                                )}
-                            </ul>
-                            <div className="mt-2 text-right font-semibold text-blue-700">
-                                Total Wahana: Rp{" "}
-                                {todaySummary.totalWahana.toLocaleString()}
-                            </div>
-                        </div>
-                        <div className="flex justify-center">
-                            <button
-                                onClick={handleSaveShiftAndLogout}
-                                disabled={closingShift}
-                                className="px-6 py-3 bg-blue-700 text-white font-bold hover:bg-blue-800 focus:ring-4 focus:ring-blue-300"
-                            >
-                                {closingShift
-                                    ? "Menyimpan & Logout..."
-                                    : "Simpan Shift & Logout"}
-                            </button>
-                        </div>
-                    </div>
-                )}
+
                 {/* Riwayat Transaksi */}
-                <div className="mt-8 bg-white shadow   p-6">
+                <div className="mt-8 bg-white shadow p-6">
                     <h3 className="text-xl font-bold mb-4">
                         Riwayat Transaksi Wahana
                     </h3>
@@ -462,7 +478,7 @@ const Wahana = ({ auth }) => {
                                 type="date"
                                 value={fromDate}
                                 onChange={(e) => setFromDate(e.target.value)}
-                                className="border p-2  "
+                                className="border p-2"
                             />
                         </div>
                         <div>
@@ -473,17 +489,29 @@ const Wahana = ({ auth }) => {
                                 type="date"
                                 value={toDate}
                                 onChange={(e) => setToDate(e.target.value)}
-                                className="border p-2  "
+                                className="border p-2"
                             />
                         </div>
                         <div className="flex items-end">
                             <button
                                 onClick={fetchFilteredTransactions}
-                                className="bg-green-600 text-white px-4 py-2   hover:bg-green-700"
+                                className="bg-green-600 text-white px-4 py-2 hover:bg-green-700"
                             >
                                 Filter
                             </button>
                         </div>
+                    </div>
+                    <div className="mb-4 bg-blue-50 border-l-4 border-blue-400 p-3 font-bold text-blue-700">
+                        Total Pendapatan: Rp{" "}
+                        {transactions
+                            .reduce(
+                                (sum, t) =>
+                                    sum +
+                                    Number(t.harga || 0) *
+                                        Number(t.jumlah || 0),
+                                0
+                            )
+                            .toLocaleString("id-ID")}
                     </div>
                     <div className="overflow-x-auto">
                         <table className="min-w-full text-sm">
@@ -524,11 +552,12 @@ const Wahana = ({ auth }) => {
                                         <tr key={t.id} className="border-t">
                                             <td className="px-2 py-1">
                                                 {dayjs(t.created_at).format(
-                                                    "DD/MM/YYYY"
+                                                    "DD/MM/YYYY HH:mm"
                                                 )}
                                             </td>
                                             <td className="px-2 py-1">
-                                                {t.jenis_wahana?.jeniswahana ?? "-"}
+                                                {t.jenis_wahana?.jeniswahana ??
+                                                    "-"}
                                             </td>
                                             <td className="px-2 py-1 text-right">
                                                 {t.jumlah}
@@ -542,7 +571,15 @@ const Wahana = ({ auth }) => {
                                                     t.harga * t.jumlah
                                                 ).toLocaleString()}
                                             </td>
-                                            <td className="px-2 py-1 text-center">
+                                            <td className="px-2 py-1 text-center space-x-2">
+                                                <button
+                                                    onClick={() =>
+                                                        printReceipt(t)
+                                                    }
+                                                    className="text-blue-600 hover:underline"
+                                                >
+                                                    Cetak Struk
+                                                </button>
                                                 <button
                                                     onClick={() =>
                                                         deleteTransaction(t.id)

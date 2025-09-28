@@ -16,8 +16,8 @@ class DashboardLoketResto extends Controller
      */
     public function index()
     {
-        
-       return Inertia::render('Resto');
+
+        return Inertia::render('Resto');
     }
 
     /**
@@ -34,52 +34,50 @@ class DashboardLoketResto extends Controller
     public function store(Request $request)
     {
 
-        
+
+
         $validatedata = $request->validate([
             'nama' => 'required|string',
-            'makanan' => 'string|nullable',
-            'minuman' => 'string|nullable',
-            'qty_makanan' => 'integer|min:0',
-            'qty_minuman' => 'integer|min:0',
-            'harga_satuan_makanan' => 'numeric',
-            'harga_satuan_minuman' => 'numeric',
+            'makanan' => 'nullable|string',
+            'minuman' => 'nullable|string',
+            'qty_makanan' => 'nullable|integer|min:0',
+            'qty_minuman' => 'nullable|integer|min:0',
+            'harga_satuan_makanan' => 'nullable|numeric',
+            'harga_satuan_minuman' => 'nullable|numeric',
         ]);
+
 
 
         $user = auth()->user();
 
-        $restoincome = Income::where('income_categori_id',$user->id)
-        ->where('user_id',$user->id)
-        ->whereDate('created_at',Carbon::today())
-        ->first();
+        $restoincome = Income::where('income_categori_id', $user->id)
+            ->where('user_id', $user->id)
+            ->whereDate('created_at', Carbon::today())
+            ->first();
 
-        if(!$restoincome){
-            $restoincome=Income::create([
-                'income_categori_id'=> $user->id,
-                'user_id'=>$user->id,
-                'amount'=>0,
+        if (!$restoincome) {
+            $restoincome = Income::create([
+                'income_categori_id' => $user->id,
+                'user_id' => $user->id,
+                'amount' => 0,
             ]);
-
         }
+
 
         // Tetap simpan walaupun qty makanan atau minuman 0/kosong
         Resto_income_details::create([
-            'user_id'=>$user->id,
-            'income_id'=>$restoincome->id,
-            'name_customer'=>$validatedata['nama'],
-            'makanan'=>$validatedata['makanan'] ?? '',
-            'minuman'=>$validatedata['minuman'] ?? '',
-            'qty_makanan'=>$validatedata['qty_makanan'] ?? 0,
-            'qty_minuman'=>$validatedata['qty_minuman'] ?? 0,
-            'harga_satuan_makanan'=>$validatedata['harga_satuan_makanan'] ?? 0,
-            'harga_satuan_minuman'=>$validatedata['harga_satuan_minuman'] ?? 0,
-            'total'=> ($validatedata['qty_makanan'] * $validatedata['harga_satuan_makanan']) + ($validatedata['qty_minuman'] * $validatedata['harga_satuan_minuman'])
+            'user_id' => $user->id,
+            'income_id' => $restoincome->id,
+            'name_customer' => $validatedata['nama'],
+            'makanan' => $validatedata['makanan'] ?? '',
+            'minuman' => $validatedata['minuman'] ?? '',
+            'qty_makanan' => $validatedata['qty_makanan'] ?? 0,
+            'qty_minuman' => $validatedata['qty_minuman'] ?? 0,
+            'harga_satuan_makanan' => $validatedata['harga_satuan_makanan'] ?? 0,
+            'harga_satuan_minuman' => $validatedata['harga_satuan_minuman'] ?? 0,
+            'total' => ($validatedata['qty_makanan'] ?? 0) * ($validatedata['harga_satuan_makanan'] ?? 0)
+                + ($validatedata['qty_minuman'] ?? 0) * ($validatedata['harga_satuan_minuman'] ?? 0),
         ]);
-
-        
-
-
-
     }
 
     /**

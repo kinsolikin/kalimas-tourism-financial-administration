@@ -66,14 +66,14 @@ class ExpanseTransaction extends Page implements HasForms
             Forms\Components\TextInput::make('amount')
                 ->label('Jumlah')
                 ->required()
-                ->numeric()
-                ->prefix('Rp')
-                ->reactive()
-                ->afterStateUpdated(function ($state, callable $set) {
-                    // Format angka jadi rupiah dengan titik
-                    $set('amount', number_format((int) preg_replace('/\D/', '', $state), 0, ',', '.'));
-                })
-                ->dehydrateStateUsing(fn($state) => (int) str_replace('.', '', $state)),
+                ->numeric(),
+                // ->prefix('Rp')
+                // ->reactive(),
+                // ->afterStateUpdated(function ($state, callable $set) {
+                //     // Format angka jadi rupiah dengan titik
+                //     $set('amount', number_format((int) preg_replace('/\D/', '', $state), 0, ',', '.'));
+                // })
+                // ->dehydrateStateUsing(fn($state) => (int) str_replace('.', '', $state)),
 
 
             Forms\Components\Textarea::make('description')

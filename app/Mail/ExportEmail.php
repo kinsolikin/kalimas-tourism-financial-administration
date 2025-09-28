@@ -9,10 +9,10 @@ class ExportEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public string $filePath;
-    public string $fileName;
+    public $filePath;
+    public $fileName;
 
-    public function __construct(string $filePath, string $fileName)
+    public function __construct($filePath, $fileName)
     {
         $this->filePath = $filePath;
         $this->fileName = $fileName;
@@ -20,8 +20,8 @@ class ExportEmail extends Mailable
 
     public function build()
     {
-        return $this->subject('Laporan Export')
-                    ->view('emails.export') // buat view sederhana
+        return $this->subject('Export Data Tiket Pendapatan Kalimas')
+                    ->view('emails.export')
                     ->attach($this->filePath, [
                         'as' => $this->fileName,
                     ]);
